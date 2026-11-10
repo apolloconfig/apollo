@@ -493,16 +493,45 @@ public class ConsumerService {
       if (role.isDeleted()) {
         continue;
       }
-      OpenConsumerRoleDTO dto = parseConsumerRole(role.getRoleName());
-      if (dto != null) { // null = 系统级角色或无法识别，跳过
-        result.add(dto);
+      ParsedConsumerRole parsed = parseConsumerRole(role.getRoleName());
+      if (parsed != null) { // null = 系统级角色或无法识别，跳过
+        result.add(parsed.toDto());
       }
     }
     return new ArrayList<>(result);
   }
 
-  /** 解析 roleName，无法识别（含系统级角色）时返回 null */
-  private OpenConsumerRoleDTO parseConsumerRole(String roleName) {
+  /**
+   * 按原始 roleName 解析出的授权范围，各字段与 {@link OpenConsumerRoleDTO} 一一对应。
+   */
+  private static final class ParsedConsumerRole {
+
+    private final String type;
+    private final String appId;
+    private final String namespaceName;
+    private final String env;
+
+    private ParsedConsumerRole(String type, String appId, String namespaceName, String env) {
+      this.type = type;
+      this.appId = appId;
+      this.namespaceName = namespaceName;
+      this.env = env;
+    }
+
+    private OpenConsumerRoleDTO toDto() {
+      return new OpenConsumerRoleDTO().type(type).appId(appId).namespaceName(namespaceName)
+          .env(env);
+    }
+  }
+
+  /**
+   * 解析 roleName，无法识别（含系统级角色）时返回 null。
+   *
+   * <p>roleName 按 {@link ConfigConsts#CLUSTER_NAMESPACE_SEPARATOR} 拆分，不做 trim：返回值始终原样保留
+   * 存储内容，这样撤销时可以按“列表里看到的范围”精确命中同一条绑定。前导/尾随空格会被当成独立的段，
+   * 不会被折叠掉。
+   */
+  private ParsedConsumerRole parseConsumerRole(String roleName) {
     if (Strings.isNullOrEmpty(roleName)) {
       return null;
     }
@@ -512,7 +541,7 @@ public class ConsumerService {
     }
 
     List<String> parts =
-        Splitter.on(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR).trimResults().splitToList(roleName);
+        Splitter.on(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR).splitToList(roleName);
     String roleType = parts.get(0);
     String type;
     if (RoleType.MASTER.equals(roleType) && parts.size() == 2) {
@@ -530,15 +559,11 @@ public class ConsumerService {
       }
     }
 
-    OpenConsumerRoleDTO dto =
-        new OpenConsumerRoleDTO().type(type).appId(appId).namespaceName(null).env(null);
-    if ("NamespaceRole".equals(type)) {
-      dto.namespaceName(parts.get(2));
-      if (parts.size() == 4) {
-        dto.env(parts.get(3));
-      }
+    if ("AppRole".equals(type)) {
+      return new ParsedConsumerRole(type, appId, null, null);
     }
-    return dto;
+    return new ParsedConsumerRole(type, appId, parts.get(2),
+        parts.size() == 4 ? parts.get(3) : null);
   }
 
   @Transactional
@@ -550,32 +575,74 @@ public class ConsumerService {
       throw BadRequestException.appIdIsBlank();
     }
 
-    List<String> roleNames = new ArrayList<>(2);
-    if ("AppRole".equals(type)) {
-      roleNames.add(RoleUtils.buildAppMasterRoleName(appId));
-    } else if ("NamespaceRole".equals(type)) {
+    if ("NamespaceRole".equals(type)) {
       if (Strings.isNullOrEmpty(namespaceName) || namespaceName.trim().isEmpty()) {
         throw new BadRequestException("Params(NamespaceName) can not be empty.");
       }
-      if (env != null) {
-        Env targetEnv = Env.transformEnv(env);
-        if (env.trim().isEmpty() || Env.UNKNOWN.equals(targetEnv)) {
-          throw BadRequestException.invalidEnvFormat(env);
-        }
-        env = targetEnv.getName();
+      // 只校验写法是否合法，不使用改名后的值：FWS 会与 FAT 是不同的角色，不能被别名规则改写
+      if (env != null && (env.trim().isEmpty() || Env.UNKNOWN.equals(Env.transformEnv(env)))) {
+        throw BadRequestException.invalidEnvFormat(env);
       }
-      roleNames.add(RoleUtils.buildModifyNamespaceRoleName(appId, namespaceName, env));
-      roleNames.add(RoleUtils.buildReleaseNamespaceRoleName(appId, namespaceName, env));
-    } else {
+    } else if (!"AppRole".equals(type)) {
       throw new BadRequestException("Invalid role type: %s", type);
     }
 
-    List<Long> roleIds = roleNames.stream().map(rolePermissionService::findRoleByRoleName)
-        .filter(role -> role != null && !role.isDeleted()).map(Role::getId).collect(toList());
-    if (roleIds.isEmpty()) {
+    // 在该 consumer 自己的绑定里精确匹配，避免用重建的 roleName 误伤其他环境/命名空间的授权
+    Set<Long> matchedRoleIds = new LinkedHashSet<>();
+    for (Role role : findRolesBoundToConsumer(consumerId)) {
+      ParsedConsumerRole parsed = parseConsumerRole(role.getRoleName());
+      if (parsed != null && matchesRequestedScope(parsed, type, appId, namespaceName, env)) {
+        matchedRoleIds.add(role.getId());
+      }
+    }
+    if (matchedRoleIds.isEmpty()) {
       throw new BadRequestException("Role not exist, nothing to revoke.");
     }
-    consumerRoleRepository.batchDeleteByConsumerIdAndRoleIds(consumerId, roleIds, operator);
+    // batchDelete 会清空持久化上下文，因此先把命中的 roleId 收集完，最后一次性批量删除
+    consumerRoleRepository.batchDeleteByConsumerIdAndRoleIds(consumerId,
+        new ArrayList<>(matchedRoleIds), operator);
+  }
+
+  /**
+   * 判断某条绑定的解析结果是否就是调用方要撤销的那一条。
+   *
+   * <p>namespaceName 必须按原始字符串精确比较，重复的 {@code +} 片段不能被折叠；env 只做大小写无关的比较，
+   * 不使用 {@link Env#transformEnv}，这样 FWS 不会因为别名规则被当成 FAT。
+   */
+  private boolean matchesRequestedScope(ParsedConsumerRole parsed, String type, String appId,
+      String namespaceName, String env) {
+    if (!parsed.type.equals(type) || !parsed.appId.equals(appId)) {
+      return false;
+    }
+    if ("AppRole".equals(type)) {
+      return true;
+    }
+    if (!Objects.equals(parsed.namespaceName, namespaceName)) {
+      return false;
+    }
+    if (env == null) {
+      // 不传 env 表示“所有环境”的那条授权，不能命中任何一个具体环境的绑定
+      return parsed.env == null;
+    }
+    return parsed.env != null && parsed.env.equalsIgnoreCase(env);
+  }
+
+  /**
+   * 取出该 consumer 当前仍然有效的绑定所对应的角色。
+   */
+  private List<Role> findRolesBoundToConsumer(long consumerId) {
+    List<ConsumerRole> consumerRoles = consumerRoleRepository.findByConsumerId(consumerId);
+    if (CollectionUtils.isEmpty(consumerRoles)) {
+      return Collections.emptyList();
+    }
+    List<Long> roleIds = consumerRoles.stream().map(ConsumerRole::getRoleId).collect(toList());
+    List<Role> roles = new ArrayList<>();
+    for (Role role : roleRepository.findAllById(roleIds)) {
+      if (!role.isDeleted()) {
+        roles.add(role);
+      }
+    }
+    return roles;
   }
 
   private void validateConsumerExists(long consumerId) {

@@ -422,12 +422,25 @@ public class ConsumerServiceTest {
       "Master+", "Master++testAppId", "Master+testAppId+extra", "ModifyNamespace+testAppId",
       "ModifyNamespace++application", "ModifyNamespace+testAppId+",
       "ModifyNamespace+testAppId++LOCAL", "ModifyNamespace+testAppId+application+",
-      "ModifyNamespace+testAppId+application+LOCAL+extra",
-      "ReleaseNamespace+testAppId+application+ ", "ReleaseNamespace+testAppId+ +LOCAL"})
+      "ModifyNamespace+testAppId+application+LOCAL+extra"})
   void testFindConsumerRoleDetailsSkipsUnsupportedOrMalformedRoles(String roleName) {
     mockConsumerRoleDetails(roleName);
 
     assertTrue(consumerService.findConsumerRoleDetailsByConsumerId(1L).isEmpty());
+  }
+
+  @ParameterizedTest
+  @CsvSource(value = {"ReleaseNamespace+testAppId+ application, ' application', NULL",
+      "ReleaseNamespace+testAppId+ +LOCAL, ' ', LOCAL"}, nullValues = "NULL")
+  void testFindConsumerRoleDetailsKeepsOriginalNamespaceAndEnvironment(String roleName,
+      String namespaceName, String env) {
+    // 不 trim 才能让撤销用列表返回的值精确命中同一条绑定
+    mockConsumerRoleDetails(roleName);
+
+    List<OpenConsumerRoleDTO> result = consumerService.findConsumerRoleDetailsByConsumerId(1L);
+    assertEquals(1, result.size());
+    assertEquals(namespaceName, result.get(0).getNamespaceName());
+    assertEquals(env, result.get(0).getEnv());
   }
 
   @Test
@@ -491,8 +504,7 @@ public class ConsumerServiceTest {
   @Test
   void testRevokeConsumerAppRole() {
     when(consumerRepository.existsById(1L)).thenReturn(true);
-    when(rolePermissionService.findRoleByRoleName("Master+testAppId"))
-        .thenReturn(createRole(2L, "Master+testAppId"));
+    mockBoundRoles(createRole(2L, "Master+testAppId"));
 
     consumerService.revokeConsumerRole(1L, "AppRole", testAppId, null, null, testOwner);
 
@@ -505,15 +517,12 @@ public class ConsumerServiceTest {
   @ValueSource(strings = {"DEV", "dev", "LOCAL", "local"})
   void testRevokeConsumerNamespaceRoles(String env) {
     when(consumerRepository.existsById(1L)).thenReturn(true);
-    String normalizedEnv = env == null ? null : Env.transformEnv(env).getName();
+    String roleEnv = env == null ? null : env.toUpperCase();
     String modifyRoleName = RoleUtils.buildModifyNamespaceRoleName(testAppId, "application",
-        normalizedEnv);
+        roleEnv);
     String releaseRoleName = RoleUtils.buildReleaseNamespaceRoleName(testAppId, "application",
-        normalizedEnv);
-    when(rolePermissionService.findRoleByRoleName(modifyRoleName))
-        .thenReturn(createRole(2L, modifyRoleName));
-    when(rolePermissionService.findRoleByRoleName(releaseRoleName))
-        .thenReturn(createRole(3L, releaseRoleName));
+        roleEnv);
+    mockBoundRoles(createRole(2L, modifyRoleName), createRole(3L, releaseRoleName));
 
     consumerService.revokeConsumerRole(1L, "NamespaceRole", testAppId, "application", env,
         testOwner);
@@ -526,7 +535,7 @@ public class ConsumerServiceTest {
   void testRevokeConsumerNamespaceRoleWithOnlyOneExistingRole() {
     when(consumerRepository.existsById(1L)).thenReturn(true);
     String roleName = RoleUtils.buildReleaseNamespaceRoleName(testAppId, "application");
-    when(rolePermissionService.findRoleByRoleName(roleName)).thenReturn(createRole(3L, roleName));
+    mockBoundRoles(createRole(3L, roleName));
 
     consumerService.revokeConsumerRole(1L, "NamespaceRole", testAppId, "application", null,
         testOwner);
@@ -560,10 +569,24 @@ public class ConsumerServiceTest {
 
     Role role = createRole(2L, "Master+testAppId");
     role.setDeleted(true);
-    when(rolePermissionService.findRoleByRoleName("Master+testAppId")).thenReturn(role);
+    mockBoundRoles(role);
     assertThrows(BadRequestException.class,
         () -> consumerService.revokeConsumerRole(1L, "AppRole", testAppId, null, null, testOwner));
-    verifyNoInteractions(consumerRoleRepository);
+    verifyNoInteractions(rolePermissionService);
+  }
+
+  /**
+   * 模拟该 consumer 当前绑定的角色，撤销时会按这些绑定做精确匹配。
+   */
+  private void mockBoundRoles(Role... roles) {
+    List<ConsumerRole> consumerRoles = new ArrayList<>();
+    List<Long> roleIds = new ArrayList<>();
+    for (Role role : roles) {
+      consumerRoles.add(createConsumerRole(1L, role.getId()));
+      roleIds.add(role.getId());
+    }
+    when(consumerRoleRepository.findByConsumerId(1L)).thenReturn(consumerRoles);
+    when(roleRepository.findAllById(roleIds)).thenReturn(Arrays.asList(roles));
   }
 
   @Test
