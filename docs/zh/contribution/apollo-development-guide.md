@@ -156,7 +156,7 @@ docker compose -f docker-compose.local.yml ps
 说明：
 
 - `github` profile 里的初始化模式是 `spring.sql.*-init.mode=embedded`，对 MySQL 不生效，因此 Apollo 启动时不会重复执行建表脚本，建库由 Docker 完成。
-- 3306 端口被占用时，把 `docker-compose.local.yml` 里的 `"3306:3306"` 改成 `"3307:3306"`，再同步修改上面的 JDBC URL。
+- 3306 端口被占用时，把 `docker-compose.local.yml` 里的 `"127.0.0.1:3306:3306"` 改成 `"127.0.0.1:3307:3306"`，再同步修改上面的 JDBC URL。
 - `mysql-default` 脚本里包含 `DROP TABLE IF EXISTS`，只会在空数据目录首次初始化时执行；不要把这些脚本直接导入已有数据的库。
 - 需要重建数据库（例如拉到了新的 schema 或 delta 脚本），或者希望每次启动都从干净环境开始时，执行：
 

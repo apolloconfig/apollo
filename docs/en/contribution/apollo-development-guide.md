@@ -166,7 +166,7 @@ After initialization, use the following VM options from section 2.1.3:
 Notes:
 
 - The `github` profile sets `spring.sql.*-init.mode=embedded`, which does not apply to MySQL, so Apollo will not re-run the initialization scripts; Docker creates the databases.
-- If port 3306 is already in use, change `"3306:3306"` in `docker-compose.local.yml` to `"3307:3306"` and update the JDBC URLs accordingly.
+- If port 3306 is already in use, change `"127.0.0.1:3306:3306"` in `docker-compose.local.yml` to `"127.0.0.1:3307:3306"` and update the JDBC URLs accordingly.
 - The `mysql-default` scripts contain `DROP TABLE IF EXISTS` and are only executed by Docker on an empty data directory. Do not import them into a database that already contains data.
 - To recreate the databases (for example after pulling new schema or delta scripts), or to start from a clean environment on every run:
 
