@@ -31,6 +31,7 @@ import com.ctrip.framework.apollo.portal.listener.AppNamespaceDeletionEvent;
 import com.ctrip.framework.apollo.tracer.Tracer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -163,9 +164,9 @@ public class AppNamespaceDeletionService {
           results.remainingEnvs.addAll(envs.subList(i, envs.size()));
           break;
         }
-        // the environment deletes it only while it has the listed id, so it keeps an AppNamespace
-        // recreated after the listing
-        Throwable failure = deleteInEnv(env, appId, check.storedName, check.storedId, operator);
+        // the environment matches the name as its database does and deletes the AppNamespace only
+        // while it has the listed id, so it keeps one recreated after the listing
+        Throwable failure = deleteInEnv(env, appId, namespaceName, check.storedId, operator);
         if (failure == null) {
           results.deletedEnvs.add(env);
         } else if (existsInPortal(appId, namespaceName)) {
@@ -189,21 +190,35 @@ public class AppNamespaceDeletionService {
 
   private EnvCheck checkEnv(Env env, String appId, String namespaceName) {
     if (!portalSettings.isEnvActive(env)) {
-      return new EnvCheck(Status.SKIPPED, null, 0, null);
+      return new EnvCheck(Status.SKIPPED, 0, null);
     }
     try {
-      // the databases compare names ignoring case, so the environment's own spelling is used
-      AppNamespaceDTO stored = namespaceAPI.getAppNamespaces(appId, env).stream()
-          .filter(appNamespace -> namespaceName.equalsIgnoreCase(appNamespace.getName()))
-          .findFirst().orElse(null);
+      AppNamespaceDTO stored =
+          findMatching(namespaceAPI.getAppNamespaces(appId, env), namespaceName);
       if (stored == null) {
-        return new EnvCheck(Status.ABSENT, null, 0, null);
+        return new EnvCheck(Status.ABSENT, 0, null);
       }
-      return new EnvCheck(Status.REMAINING, stored.getName(), stored.getId(), null);
+      return new EnvCheck(Status.REMAINING, stored.getId(), null);
     } catch (Throwable e) {
       logFailure("Check", env, appId, namespaceName, e);
-      return new EnvCheck(Status.UNREACHABLE, null, 0, e.getMessage());
+      return new EnvCheck(Status.UNREACHABLE, 0, e.getMessage());
     }
+  }
+
+  /**
+   * Returns the listed AppNamespace that the environment's database matches with the name: the one
+   * with exactly this name, or else the only one whose name differs in case, which a database that
+   * ignores case matches, as MySQL does. Only a database that compares case, as the default H2
+   * schema does, stores several names that differ only in case, and it matches none of them unless
+   * one is exactly this name. The environment matches the name again when it deletes, so such a
+   * database also refuses to delete the only one whose name differs in case.
+   */
+  private static AppNamespaceDTO findMatching(List<AppNamespaceDTO> listed, String namespaceName) {
+    List<AppNamespaceDTO> matches = listed.stream()
+        .filter(appNamespace -> namespaceName.equalsIgnoreCase(appNamespace.getName()))
+        .collect(Collectors.toList());
+    return matches.stream().filter(appNamespace -> namespaceName.equals(appNamespace.getName()))
+        .findFirst().orElse(matches.size() == 1 ? matches.get(0) : null);
   }
 
   /**
@@ -250,18 +265,16 @@ public class AppNamespaceDeletionService {
   }
 
   /**
-   * The status of the AppNamespace in one environment, and the name and id that environment stores.
+   * The status of the AppNamespace in one environment, and the id that environment stores.
    */
   private static class EnvCheck {
 
     private final Status status;
-    private final String storedName;
     private final long storedId;
     private final String message;
 
-    private EnvCheck(Status status, String storedName, long storedId, String message) {
+    private EnvCheck(Status status, long storedId, String message) {
       this.status = status;
-      this.storedName = storedName;
       this.storedId = storedId;
       this.message = message;
     }

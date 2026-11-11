@@ -77,6 +77,8 @@ class AppNamespaceDeletionServiceTest {
   // the id of the AppNamespace that an environment lists, unless a test sets another one
   private static final long LISTED_ID = 7L;
   private static final long RECREATED_ID = 8L;
+  // the id of another AppNamespace whose name differs only in case
+  private static final long OTHER_ID = 6L;
   private static final String UNRESPONSIVE = "Admin servers are unresponsive.";
   private static final String DELETION_INCOMPLETE = "Deleting AppNamespace sample-app:db-config "
       + "is incomplete, and some changes have already taken effect. It was removed from the Portal.";
@@ -428,14 +430,48 @@ class AppNamespaceDeletionServiceTest {
   }
 
   @Test
-  void cleanUpShouldDeleteTheNameTheEnvironmentStoresIgnoringCase() {
+  void cleanUpShouldLetTheEnvironmentMatchANameThatDiffersInCase() {
     givenEnvs(Env.DEV);
     givenActive(Env.DEV);
     givenListed(Env.DEV, "DB-Config");
 
     service.cleanUpAppNamespace(APP_ID, NAMESPACE, OPERATOR);
 
-    verify(namespaceAPI).deleteAppNamespace(Env.DEV, APP_ID, "DB-Config", LISTED_ID, OPERATOR);
+    // a database that ignores case deletes DB-Config, and one that compares case refuses
+    verify(namespaceAPI).deleteAppNamespace(Env.DEV, APP_ID, NAMESPACE, LISTED_ID, OPERATOR);
+  }
+
+  @Test
+  void deletionShouldKeepAnAppNamespaceWhoseNameDiffersOnlyInCase() {
+    givenPortalDeletion();
+    givenEnvs(Env.DEV);
+    givenActive(Env.DEV);
+    // a database that compares case, as the default H2 schema does, stores both names
+    when(namespaceAPI.getAppNamespaces(APP_ID, Env.DEV))
+        .thenReturn(Arrays.asList(listed("DB-Config", OTHER_ID), listed(NAMESPACE, LISTED_ID)));
+
+    service.deleteAppNamespace(APP_ID, NAMESPACE, OPERATOR);
+
+    verify(namespaceAPI).deleteAppNamespace(Env.DEV, APP_ID, NAMESPACE, LISTED_ID, OPERATOR);
+    verify(namespaceAPI, never()).deleteAppNamespace(any(), anyString(), anyString(), eq(OTHER_ID),
+        anyString());
+  }
+
+  @Test
+  void cleanUpShouldNotDeleteAppNamespacesWhoseNamesOnlyDifferInCase() {
+    givenEnvs(Env.DEV);
+    givenActive(Env.DEV);
+    // a database that compares case stores both, and matches neither with the requested name
+    when(namespaceAPI.getAppNamespaces(APP_ID, Env.DEV))
+        .thenReturn(Arrays.asList(listed("DB-Config", OTHER_ID), listed("Db-Config", LISTED_ID)));
+
+    BadRequestException error = assertThrows(BadRequestException.class,
+        () -> service.cleanUpAppNamespace(APP_ID, NAMESPACE, OPERATOR));
+
+    assertThat(error.getMessage())
+        .isEqualTo("appNamespace not exist for appId:sample-app namespaceName:db-config");
+    verify(namespaceAPI, never()).deleteAppNamespace(any(), anyString(), anyString(), anyLong(),
+        anyString());
   }
 
   @Test
