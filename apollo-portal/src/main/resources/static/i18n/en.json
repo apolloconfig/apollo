@@ -322,7 +322,7 @@
   "Component.Publish.OpPublish": "Release",
   "Component.Rollback.To": "roll back to",
   "Component.Rollback.Tips": "This operation rolls back to the previous release and abandons the current release. After a successful rollback, the target release becomes active without another publish. The editor may still show unpublished changes. View the active release in the release history.",
-  "Component.RollbackTo.Tips": "This operation rolls back to the selected release and abandons the current release. After a successful rollback, the target release becomes active without another publish. The editor may still show unpublished changes.",
+  "Component.RollbackTo.Tips": "This operation rolls back to the selected release and abandons the current release and any active releases between the two. Abandoned releases cannot be selected as rollback targets. After a successful rollback, the target release becomes active without another publish. The editor may still show unpublished changes.",
   "Component.Rollback.ClickToView": "Click to view",
   "Component.Rollback.ItemType": "Type",
   "Component.Rollback.ItemKey": "Key",

@@ -322,7 +322,7 @@
   "Component.Publish.OpPublish": "发布",
   "Component.Rollback.To": "回滚到",
   "Component.Rollback.Tips": "此操作将回滚到上一个发布版本，并作废当前发布版本。回滚成功后，目标版本成为当前生效版本，无需再次发布。编辑区仍可能显示未发布的修改。可在发布历史中查看当前生效的版本。",
-  "Component.RollbackTo.Tips":"此操作将回滚到选中的发布版本，并作废当前发布版本。回滚成功后，目标版本成为当前生效版本，无需再次发布。编辑区仍可能显示未发布的修改。",
+  "Component.RollbackTo.Tips":"此操作将回滚到选中的发布版本，并作废当前发布版本及两者之间仍有效的发布版本。已作废的版本不能再作为回滚目标。回滚成功后，目标版本成为当前生效版本，无需再次发布。编辑区仍可能显示未发布的修改。",
   "Component.Rollback.ClickToView": "点击查看",
   "Component.Rollback.ItemType": "Type",
   "Component.Rollback.ItemKey": "Key",
