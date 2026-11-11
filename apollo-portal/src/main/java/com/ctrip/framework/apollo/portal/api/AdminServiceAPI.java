@@ -171,6 +171,20 @@ public class AdminServiceAPI {
       restTemplate.delete(env, "/apps/{appId}/appnamespaces/{namespaceName}?operator={operator}"
           + "&appNamespaceId={appNamespaceId}", appId, namespaceName, operator, appNamespaceId);
     }
+
+    /**
+     * Deletes the AppNamespace only while it has the given id. An adminservice of an earlier
+     * version refuses this request without deleting anything, while it ignores the id that
+     * {@link #deleteAppNamespace} sends and deletes by name.
+     */
+    @ApolloAuditLog(type = OpType.RPC, name = "AppNamespace.deleteInRemote")
+    public void deleteAppNamespaceIfIdMatches(Env env, String appId, String namespaceName,
+        long appNamespaceId, String operator) {
+      restTemplate.delete(env,
+          "/apps/{appId}/appnamespaces?namespaceName={namespaceName}"
+              + "&appNamespaceId={appNamespaceId}&operator={operator}",
+          appId, namespaceName, appNamespaceId, operator);
+    }
   }
 
   @Service

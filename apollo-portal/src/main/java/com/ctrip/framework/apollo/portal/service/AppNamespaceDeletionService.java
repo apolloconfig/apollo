@@ -44,7 +44,8 @@ import org.springframework.web.client.HttpClientErrorException;
  * The methods are not transactional, so the changes that took effect stay when an environment
  * fails, and the deletion and the cleanup name the environments where they are not complete. An
  * environment deletes only the AppNamespace with the id listed there just before, so it keeps one
- * recreated under the same name after that.
+ * recreated under the same name after that. A cleanup fails without deleting in an environment
+ * whose adminservice cannot check the id, while a deletion deletes by name there.
  */
 @Service
 public class AppNamespaceDeletionService {
@@ -83,7 +84,7 @@ public class AppNamespaceDeletionService {
     appId = appNamespace.getAppId();
     namespaceName = appNamespace.getName();
 
-    EnvResults results = deleteInEnvs(appId, namespaceName, operator);
+    EnvResults results = deleteInEnvs(appId, namespaceName, operator, false);
     publisher.publishEvent(new AppNamespaceDeletionEvent(appNamespace));
 
     if (results.isRecreated()) {
@@ -104,7 +105,9 @@ public class AppNamespaceDeletionService {
   /**
    * Cleans up what remains of the AppNamespace in the environments after it was removed from the
    * Portal. The Portal is checked again right before each environment deletion and after one that
-   * failed, and the cleanup stops when the AppNamespace was recreated there.
+   * failed, and the cleanup stops when the AppNamespace was recreated there. A cleanup may come
+   * long after the check, so it deletes only through an adminservice that checks the id of the
+   * AppNamespace, and one of an earlier version refuses without deleting anything.
    *
    * @throws BadRequestException if the AppNamespace is in the Portal before anything was deleted,
    *     or if every environment was checked and none has it
@@ -117,7 +120,7 @@ public class AppNamespaceDeletionService {
       throw appNamespaceExistsInPortal(appId, namespaceName);
     }
 
-    EnvResults results = deleteInEnvs(appId, namespaceName, operator);
+    EnvResults results = deleteInEnvs(appId, namespaceName, operator, true);
 
     if (results.isRecreated()) {
       throw recreatedDuringCleanup(appId, namespaceName, results);
@@ -148,7 +151,8 @@ public class AppNamespaceDeletionService {
     return new AppNamespaceDeletionCheckBO(appId, namespaceName, existsInPortal, environments);
   }
 
-  private EnvResults deleteInEnvs(String appId, String namespaceName, String operator) {
+  private EnvResults deleteInEnvs(String appId, String namespaceName, String operator,
+      boolean idCheckRequired) {
     EnvResults results = new EnvResults();
     List<Env> envs = portalSettings.getAllEnvs();
     for (int i = 0; i < envs.size(); i++) {
@@ -166,13 +170,14 @@ public class AppNamespaceDeletionService {
         }
         // the environment matches the name as its database does and deletes the AppNamespace only
         // while it has the listed id, so it keeps one recreated after the listing
-        Throwable failure = deleteInEnv(env, appId, namespaceName, check.storedId, operator);
+        Throwable failure =
+            deleteInEnv(env, appId, namespaceName, check.storedId, operator, idCheckRequired);
         if (failure == null) {
           results.deletedEnvs.add(env);
         } else if (existsInPortal(appId, namespaceName)) {
           // a client error means the environment refused the deletion because the AppNamespace was
-          // recreated. After any other failure the deletion may have taken effect, and only its
-          // answer got lost
+          // recreated, or because its adminservice cannot check the id. After any other failure
+          // the deletion may have taken effect, and only its answer got lost
           boolean refused = failure instanceof HttpClientErrorException;
           if (!refused) {
             results.maybeDeletedEnvs.add(env);
@@ -222,12 +227,18 @@ public class AppNamespaceDeletionService {
   }
 
   /**
-   * Returns null when the environment deleted the AppNamespace, and otherwise the failure.
+   * Returns null when the environment deleted the AppNamespace, and otherwise the failure. When the
+   * id check is required, an adminservice that cannot check the id refuses with a client error.
    */
   private Throwable deleteInEnv(Env env, String appId, String namespaceName, long appNamespaceId,
-      String operator) {
+      String operator, boolean idCheckRequired) {
     try {
-      namespaceAPI.deleteAppNamespace(env, appId, namespaceName, appNamespaceId, operator);
+      if (idCheckRequired) {
+        namespaceAPI.deleteAppNamespaceIfIdMatches(env, appId, namespaceName, appNamespaceId,
+            operator);
+      } else {
+        namespaceAPI.deleteAppNamespace(env, appId, namespaceName, appNamespaceId, operator);
+      }
       return null;
     } catch (Throwable e) {
       logFailure("Delete", env, appId, namespaceName, e);

@@ -115,8 +115,59 @@ public class AppNamespaceControllerTest extends AbstractControllerTest {
     Assert.assertNull(namespaceService.findOne(APP_ID, CLUSTER, NAMESPACE));
   }
 
+  @Test
+  @Sql(scripts = "/controller/test-itemset.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/controller/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  public void testDeleteIfIdMatches() {
+    long readId = namespaceRepository.findByAppIdAndName(APP_ID, NAMESPACE).getId();
+
+    try {
+      restTemplate.delete(deleteIfIdMatchesUrl(), APP_ID, NAMESPACE, readId + 1, "apollo");
+      Assert.fail("Should throw");
+    } catch (HttpClientErrorException e) {
+      Assert.assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+      Assert.assertTrue(e.getResponseBodyAsString().contains("it may have been recreated"));
+    }
+    Assert.assertNotNull(namespaceService.findOne(APP_ID, CLUSTER, NAMESPACE));
+
+    restTemplate.delete(deleteIfIdMatchesUrl(), APP_ID, NAMESPACE, readId, "apollo");
+
+    Assert.assertNull(namespaceRepository.findByAppIdAndName(APP_ID, NAMESPACE));
+    Assert.assertNull(namespaceService.findOne(APP_ID, CLUSTER, NAMESPACE));
+  }
+
+  @Test
+  @Sql(scripts = "/controller/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  public void testDeleteIfIdMatchesKeepsAppNamespaceWhoseNameDiffersOnlyInCase() {
+    // the default H2 schema compares names by case, so it stores both
+    AppNamespaceDTO other = create(APP_ID, "DB-Config");
+    AppNamespaceDTO target = create(APP_ID, "db-config");
+
+    restTemplate.delete(deleteIfIdMatchesUrl(), APP_ID, "db-config", target.getId(), "apollo");
+
+    Assert.assertNull(namespaceRepository.findByAppIdAndName(APP_ID, "db-config"));
+    Assert.assertEquals(other.getId(),
+        namespaceRepository.findByAppIdAndName(APP_ID, "DB-Config").getId());
+  }
+
+  private AppNamespaceDTO create(String appId, String namespaceName) {
+    AppNamespaceDTO dto = new AppNamespaceDTO();
+    dto.setAppId(appId);
+    dto.setName(namespaceName);
+    dto.setDataChangeCreatedBy("apollo");
+    return restTemplate
+        .postForEntity(url("/apps/{appId}/appnamespaces"), dto, AppNamespaceDTO.class, appId)
+        .getBody();
+  }
+
   private String deleteByIdUrl() {
     return url("/apps/{appId}/appnamespaces/{namespaceName}?operator={operator}"
         + "&appNamespaceId={appNamespaceId}");
+  }
+
+  private String deleteIfIdMatchesUrl() {
+    return url("/apps/{appId}/appnamespaces?namespaceName={namespaceName}"
+        + "&appNamespaceId={appNamespaceId}&operator={operator}");
   }
 }

@@ -91,6 +91,18 @@ public class AppNamespaceController {
     appNamespaceService.deleteAppNamespace(entity, operator);
   }
 
+  /**
+   * Deletes the AppNamespace only while it has the given id, as {@link #delete} does when it gets
+   * one. An adminservice of an earlier version has no DELETE on this path and refuses the request
+   * without deleting anything, so a caller that needs the id checked never deletes by name there.
+   */
+  @DeleteMapping("/apps/{appId}/appnamespaces")
+  public void deleteIfIdMatches(@PathVariable("appId") String appId,
+      @RequestParam String namespaceName, @RequestParam long appNamespaceId,
+      @RequestParam String operator) {
+    delete(appId, namespaceName, operator, appNamespaceId);
+  }
+
   @GetMapping("/appnamespaces/{publicNamespaceName}/namespaces")
   public List<NamespaceDTO> findPublicAppNamespaceAllNamespaces(
       @PathVariable String publicNamespaceName, Pageable pageable) {
