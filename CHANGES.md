@@ -11,6 +11,8 @@ Apollo 3.1.0
 * [Fix: change GrayReleaseRule.Rules to TEXT to avoid utf8mb4 row-size 1118](https://github.com/apolloconfig/apollo/pull/5699)
 * [Fix createOrUpdateItem failing when the item key does not exist](https://github.com/apolloconfig/apollo/pull/5707)
 * [Fix: reject Portal startup without configured authentication](https://github.com/apolloconfig/apollo/pull/5704)
+* [Fix: restore Portal shared sessions after the Spring Boot 4 migration](https://github.com/apolloconfig/apollo/pull/5706)
+* [Fix: isolate the release history test database in apollo-biz](https://github.com/apolloconfig/apollo/pull/5712)
 * [Fix: report incomplete app namespace deletion and add manual recovery](https://github.com/apolloconfig/apollo/pull/5705)
 
 ------------------

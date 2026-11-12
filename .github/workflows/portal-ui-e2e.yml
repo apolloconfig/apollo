@@ -31,7 +31,7 @@ on:
 jobs:
   portal-ui-e2e:
     name: portal-ui-e2e
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
