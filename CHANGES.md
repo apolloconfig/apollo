@@ -13,6 +13,7 @@ Apollo 3.1.0
 * [Fix: reject Portal startup without configured authentication](https://github.com/apolloconfig/apollo/pull/5704)
 * [Fix: restore Portal shared sessions after the Spring Boot 4 migration](https://github.com/apolloconfig/apollo/pull/5706)
 * [Fix: isolate the release history test database in apollo-biz](https://github.com/apolloconfig/apollo/pull/5712)
+* [Fix: clarify when a Portal rollback takes effect](https://github.com/apolloconfig/apollo/pull/5715)
 * [Fix: report incomplete app namespace deletion and add manual recovery](https://github.com/apolloconfig/apollo/pull/5705)
 
 ------------------
