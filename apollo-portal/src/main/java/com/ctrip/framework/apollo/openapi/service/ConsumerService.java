@@ -18,21 +18,26 @@ package com.ctrip.framework.apollo.openapi.service;
 
 import static com.ctrip.framework.apollo.portal.service.SystemRoleManagerService.CREATE_APPLICATION_ROLE_NAME;
 import static com.ctrip.framework.apollo.portal.service.SystemRoleManagerService.MANAGE_USERS_ROLE_NAME;
+import static java.util.stream.Collectors.toList;
 
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.exception.NotFoundException;
+import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.openapi.entity.Consumer;
 import com.ctrip.framework.apollo.openapi.entity.ConsumerAudit;
 import com.ctrip.framework.apollo.openapi.entity.ConsumerRole;
 import com.ctrip.framework.apollo.openapi.entity.ConsumerToken;
+import com.ctrip.framework.apollo.openapi.model.OpenConsumerRoleDTO;
 import com.ctrip.framework.apollo.openapi.repository.ConsumerAuditRepository;
 import com.ctrip.framework.apollo.openapi.repository.ConsumerRepository;
 import com.ctrip.framework.apollo.openapi.repository.ConsumerRoleRepository;
 import com.ctrip.framework.apollo.openapi.repository.ConsumerTokenRepository;
 import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
+import com.ctrip.framework.apollo.portal.constant.RoleType;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.entity.po.Role;
 import com.ctrip.framework.apollo.portal.entity.vo.consumer.ConsumerInfo;
+import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.repository.RoleRepository;
 import com.ctrip.framework.apollo.portal.service.RolePermissionService;
 import com.ctrip.framework.apollo.portal.spi.UserService;
@@ -40,6 +45,7 @@ import com.ctrip.framework.apollo.portal.util.RoleUtils;
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.hash.Hashing;
 import java.util.ArrayList;
@@ -55,6 +61,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.util.CollectionUtils;
@@ -274,7 +281,7 @@ public class ConsumerService {
     Set<Long> consumerIdsWithRole = CollectionUtils.isEmpty(consumerRoles) ? Collections.emptySet()
         : consumerRoles.stream().map(ConsumerRole::getConsumerId).collect(Collectors.toSet());
 
-    return consumerIdList.stream().map(consumerIdsWithRole::contains).collect(Collectors.toList());
+    return consumerIdList.stream().map(consumerIdsWithRole::contains).collect(toList());
   }
 
   private List<Integer> getRateLimit(List<Long> consumerIds) {
@@ -283,8 +290,7 @@ public class ConsumerService {
         ConsumerToken::getConsumerId,
         consumerToken -> consumerToken.getRateLimit() != null ? consumerToken.getRateLimit() : 0));
 
-    return consumerIds.stream().map(id -> consumerRateLimits.getOrDefault(id, 0))
-        .collect(Collectors.toList());
+    return consumerIds.stream().map(id -> consumerRateLimits.getOrDefault(id, 0)).collect(toList());
   }
 
   public ConsumerRole assignCreateApplicationRoleToConsumer(String token, String operator) {
@@ -422,8 +428,7 @@ public class ConsumerService {
 
   public Set<String> findAppIdsAuthorizedByConsumerId(long consumerId) {
     List<ConsumerRole> consumerRoles = this.findConsumerRolesByConsumerId(consumerId);
-    List<Long> roleIds =
-        consumerRoles.stream().map(ConsumerRole::getRoleId).collect(Collectors.toList());
+    List<Long> roleIds = consumerRoles.stream().map(ConsumerRole::getRoleId).collect(toList());
 
     return this.findAppIdsByRoleIds(roleIds);
   }
@@ -441,7 +446,9 @@ public class ConsumerService {
       if (!role.isDeleted()) {
         String roleName = role.getRoleName();
         String appId = RoleUtils.extractAppIdFromRoleName(roleName);
-        appIds.add(appId);
+        if (appId != null) {
+          appIds.add(appId);
+        }
       }
     });
 
@@ -454,8 +461,7 @@ public class ConsumerService {
 
   public List<ConsumerInfo> findConsumerInfoList(Pageable page) {
     List<Consumer> consumerList = findAllConsumer(page);
-    List<Long> consumerIdList =
-        consumerList.stream().map(Consumer::getId).collect(Collectors.toList());
+    List<Long> consumerIdList = consumerList.stream().map(Consumer::getId).collect(toList());
     List<Boolean> allowCreateApplicationList = isAllowCreateApplication(consumerIdList);
     List<Boolean> allowManageUsersList = isAllowManageUsers(consumerIdList);
     List<Integer> rateLimitList = getRateLimit(consumerIdList);
@@ -472,6 +478,182 @@ public class ConsumerService {
 
     return consumerInfoList;
   }
+
+  public List<OpenConsumerRoleDTO> findConsumerRoleDetailsByConsumerId(long consumerId) {
+    validateConsumerExists(consumerId);
+    List<ConsumerRole> consumerRoles = consumerRoleRepository.findByConsumerId(consumerId);
+    if (CollectionUtils.isEmpty(consumerRoles)) {
+      return Collections.emptyList();
+    }
+    List<Long> roleIds = consumerRoles.stream().map(ConsumerRole::getRoleId).collect(toList());
+    Iterable<Role> roleIterable = roleRepository.findAllById(roleIds);
+
+    Set<OpenConsumerRoleDTO> result = new LinkedHashSet<>();
+    for (Role role : roleIterable) {
+      if (role.isDeleted()) {
+        continue;
+      }
+      ParsedConsumerRole parsed = parseConsumerRole(role.getRoleName());
+      if (parsed != null) { // null = 系统级角色或无法识别，跳过
+        result.add(parsed.toDto());
+      }
+    }
+    return new ArrayList<>(result);
+  }
+
+  /**
+   * 按原始 roleName 解析出的授权范围，各字段与 {@link OpenConsumerRoleDTO} 一一对应。
+   */
+  private static final class ParsedConsumerRole {
+
+    private final String type;
+    private final String appId;
+    private final String namespaceName;
+    private final String env;
+
+    private ParsedConsumerRole(String type, String appId, String namespaceName, String env) {
+      this.type = type;
+      this.appId = appId;
+      this.namespaceName = namespaceName;
+      this.env = env;
+    }
+
+    private OpenConsumerRoleDTO toDto() {
+      return new OpenConsumerRoleDTO().type(type).appId(appId).namespaceName(namespaceName)
+          .env(env);
+    }
+  }
+
+  /**
+   * 解析 roleName，无法识别（含系统级角色）时返回 null。
+   *
+   * <p>roleName 按 {@link ConfigConsts#CLUSTER_NAMESPACE_SEPARATOR} 拆分，不做 trim：返回值始终原样保留
+   * 存储内容，这样撤销时可以按“列表里看到的范围”精确命中同一条绑定。前导/尾随空格会被当成独立的段，
+   * 不会被折叠掉。
+   */
+  private ParsedConsumerRole parseConsumerRole(String roleName) {
+    if (Strings.isNullOrEmpty(roleName)) {
+      return null;
+    }
+    String appId = RoleUtils.extractAppIdFromRoleName(roleName);
+    if (Strings.isNullOrEmpty(appId)) {
+      return null;
+    }
+
+    List<String> parts =
+        Splitter.on(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR).splitToList(roleName);
+    String roleType = parts.get(0);
+    String type;
+    if (RoleType.MASTER.equals(roleType) && parts.size() == 2) {
+      type = "AppRole";
+    } else if ((RoleType.MODIFY_NAMESPACE.equals(roleType)
+        || RoleType.RELEASE_NAMESPACE.equals(roleType))
+        && (parts.size() == 3 || parts.size() == 4)) {
+      type = "NamespaceRole";
+    } else {
+      return null;
+    }
+    for (String part : parts) {
+      if (part.isEmpty()) {
+        return null;
+      }
+    }
+
+    if ("AppRole".equals(type)) {
+      return new ParsedConsumerRole(type, appId, null, null);
+    }
+    return new ParsedConsumerRole(type, appId, parts.get(2),
+        parts.size() == 4 ? parts.get(3) : null);
+  }
+
+  @Transactional
+  public void revokeConsumerRole(long consumerId, String type, String appId, String namespaceName,
+      String env, String operator) {
+    validateOperator(operator);
+    validateConsumerExists(consumerId);
+    if (Strings.isNullOrEmpty(appId) || appId.trim().isEmpty()) {
+      throw BadRequestException.appIdIsBlank();
+    }
+
+    if ("NamespaceRole".equals(type)) {
+      if (Strings.isNullOrEmpty(namespaceName) || namespaceName.trim().isEmpty()) {
+        throw new BadRequestException("Params(NamespaceName) can not be empty.");
+      }
+      // 只校验写法是否合法，不使用改名后的值：FWS 会与 FAT 是不同的角色，不能被别名规则改写
+      if (env != null && (env.trim().isEmpty() || Env.UNKNOWN.equals(Env.transformEnv(env)))) {
+        throw BadRequestException.invalidEnvFormat(env);
+      }
+    } else if (!"AppRole".equals(type)) {
+      throw new BadRequestException("Invalid role type: %s", type);
+    }
+
+    // 在该 consumer 自己的绑定里精确匹配，避免用重建的 roleName 误伤其他环境/命名空间的授权
+    Set<Long> matchedRoleIds = new LinkedHashSet<>();
+    for (Role role : findRolesBoundToConsumer(consumerId)) {
+      ParsedConsumerRole parsed = parseConsumerRole(role.getRoleName());
+      if (parsed != null && matchesRequestedScope(parsed, type, appId, namespaceName, env)) {
+        matchedRoleIds.add(role.getId());
+      }
+    }
+    if (matchedRoleIds.isEmpty()) {
+      throw new BadRequestException("Role not exist, nothing to revoke.");
+    }
+    // batchDelete 会清空持久化上下文，因此先把命中的 roleId 收集完，最后一次性批量删除
+    consumerRoleRepository.batchDeleteByConsumerIdAndRoleIds(consumerId,
+        new ArrayList<>(matchedRoleIds), operator);
+  }
+
+  /**
+   * 判断某条绑定的解析结果是否就是调用方要撤销的那一条。
+   *
+   * <p>namespaceName 必须按原始字符串精确比较，重复的 {@code +} 片段不能被折叠；env 只做大小写无关的比较，
+   * 不使用 {@link Env#transformEnv}，这样 FWS 不会因为别名规则被当成 FAT。
+   */
+  private boolean matchesRequestedScope(ParsedConsumerRole parsed, String type, String appId,
+      String namespaceName, String env) {
+    if (!parsed.type.equals(type) || !parsed.appId.equals(appId)) {
+      return false;
+    }
+    if ("AppRole".equals(type)) {
+      return true;
+    }
+    if (!Objects.equals(parsed.namespaceName, namespaceName)) {
+      return false;
+    }
+    if (env == null) {
+      // 不传 env 表示“所有环境”的那条授权，不能命中任何一个具体环境的绑定
+      return parsed.env == null;
+    }
+    return parsed.env != null && parsed.env.equalsIgnoreCase(env);
+  }
+
+  /**
+   * 取出该 consumer 当前仍然有效的绑定所对应的角色。
+   */
+  private List<Role> findRolesBoundToConsumer(long consumerId) {
+    List<ConsumerRole> consumerRoles = consumerRoleRepository.findByConsumerId(consumerId);
+    if (CollectionUtils.isEmpty(consumerRoles)) {
+      return Collections.emptyList();
+    }
+    List<Long> roleIds = consumerRoles.stream().map(ConsumerRole::getRoleId).collect(toList());
+    List<Role> roles = new ArrayList<>();
+    for (Role role : roleRepository.findAllById(roleIds)) {
+      if (!role.isDeleted()) {
+        roles.add(role);
+      }
+    }
+    return roles;
+  }
+
+  private void validateConsumerExists(long consumerId) {
+    if (consumerId <= 0) {
+      throw new BadRequestException("ConsumerId must be positive.");
+    }
+    if (!consumerRepository.existsById(consumerId)) {
+      throw new NotFoundException("Consumer not exist");
+    }
+  }
+
 
   @Transactional
   public void deleteConsumer(String appId) {

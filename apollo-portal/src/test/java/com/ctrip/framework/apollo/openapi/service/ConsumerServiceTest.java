@@ -18,7 +18,9 @@ package com.ctrip.framework.apollo.openapi.service;
 
 import static com.ctrip.framework.apollo.portal.service.SystemRoleManagerService.CREATE_APPLICATION_ROLE_NAME;
 import static com.ctrip.framework.apollo.portal.service.SystemRoleManagerService.MANAGE_USERS_ROLE_NAME;
+import com.ctrip.framework.apollo.openapi.model.OpenConsumerRoleDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
+import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.ctrip.framework.apollo.openapi.entity.Consumer;
 import com.ctrip.framework.apollo.openapi.entity.ConsumerRole;
 import com.ctrip.framework.apollo.openapi.entity.ConsumerToken;
@@ -37,12 +39,20 @@ import com.ctrip.framework.apollo.portal.spi.UserService;
 import com.ctrip.framework.apollo.portal.util.RoleUtils;
 import org.junit.jupiter.api.BeforeEach;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
@@ -378,6 +388,227 @@ public class ConsumerServiceTest {
 
     assertEquals(consumerRole, created);
     verify(consumerRoleRepository).save(consumerRole);
+  }
+
+  @ParameterizedTest
+  @CsvSource(
+      value = {"Master+testAppId, AppRole, NULL, NULL",
+          "ModifyNamespace+testAppId+application, NamespaceRole, application, NULL",
+          "ReleaseNamespace+testAppId+application, NamespaceRole, application, NULL",
+          "ModifyNamespace+testAppId+application+LOCAL, NamespaceRole, application, LOCAL",
+          "ReleaseNamespace+testAppId+application+LOCAL, NamespaceRole, application, LOCAL",
+          "ModifyNamespace+testAppId+apollo.xml+DEV, NamespaceRole, apollo.xml, DEV",
+          "ReleaseNamespace+testAppId+apollo.yaml+DEV, NamespaceRole, apollo.yaml, DEV"},
+      nullValues = "NULL")
+  void testFindConsumerRoleDetailsByConsumerId(String roleName, String type, String namespaceName,
+      String env) {
+    mockConsumerRoleDetails(roleName);
+
+    List<OpenConsumerRoleDTO> result = consumerService.findConsumerRoleDetailsByConsumerId(1L);
+
+    assertEquals(1, result.size());
+    OpenConsumerRoleDTO dto = result.get(0);
+    assertEquals(type, dto.getType());
+    assertEquals(testAppId, dto.getAppId());
+    assertEquals(namespaceName, dto.getNamespaceName());
+    assertEquals(env, dto.getEnv());
+  }
+
+  @ParameterizedTest
+  @NullAndEmptySource
+  @ValueSource(strings = {" ", "CreateApplication+SystemRole", "ManageUsers+SystemRole",
+      "ManageAppMaster+testAppId", "ModifyNamespacesInCluster+testAppId+LOCAL+default",
+      "ReleaseNamespacesInCluster+testAppId+LOCAL+default", "Unknown+testAppId", "Master",
+      "Master+", "Master++testAppId", "Master+testAppId+extra", "ModifyNamespace+testAppId",
+      "ModifyNamespace++application", "ModifyNamespace+testAppId+",
+      "ModifyNamespace+testAppId++LOCAL", "ModifyNamespace+testAppId+application+",
+      "ModifyNamespace+testAppId+application+LOCAL+extra"})
+  void testFindConsumerRoleDetailsSkipsUnsupportedOrMalformedRoles(String roleName) {
+    mockConsumerRoleDetails(roleName);
+
+    assertTrue(consumerService.findConsumerRoleDetailsByConsumerId(1L).isEmpty());
+  }
+
+  @ParameterizedTest
+  @CsvSource(value = {"ReleaseNamespace+testAppId+ application, ' application', NULL",
+      "ReleaseNamespace+testAppId+ +LOCAL, ' ', LOCAL"}, nullValues = "NULL")
+  void testFindConsumerRoleDetailsKeepsOriginalNamespaceAndEnvironment(String roleName,
+      String namespaceName, String env) {
+    // 不 trim 才能让撤销用列表返回的值精确命中同一条绑定
+    mockConsumerRoleDetails(roleName);
+
+    List<OpenConsumerRoleDTO> result = consumerService.findConsumerRoleDetailsByConsumerId(1L);
+    assertEquals(1, result.size());
+    assertEquals(namespaceName, result.get(0).getNamespaceName());
+    assertEquals(env, result.get(0).getEnv());
+  }
+
+  @Test
+  void testFindConsumerRoleDetailsAggregatesNamespaceRolesAndKeepsScopesSeparate() {
+    mockConsumerRoleDetails("Master+testAppId", "ModifyNamespace+testAppId+application",
+        "ReleaseNamespace+testAppId+application", "ModifyNamespace+testAppId+application+DEV",
+        "ReleaseNamespace+testAppId+application+DEV", "ReleaseNamespace+testAppId+application+FAT",
+        CREATE_APPLICATION_ROLE_NAME, MANAGE_USERS_ROLE_NAME);
+
+    List<OpenConsumerRoleDTO> result = consumerService.findConsumerRoleDetailsByConsumerId(1L);
+
+    assertEquals(4, result.size());
+    assertTrue(result.contains(
+        new OpenConsumerRoleDTO().type("AppRole").appId(testAppId).namespaceName(null).env(null)));
+    for (String env : Arrays.asList(null, "DEV", "FAT")) {
+      assertTrue(result.contains(new OpenConsumerRoleDTO().type("NamespaceRole").appId(testAppId)
+          .namespaceName("application").env(env)));
+    }
+  }
+
+  @Test
+  void testFindConsumerRoleDetailsWithoutBindings() {
+    when(consumerRepository.existsById(1L)).thenReturn(true);
+    when(consumerRoleRepository.findByConsumerId(1L)).thenReturn(Collections.emptyList());
+
+    assertTrue(consumerService.findConsumerRoleDetailsByConsumerId(1L).isEmpty());
+    verifyNoInteractions(roleRepository);
+  }
+
+  @Test
+  void testFindConsumerRoleDetailsSkipsDeletedRoles() {
+    when(consumerRepository.existsById(1L)).thenReturn(true);
+    when(consumerRoleRepository.findByConsumerId(1L))
+        .thenReturn(Collections.singletonList(createConsumerRole(1L, 2L)));
+    Role role = createRole(2L, "Master+testAppId");
+    role.setDeleted(true);
+    when(roleRepository.findAllById(Collections.singletonList(2L)))
+        .thenReturn(Collections.singletonList(role));
+
+    assertTrue(consumerService.findConsumerRoleDetailsByConsumerId(1L).isEmpty());
+  }
+
+  @Test
+  void testConsumerRoleManagementRejectsMissingConsumer() {
+    assertThrows(NotFoundException.class,
+        () -> consumerService.findConsumerRoleDetailsByConsumerId(1L));
+    assertThrows(NotFoundException.class,
+        () -> consumerService.revokeConsumerRole(1L, "AppRole", testAppId, null, null, testOwner));
+    verifyNoInteractions(consumerRoleRepository, roleRepository, rolePermissionService);
+  }
+
+  @Test
+  void testConsumerRoleManagementRejectsInvalidConsumerId() {
+    assertThrows(BadRequestException.class,
+        () -> consumerService.findConsumerRoleDetailsByConsumerId(0L));
+    assertThrows(BadRequestException.class,
+        () -> consumerService.revokeConsumerRole(-1L, "AppRole", testAppId, null, null, testOwner));
+    verifyNoInteractions(consumerRepository, consumerRoleRepository);
+  }
+
+  @Test
+  void testRevokeConsumerAppRole() {
+    when(consumerRepository.existsById(1L)).thenReturn(true);
+    mockBoundRoles(createRole(2L, "Master+testAppId"));
+
+    consumerService.revokeConsumerRole(1L, "AppRole", testAppId, null, null, testOwner);
+
+    verify(consumerRoleRepository)
+        .batchDeleteByConsumerIdAndRoleIds(1L, Collections.singletonList(2L), testOwner);
+  }
+
+  @ParameterizedTest
+  @NullSource
+  @ValueSource(strings = {"DEV", "dev", "LOCAL", "local"})
+  void testRevokeConsumerNamespaceRoles(String env) {
+    when(consumerRepository.existsById(1L)).thenReturn(true);
+    String roleEnv = env == null ? null : env.toUpperCase();
+    String modifyRoleName = RoleUtils.buildModifyNamespaceRoleName(testAppId, "application",
+        roleEnv);
+    String releaseRoleName = RoleUtils.buildReleaseNamespaceRoleName(testAppId, "application",
+        roleEnv);
+    mockBoundRoles(createRole(2L, modifyRoleName), createRole(3L, releaseRoleName));
+
+    consumerService.revokeConsumerRole(1L, "NamespaceRole", testAppId, "application", env,
+        testOwner);
+
+    verify(consumerRoleRepository)
+        .batchDeleteByConsumerIdAndRoleIds(1L, Arrays.asList(2L, 3L), testOwner);
+  }
+
+  @Test
+  void testRevokeConsumerNamespaceRoleWithOnlyOneExistingRole() {
+    when(consumerRepository.existsById(1L)).thenReturn(true);
+    String roleName = RoleUtils.buildReleaseNamespaceRoleName(testAppId, "application");
+    mockBoundRoles(createRole(3L, roleName));
+
+    consumerService.revokeConsumerRole(1L, "NamespaceRole", testAppId, "application", null,
+        testOwner);
+
+    verify(consumerRoleRepository)
+        .batchDeleteByConsumerIdAndRoleIds(1L, Collections.singletonList(3L), testOwner);
+  }
+
+  @ParameterizedTest
+  @CsvSource(value = {
+      "InvalidRole, testAppId, application, NULL",
+      "AppRole, NULL, NULL, NULL",
+      "NamespaceRole, testAppId, NULL, NULL",
+      "NamespaceRole, testAppId, application, invalid-env",
+      "NamespaceRole, testAppId, application, ''"
+  }, nullValues = "NULL")
+  void testRevokeConsumerRoleRejectsInvalidParameters(String type, String appId,
+      String namespaceName, String env) {
+    when(consumerRepository.existsById(1L)).thenReturn(true);
+
+    assertThrows(BadRequestException.class, () -> consumerService.revokeConsumerRole(1L, type,
+        appId, namespaceName, env, testOwner));
+    verifyNoInteractions(consumerRoleRepository, rolePermissionService);
+  }
+
+  @Test
+  void testRevokeConsumerRoleRejectsMissingOrDeletedRole() {
+    when(consumerRepository.existsById(1L)).thenReturn(true);
+    assertThrows(BadRequestException.class,
+        () -> consumerService.revokeConsumerRole(1L, "AppRole", testAppId, null, null, testOwner));
+
+    Role role = createRole(2L, "Master+testAppId");
+    role.setDeleted(true);
+    mockBoundRoles(role);
+    assertThrows(BadRequestException.class,
+        () -> consumerService.revokeConsumerRole(1L, "AppRole", testAppId, null, null, testOwner));
+    verifyNoInteractions(rolePermissionService);
+  }
+
+  /**
+   * 模拟该 consumer 当前绑定的角色，撤销时会按这些绑定做精确匹配。
+   */
+  private void mockBoundRoles(Role... roles) {
+    List<ConsumerRole> consumerRoles = new ArrayList<>();
+    List<Long> roleIds = new ArrayList<>();
+    for (Role role : roles) {
+      consumerRoles.add(createConsumerRole(1L, role.getId()));
+      roleIds.add(role.getId());
+    }
+    when(consumerRoleRepository.findByConsumerId(1L)).thenReturn(consumerRoles);
+    when(roleRepository.findAllById(roleIds)).thenReturn(Arrays.asList(roles));
+  }
+
+  @Test
+  void testFindAppIdsAuthorizedByConsumerIdSkipsSystemRoles() {
+    mockConsumerRoleDetails(CREATE_APPLICATION_ROLE_NAME, MANAGE_USERS_ROLE_NAME);
+
+    assertTrue(consumerService.findAppIdsAuthorizedByConsumerId(1L).isEmpty());
+  }
+
+  private void mockConsumerRoleDetails(String... roleNames) {
+    when(consumerRepository.existsById(1L)).thenReturn(true);
+    List<ConsumerRole> consumerRoles = new ArrayList<>();
+    List<Role> roles = new ArrayList<>();
+    List<Long> roleIds = new ArrayList<>();
+    for (int i = 0; i < roleNames.length; i++) {
+      long roleId = i + 1L;
+      consumerRoles.add(createConsumerRole(1L, roleId));
+      roles.add(createRole(roleId, roleNames[i]));
+      roleIds.add(roleId);
+    }
+    when(consumerRoleRepository.findByConsumerId(1L)).thenReturn(consumerRoles);
+    when(roleRepository.findAllById(roleIds)).thenReturn(roles);
   }
 
   private Consumer createConsumer(String name, String appId, String ownerName) {

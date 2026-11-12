@@ -14,6 +14,7 @@ Apollo 3.1.0
 * [Fix: restore Portal shared sessions after the Spring Boot 4 migration](https://github.com/apolloconfig/apollo/pull/5706)
 * [Fix: isolate the release history test database in apollo-biz](https://github.com/apolloconfig/apollo/pull/5712)
 * [Fix: clarify when a Portal rollback takes effect](https://github.com/apolloconfig/apollo/pull/5715)
+* [Add consumer permission viewing and revocation](https://github.com/apolloconfig/apollo/pull/5708)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/22?closed=1)

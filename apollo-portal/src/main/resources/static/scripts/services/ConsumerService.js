@@ -37,6 +37,16 @@ appService.service('ConsumerService', ['$resource', '$q', 'AppUtil',
             isArray: true,
             url: AppUtil.prefixPath() + '/openapi/v1/consumers'
         },
+        get_consumer_roles: {
+            method: 'GET',
+            isArray: true,
+            url: AppUtil.prefixPath() + '/openapi/v1/consumers/:consumerId/roles'
+        },
+        revoke_consumer_roles: {
+            method: 'DELETE',
+            isArray: false,
+            url: AppUtil.prefixPath() + '/openapi/v1/consumers/:consumerId/roles'
+        },
         delete_consumer: {
             method: 'DELETE',
             isArray: false,
@@ -75,6 +85,20 @@ appService.service('ConsumerService', ['$resource', '$q', 'AppUtil',
                     size: size
                 }
             )
+        },
+        getConsumerRoles: function (consumerId) {
+            return AppUtil.ajax(resource.get_consumer_roles, {
+                consumerId: consumerId
+            });
+        },
+        revokeConsumerRoles: function (consumerId, role) {
+            return AppUtil.ajax(resource.revoke_consumer_roles, {
+                consumerId: consumerId,
+                type: role.type,
+                appId: role.appId,
+                namespaceName: role.type === 'NamespaceRole' ? role.namespaceName : undefined,
+                env: role.type === 'NamespaceRole' && role.env ? role.env : undefined
+            });
         },
         deleteConsumer: function (appId){
             return AppUtil.ajax(resource.delete_consumer,
