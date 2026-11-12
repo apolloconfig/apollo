@@ -25,6 +25,7 @@ import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.common.utils.RequestPrecondition;
 import com.ctrip.framework.apollo.openapi.model.OpenAppNamespaceDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenAppNamespaceDeletionCheckDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenCreateNamespaceDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceLockDTO;
@@ -40,7 +41,7 @@ import com.ctrip.framework.apollo.portal.entity.vo.LockInfo;
 import com.ctrip.framework.apollo.portal.entity.vo.NamespaceUsage;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.listener.AppNamespaceCreationEvent;
-import com.ctrip.framework.apollo.portal.listener.AppNamespaceDeletionEvent;
+import com.ctrip.framework.apollo.portal.service.AppNamespaceDeletionService;
 import com.ctrip.framework.apollo.portal.service.AppNamespaceService;
 import com.ctrip.framework.apollo.portal.service.NamespaceLockService;
 import com.ctrip.framework.apollo.portal.service.NamespaceService;
@@ -76,13 +77,15 @@ public class ServerNamespaceManagementOpenApiService implements NamespaceOpenApi
   private final PortalConfig portalConfig;
   private final AdminServiceAPI.NamespaceAPI namespaceAPI;
   private final UnifiedPermissionValidator unifiedPermissionValidator;
+  private final AppNamespaceDeletionService appNamespaceDeletionService;
 
   public ServerNamespaceManagementOpenApiService(AppNamespaceService appNamespaceService,
       ApplicationEventPublisher publisher, NamespaceService namespaceService,
       NamespaceLockService namespaceLockService,
       RoleInitializationService roleInitializationService, PortalConfig portalConfig,
       AdminServiceAPI.NamespaceAPI namespaceAPI,
-      UnifiedPermissionValidator unifiedPermissionValidator) {
+      UnifiedPermissionValidator unifiedPermissionValidator,
+      AppNamespaceDeletionService appNamespaceDeletionService) {
     this.appNamespaceService = appNamespaceService;
     this.publisher = publisher;
     this.namespaceService = namespaceService;
@@ -91,6 +94,7 @@ public class ServerNamespaceManagementOpenApiService implements NamespaceOpenApi
     this.portalConfig = portalConfig;
     this.namespaceAPI = namespaceAPI;
     this.unifiedPermissionValidator = unifiedPermissionValidator;
+    this.appNamespaceDeletionService = appNamespaceDeletionService;
   }
 
   @Override
@@ -248,10 +252,20 @@ public class ServerNamespaceManagementOpenApiService implements NamespaceOpenApi
   }
 
   @Override
-  public void deleteAppNamespace(String appId, String namespaceName, String operator) {
-    AppNamespace appNamespace =
-        appNamespaceService.deleteAppNamespace(appId, namespaceName, operator);
-    publisher.publishEvent(new AppNamespaceDeletionEvent(appNamespace));
+  public OpenAppNamespaceDeletionCheckDTO checkAppNamespaceDeletion(String appId,
+      String namespaceName) {
+    return OpenApiModelConverters.fromAppNamespaceDeletionCheckBO(
+        appNamespaceDeletionService.checkAppNamespaceDeletion(appId, namespaceName));
+  }
+
+  @Override
+  public void deleteAppNamespace(String appId, String namespaceName, String operator,
+      boolean recovery) {
+    if (recovery) {
+      appNamespaceDeletionService.cleanUpAppNamespace(appId, namespaceName, operator);
+    } else {
+      appNamespaceDeletionService.deleteAppNamespace(appId, namespaceName, operator);
+    }
   }
 
   @Override

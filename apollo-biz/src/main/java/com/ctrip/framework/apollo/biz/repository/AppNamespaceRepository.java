@@ -51,6 +51,6 @@ public interface AppNamespaceRepository extends JpaRepository<AppNamespace, Long
   @Modifying
   @Query("UPDATE AppNamespace SET isDeleted = true, "
       + "deletedAt = :#{T(java.lang.System).currentTimeMillis()}, "
-      + "dataChangeLastModifiedBy = ?3 WHERE appId=?1 and name = ?2 and isDeleted = false")
-  int delete(String appId, String namespaceName, String operator);
+      + "dataChangeLastModifiedBy = ?2 WHERE id = ?1 and isDeleted = false")
+  int delete(long id, String operator);
 }

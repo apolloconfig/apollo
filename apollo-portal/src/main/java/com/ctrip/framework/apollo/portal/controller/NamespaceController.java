@@ -35,7 +35,7 @@ import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
 import com.ctrip.framework.apollo.portal.entity.model.NamespaceCreationModel;
 import com.ctrip.framework.apollo.portal.listener.AppNamespaceCreationEvent;
-import com.ctrip.framework.apollo.portal.listener.AppNamespaceDeletionEvent;
+import com.ctrip.framework.apollo.portal.service.AppNamespaceDeletionService;
 import com.ctrip.framework.apollo.portal.service.AppNamespaceService;
 import com.ctrip.framework.apollo.portal.service.NamespaceService;
 import com.ctrip.framework.apollo.portal.service.RoleInitializationService;
@@ -84,13 +84,15 @@ public class NamespaceController {
   private final PortalConfig portalConfig;
   private final UnifiedPermissionValidator unifiedPermissionValidator;
   private final AdminServiceAPI.NamespaceAPI namespaceAPI;
+  private final AppNamespaceDeletionService appNamespaceDeletionService;
 
   public NamespaceController(final ApplicationEventPublisher publisher,
       final UserInfoHolder userInfoHolder, final NamespaceService namespaceService,
       final AppNamespaceService appNamespaceService,
       final RoleInitializationService roleInitializationService, final PortalConfig portalConfig,
       final UnifiedPermissionValidator unifiedPermissionValidator,
-      final AdminServiceAPI.NamespaceAPI namespaceAPI) {
+      final AdminServiceAPI.NamespaceAPI namespaceAPI,
+      final AppNamespaceDeletionService appNamespaceDeletionService) {
     this.publisher = publisher;
     this.userInfoHolder = userInfoHolder;
     this.namespaceService = namespaceService;
@@ -99,6 +101,7 @@ public class NamespaceController {
     this.portalConfig = portalConfig;
     this.unifiedPermissionValidator = unifiedPermissionValidator;
     this.namespaceAPI = namespaceAPI;
+    this.appNamespaceDeletionService = appNamespaceDeletionService;
   }
 
 
@@ -216,12 +219,15 @@ public class NamespaceController {
   @DeleteMapping("/apps/{appId}/appnamespaces/{namespaceName:.+}")
   @ApolloAuditLog(type = OpType.DELETE, name = "AppNamespace.delete")
   public ResponseEntity<Void> deleteAppNamespace(@PathVariable String appId,
-      @PathVariable String namespaceName) {
+      @PathVariable String namespaceName,
+      @RequestParam(value = "recovery", defaultValue = "false") boolean recovery) {
 
-    AppNamespace appNamespace = appNamespaceService.deleteAppNamespace(appId, namespaceName,
-        userInfoHolder.getUser().getUserId());
-
-    publisher.publishEvent(new AppNamespaceDeletionEvent(appNamespace));
+    String operator = userInfoHolder.getUser().getUserId();
+    if (recovery) {
+      appNamespaceDeletionService.cleanUpAppNamespace(appId, namespaceName, operator);
+    } else {
+      appNamespaceDeletionService.deleteAppNamespace(appId, namespaceName, operator);
+    }
 
     return ResponseEntity.ok().build();
   }

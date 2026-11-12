@@ -17,6 +17,7 @@
 package com.ctrip.framework.apollo.openapi.server.service;
 
 import com.ctrip.framework.apollo.openapi.model.OpenAppNamespaceDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenAppNamespaceDeletionCheckDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenCreateNamespaceDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceLockDTO;
@@ -64,7 +65,9 @@ public interface NamespaceOpenApiService {
 
   OpenAppNamespaceDTO findAppNamespace(String appId, String namespaceName);
 
-  void deleteAppNamespace(String appId, String namespaceName, String operator);
+  OpenAppNamespaceDeletionCheckDTO checkAppNamespaceDeletion(String appId, String namespaceName);
+
+  void deleteAppNamespace(String appId, String namespaceName, String operator, boolean recovery);
 
   List<OpenNamespaceUsageDTO> findAppNamespaceUsage(String appId, String namespaceName);
 

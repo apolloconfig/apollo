@@ -265,8 +265,8 @@ public class AppNamespaceService {
       throw BadRequestException.appNamespaceNotExists(appId, namespaceName);
     }
 
-    // this operator is passed to
-    // com.ctrip.framework.apollo.portal.listener.DeletionListener.onAppNamespaceDeletionEvent
+    // this operator is passed to the listeners of
+    // com.ctrip.framework.apollo.portal.listener.AppNamespaceDeletionEvent
     appNamespace.setDataChangeLastModifiedBy(operator);
 
     // delete app namespace in portal db

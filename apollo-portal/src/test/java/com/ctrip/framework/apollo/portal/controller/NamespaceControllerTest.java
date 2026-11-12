@@ -17,18 +17,25 @@
 package com.ctrip.framework.apollo.portal.controller;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
+import com.ctrip.framework.apollo.common.exception.ServiceException;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI;
 import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
 import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.entity.model.NamespaceCreationModel;
+import com.ctrip.framework.apollo.portal.service.AppNamespaceDeletionService;
 import com.ctrip.framework.apollo.portal.service.AppNamespaceService;
 import com.ctrip.framework.apollo.portal.service.NamespaceService;
 import com.ctrip.framework.apollo.portal.service.RoleInitializationService;
@@ -40,6 +47,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.ResponseEntity;
 
 @RunWith(MockitoJUnitRunner.class)
 public class NamespaceControllerTest {
@@ -67,6 +75,9 @@ public class NamespaceControllerTest {
 
   @Mock
   private AdminServiceAPI.NamespaceAPI namespaceAPI;
+
+  @Mock
+  private AppNamespaceDeletionService appNamespaceDeletionService;
 
   @InjectMocks
   private NamespaceController namespaceController;
@@ -113,5 +124,46 @@ public class NamespaceControllerTest {
 
     verifyNoInteractions(namespaceService, appNamespaceService, roleInitializationService,
         publisher);
+  }
+
+  @Test
+  public void shouldDelegateAppNamespaceDeletion() {
+    when(userInfoHolder.getUser()).thenReturn(new UserInfo("apollo"));
+
+    ResponseEntity<Void> response =
+        namespaceController.deleteAppNamespace("SampleApp", "application", false);
+
+    assertEquals(200, response.getStatusCode().value());
+    verify(appNamespaceDeletionService).deleteAppNamespace("SampleApp", "application", "apollo");
+    verify(appNamespaceDeletionService, never()).cleanUpAppNamespace(any(), any(), any());
+    verifyNoInteractions(appNamespaceService, publisher);
+  }
+
+  @Test
+  public void shouldCleanUpAppNamespaceOnRecovery() {
+    when(userInfoHolder.getUser()).thenReturn(new UserInfo("apollo"));
+
+    ResponseEntity<Void> response =
+        namespaceController.deleteAppNamespace("SampleApp", "application", true);
+
+    assertEquals(200, response.getStatusCode().value());
+    verify(appNamespaceDeletionService).cleanUpAppNamespace("SampleApp", "application", "apollo");
+    verify(appNamespaceDeletionService, never()).deleteAppNamespace(any(), any(), any());
+    verifyNoInteractions(appNamespaceService, publisher);
+  }
+
+  @Test
+  public void shouldPropagateIncompleteAppNamespaceDeletion() {
+    when(userInfoHolder.getUser()).thenReturn(new UserInfo("apollo"));
+    ServiceException incomplete = new ServiceException("incomplete");
+    doThrow(incomplete).when(appNamespaceDeletionService).deleteAppNamespace("SampleApp",
+        "application", "apollo");
+
+    try {
+      namespaceController.deleteAppNamespace("SampleApp", "application", false);
+      fail("Should throw");
+    } catch (ServiceException e) {
+      assertSame(incomplete, e);
+    }
   }
 }
