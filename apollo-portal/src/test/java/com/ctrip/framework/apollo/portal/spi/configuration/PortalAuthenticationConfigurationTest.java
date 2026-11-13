@@ -41,6 +41,7 @@ import com.ctrip.framework.apollo.portal.util.UserTokenAuditUtil;
 import com.ctrip.framework.apollo.portal.util.UserTokenAuthUtil;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.servlet.Filter;
+import java.util.Collections;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.AfterEach;
@@ -57,17 +58,24 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
+import org.springframework.security.web.authentication.AuthenticationConverter;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 
 /**
  * Verifies that Portal requires a configured identity provider before accepting requests.
@@ -235,6 +243,48 @@ class PortalAuthenticationConfigurationTest {
   }
 
   @Test
+  void shouldPreferUserTokenOverActivePortalSessionOnOpenApi() {
+    UserToken userToken = new UserToken();
+    userToken.setId(1L);
+    userToken.setUserId("apollo");
+    userToken.setTokenPrefix("abc");
+    userToken.setRateLimit(0);
+
+    String validToken = UserTokenService.TOKEN_PREFIX + "abc_secret";
+
+    withProfiles("github,oidc")
+        .withPropertyValues(
+            "spring.security.oauth2.resourceserver.jwt.issuer-uri=https://idp.example")
+        .run(context -> {
+          UserTokenService mockTokenService = context.getBean(UserTokenService.class);
+          when(mockTokenService.authenticate(eq(validToken), any())).thenReturn(userToken);
+
+          Filter securityChain = context.getBean("springSecurityFilterChain", Filter.class);
+
+          MockHttpServletRequest request = new MockHttpServletRequest("GET", "/openapi/v1/apps");
+          request.setServletPath("/openapi/v1/apps");
+          request.addHeader(HttpHeaders.AUTHORIZATION, "bearer  " + validToken);
+          MockHttpSession session = new MockHttpSession();
+          session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+              new SecurityContextImpl(
+                  UsernamePasswordAuthenticationToken.authenticated("session-user", "password",
+                      Collections.singletonList(new SimpleGrantedAuthority("ROLE_user")))));
+          request.setSession(session);
+          MockHttpServletResponse response = new MockHttpServletResponse();
+          AtomicBoolean reachedController = new AtomicBoolean();
+
+          securityChain.doFilter(request, response, (req, res) -> {
+            reachedController.set(true);
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            assertThat(auth).isInstanceOf(UserTokenAuthenticationToken.class);
+            assertThat(auth.getPrincipal()).isEqualTo("apollo");
+          });
+          assertThat(reachedController).isTrue();
+          SecurityContextHolder.clearContext();
+        });
+  }
+
+  @Test
   void shouldPreserveCustomBearerTokenResolverBeanInOidcChain() {
     BearerTokenResolver customResolver = mock(BearerTokenResolver.class);
     when(customResolver.resolve(any())).thenReturn("custom-resolved-token");
@@ -321,6 +371,109 @@ class PortalAuthenticationConfigurationTest {
             assertThat(auth.getName()).isEqualTo("custom-header-user");
           });
           assertThat(reachedOpenApi).isTrue();
+          SecurityContextHolder.clearContext();
+        });
+  }
+
+  @Test
+  void shouldPreserveCustomRequestAuthenticationConverterBeanInOidcChain() {
+    Jwt mockJwt = Jwt.withTokenValue("mock-custom-jwt-token").header("alg", "none")
+        .subject("custom-converter-user").claim("scope", "read").build();
+
+    when(this.jwtDecoder.decode("mock-custom-jwt-token")).thenReturn(mockJwt);
+
+    AuthenticationConverter customConverter = request -> {
+      String token = request.getHeader("X-Custom-Token");
+      return token != null ? new BearerTokenAuthenticationToken(token) : null;
+    };
+
+    OidcLocalUserService localUserService = mock(OidcLocalUserService.class);
+    when(localUserService.findByUserId("custom-converter-user"))
+        .thenReturn(new UserInfo("custom-converter-user"));
+
+    withProfiles("github,oidc")
+        .withPropertyValues(
+            "spring.security.oauth2.resourceserver.jwt.issuer-uri=https://idp.example")
+        .withBean(AuthenticationConverter.class, () -> customConverter)
+        .withBean(OidcLocalUserService.class, () -> localUserService).run(context -> {
+          Filter securityChain = context.getBean("springSecurityFilterChain", Filter.class);
+
+          for (String path : new String[] {"/user", "/openapi/v1/apps"}) {
+            MockHttpServletRequest request = new MockHttpServletRequest("GET", path);
+            request.setServletPath(path);
+            request.addHeader("X-Custom-Token", "mock-custom-jwt-token");
+            MockHttpServletResponse response = new MockHttpServletResponse();
+            AtomicBoolean reachedController = new AtomicBoolean();
+
+            securityChain.doFilter(request, response, (req, res) -> {
+              reachedController.set(true);
+              Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+              assertThat(auth).isInstanceOf(JwtAuthenticationToken.class);
+              assertThat(auth.getName()).isEqualTo("custom-converter-user");
+            });
+            assertThat(reachedController).isTrue();
+            SecurityContextHolder.clearContext();
+          }
+        });
+  }
+
+  @Test
+  void shouldPreferUserTokenOverCustomRequestAuthenticationConverterOnOpenApi() {
+    UserToken userToken = new UserToken();
+    userToken.setId(1L);
+    userToken.setUserId("apollo");
+    userToken.setTokenPrefix("abc");
+    userToken.setRateLimit(0);
+
+    String validToken = UserTokenService.TOKEN_PREFIX + "abc_secret";
+    AtomicBoolean converterCalled = new AtomicBoolean();
+    AuthenticationConverter customConverter = request -> {
+      converterCalled.set(true);
+      String token = request.getHeader("X-Custom-Token");
+      return token != null ? new BearerTokenAuthenticationToken(token) : null;
+    };
+
+    withProfiles("github,oidc")
+        .withPropertyValues(
+            "spring.security.oauth2.resourceserver.jwt.issuer-uri=https://idp.example")
+        .withBean(AuthenticationConverter.class, () -> customConverter).run(context -> {
+          UserTokenService mockTokenService = context.getBean(UserTokenService.class);
+          when(mockTokenService.authenticate(eq(validToken), any())).thenReturn(userToken);
+
+          Filter securityChain = context.getBean("springSecurityFilterChain", Filter.class);
+
+          // Valid user token on OpenAPI authenticates as PAT without invoking the converter
+          MockHttpServletRequest validRequest =
+              new MockHttpServletRequest("GET", "/openapi/v1/apps");
+          validRequest.setServletPath("/openapi/v1/apps");
+          validRequest.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + validToken);
+          MockHttpServletResponse validResponse = new MockHttpServletResponse();
+          AtomicBoolean reachedController = new AtomicBoolean();
+
+          securityChain.doFilter(validRequest, validResponse, (req, res) -> {
+            reachedController.set(true);
+            assertThat(SecurityContextHolder.getContext().getAuthentication())
+                .isInstanceOf(UserTokenAuthenticationToken.class);
+          });
+          assertThat(reachedController).isTrue();
+          assertThat(converterCalled).isFalse();
+          SecurityContextHolder.clearContext();
+
+          // Invalid user token on OpenAPI is rejected with 401 without invoking the converter
+          MockHttpServletRequest invalidRequest =
+              new MockHttpServletRequest("GET", "/openapi/v1/apps");
+          invalidRequest.setServletPath("/openapi/v1/apps");
+          invalidRequest.addHeader(HttpHeaders.AUTHORIZATION,
+              "Bearer " + UserTokenService.TOKEN_PREFIX + "invalid");
+          MockHttpServletResponse invalidResponse = new MockHttpServletResponse();
+          AtomicBoolean reachedWithInvalid = new AtomicBoolean();
+
+          securityChain.doFilter(invalidRequest, invalidResponse,
+              (req, res) -> reachedWithInvalid.set(true));
+          assertThat(reachedWithInvalid).isFalse();
+          assertThat(invalidResponse.getStatus()).isEqualTo(401);
+          assertThat(invalidResponse.getContentAsString()).contains("Unauthorized user token");
+          assertThat(converterCalled).isFalse();
           SecurityContextHolder.clearContext();
         });
   }

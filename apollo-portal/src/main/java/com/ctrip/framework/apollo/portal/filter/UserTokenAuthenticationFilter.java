@@ -51,7 +51,7 @@ public class UserTokenAuthenticationFilter extends OncePerRequestFilter {
 
   private static final Logger logger = LoggerFactory.getLogger(UserTokenAuthenticationFilter.class);
 
-  public static final String OPEN_API_PREFIX = "/openapi/";
+  private static final String OPEN_API_PREFIX = "/openapi/";
   private static final Pattern BEARER_PATTERN =
       Pattern.compile("^Bearer\\s+(?<token>\\S+.*)$", Pattern.CASE_INSENSITIVE);
   private static final String USER_ROLE = "ROLE_user";
