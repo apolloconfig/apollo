@@ -36,6 +36,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
@@ -92,6 +94,28 @@ class UserTokenAuthenticationFilterTest {
         .getAuthentication() instanceof UserTokenAuthenticationToken);
     verify(userTokenAuthUtil).storeUserToken(request, userToken);
     verify(userTokenAuditUtil).audit(request, userToken);
+    verify(filterChain).doFilter(request, response);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"Bearer ", "bearer ", "BEARER ", "Bearer  ", "bearer   "})
+  void userTokenWithVariousBearerFormatsAuthenticates(String prefix) throws Exception {
+    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/openapi/v1/apps");
+    MockHttpServletResponse response = new MockHttpServletResponse();
+    String token = UserTokenService.TOKEN_PREFIX + "abc_secret";
+    request.addHeader(HttpHeaders.AUTHORIZATION, prefix + token);
+    UserToken userToken = new UserToken();
+    userToken.setId(1L);
+    userToken.setUserId("apollo");
+    userToken.setTokenPrefix("abc");
+    userToken.setRateLimit(0);
+    when(userTokenService.authenticate(token, request)).thenReturn(userToken);
+
+    filter.doFilter(request, response, filterChain);
+
+    assertNotNull(SecurityContextHolder.getContext().getAuthentication());
+    assertTrue(SecurityContextHolder.getContext()
+        .getAuthentication() instanceof UserTokenAuthenticationToken);
     verify(filterChain).doFilter(request, response);
   }
 
