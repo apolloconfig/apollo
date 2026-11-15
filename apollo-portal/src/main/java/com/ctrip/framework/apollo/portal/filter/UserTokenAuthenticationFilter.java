@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -126,8 +127,11 @@ public class UserTokenAuthenticationFilter extends OncePerRequestFilter {
 
     userTokenAuthUtil.storeUserToken(request, userToken);
     userTokenAuditUtil.audit(request, userToken);
-    SecurityContextHolder.getContext().setAuthentication(UserTokenAuthenticationToken.authenticated(
-        userToken, Collections.singletonList(new SimpleGrantedAuthority(USER_ROLE))));
+    // The current context may be shared with the Portal session.
+    SecurityContext context = SecurityContextHolder.createEmptyContext();
+    context.setAuthentication(UserTokenAuthenticationToken.authenticated(userToken,
+        Collections.singletonList(new SimpleGrantedAuthority(USER_ROLE))));
+    SecurityContextHolder.setContext(context);
     filterChain.doFilter(request, response);
   }
 
