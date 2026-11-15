@@ -181,6 +181,10 @@ public class AppNamespaceService {
       checkPublicAppNamespaceGlobalUniqueness(appNamespace);
     }
 
+    // A client-supplied id must never turn this create into a merge/UPDATE of
+    // an existing row. The request body is bound directly to the JPA entity,
+    // so force an INSERT, matching apollo-biz AppNamespaceService.createAppNamespace.
+    appNamespace.setId(0);
     AppNamespace createdAppNamespace = appNamespaceRepository.save(appNamespace);
 
     roleInitializationService.initNamespaceRoles(appNamespace.getAppId(), appNamespace.getName(),
@@ -193,6 +197,10 @@ public class AppNamespaceService {
 
   @Transactional
   public AppNamespace importAppNamespaceInLocal(AppNamespace appNamespace) {
+    // Same protection as createAppNamespaceInLocal: the only current caller
+    // builds a new entity with id 0, but a supplied id must never turn this
+    // into a merge/UPDATE of an existing row.
+    appNamespace.setId(0);
     validateNamespaceNameLength(appNamespace.getName());
     // globally uniqueness check for public app namespace
     if (appNamespace.isPublic()) {
