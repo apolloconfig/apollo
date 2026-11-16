@@ -530,7 +530,7 @@ server:
 构建基础组件时跳过 Spring Boot 可执行包重打包，并把组件安装到本地或内部 Maven 仓库：
 
 ```bash
-mvn -Dspring-boot.repackage.skip=true package
+mvn -Dspring-boot.repackage.skip=true install
 ```
 
 在自己的工程中通过 Maven 引入 `apollo-portal` 及其传递依赖。不要把发行包中的可执行 JAR 当作普通依赖。
@@ -540,6 +540,10 @@ mvn -Dspring-boot.repackage.skip=true package
 下面的配置用于说明需要保留的扫描范围和需要排除的配置类。它会保留公共配置与 OpenAPI 配置，同时避免官方 `PortalApplication` 和整个 `AuthConfiguration` 配置族被重复装配：
 
 ```java
+@PropertySource(value = {"classpath:portal.properties"})
+@EnableAutoConfiguration
+@EnableTransactionManagement
+@EnableAspectJAutoProxy
 @ComponentScan(
     basePackageClasses = {
         ApolloCommonConfig.class,
@@ -557,6 +561,8 @@ mvn -Dspring-boot.repackage.skip=true package
     })
 ```
 
+同时保留 `PortalApplication` 的 `portal.properties` 属性源及默认端口 8070，或在启动工程中提供等价配置。自动配置、事务管理和 AOP 也应保持启用。
+
 不要只排除两个默认嵌套类，因为外层 `AuthConfiguration` 仍可能重新注册它们；也不要在自己的启动入口中再次导入官方 `PortalApplication`。
 
 #### 3. 用两个互斥 profile 装配认证
@@ -566,6 +572,7 @@ mvn -Dspring-boot.repackage.skip=true package
 ```java
 @Configuration
 @Profile("company & !auth")
+@EnableMethodSecurity
 class CompanyAuthConfiguration {
     // 提供公司 UserService、UserInfoHolder
     // 提供 LogoutHandler、SsoHeartbeatHandler（可按需使用默认实现）

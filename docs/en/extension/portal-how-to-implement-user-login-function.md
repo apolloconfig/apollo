@@ -548,7 +548,7 @@ If you need to switch between company authentication and the built-in `auth` mod
 Skip Spring Boot executable repackaging when building the base component, then install it into your local or internal Maven repository:
 
 ```bash
-mvn -Dspring-boot.repackage.skip=true package
+mvn -Dspring-boot.repackage.skip=true install
 ```
 
 Include `apollo-portal` and its transitive dependencies through Maven. Do not use the executable distribution JAR as a regular dependency.
@@ -558,6 +558,10 @@ Include `apollo-portal` and its transitive dependencies through Maven. Do not us
 The following example shows the scan scope to preserve and the configuration to exclude. It retains common and OpenAPI configuration while preventing the official `PortalApplication` and the entire `AuthConfiguration` family from being registered:
 
 ```java
+@PropertySource(value = {"classpath:portal.properties"})
+@EnableAutoConfiguration
+@EnableTransactionManagement
+@EnableAspectJAutoProxy
 @ComponentScan(
     basePackageClasses = {
         ApolloCommonConfig.class,
@@ -575,6 +579,8 @@ The following example shows the scan scope to preserve and the configuration to 
     })
 ```
 
+Preserve the `portal.properties` property source and the Portal default port 8070 from `PortalApplication`, or provide equivalent settings in your startup application. Auto-configuration, transaction management, and AOP must also remain enabled.
+
 Do not exclude only the two default nested classes, because the outer `AuthConfiguration` can still register them. Do not import the official `PortalApplication` from your own startup entry point either.
 
 #### 3. Assemble authentication through two mutually exclusive profiles
@@ -584,6 +590,7 @@ Put company authentication in your own configuration class and restrict it to `c
 ```java
 @Configuration
 @Profile("company & !auth")
+@EnableMethodSecurity
 class CompanyAuthConfiguration {
     // Provide company UserService and UserInfoHolder
     // Provide LogoutHandler and SsoHeartbeatHandler (use defaults if appropriate)
