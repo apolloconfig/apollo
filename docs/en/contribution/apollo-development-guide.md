@@ -96,6 +96,8 @@ The initialization script for the MySQL database can be found in the scripts/sql
 >
 >-Dlogging.file.name=/your-path/apollo-assembly.log
 
+>Note 4: To run a persistent MySQL locally with Docker without creating databases and importing SQL scripts manually, see section 2.1.6 below.
+
 ### 2.1.4 Run
 
 Click Run or Debug for the new run configuration.
@@ -132,6 +134,75 @@ After starting, open [http://localhost:8070](http://localhost:8070) to see the A
 For better development and debugging, we usually create a demo project for our own use. 
 
 You can refer to [General Application Access Guide](en/portal/apollo-user-guide?id=i-general-application-access-guide) to create your own demo project.
+
+### 2.1.6 Using Docker MySQL (optional)
+
+The default `github` profile uses an in-memory H2 database, so data is lost after a restart. If you want local data to survive restarts while keeping the same MySQL behavior as production, start a local MySQL with `scripts/dev/docker-compose.mysql.yml`.
+
+Prerequisites: Docker Engine / Docker Desktop with Docker Compose v2.
+
+Choose a distinct Compose project name for each checkout, such as `apollo-mysql-main` for this checkout and `apollo-mysql-feature-a` for another. Without an explicit project name, every checkout defaults to `dev` because the Compose file is in `scripts/dev/`, so they share containers and data volumes even if you change the host port. Use the same project name for startup, status checks, shutdown, and reset; when opening a new terminal, set the variable to the name chosen for that checkout again.
+
+```bash
+# Run from the repository root; choose a unique name for this checkout
+export APOLLO_MYSQL_PROJECT=apollo-mysql-main
+docker compose -p "$APOLLO_MYSQL_PROJECT" -f scripts/dev/docker-compose.mysql.yml up -d --wait
+
+# Check the status; wait until STATUS is healthy
+docker compose -p "$APOLLO_MYSQL_PROJECT" -f scripts/dev/docker-compose.mysql.yml ps
+```
+
+On the first start, `apolloconfigdb.sql` and `apolloportaldb.sql` are mounted into MySQL's `/docker-entrypoint-initdb.d` and executed automatically only when the data directory is empty. Later restarts reuse the existing data in the volume named `<project-name>_apollo-mysql-data`, for example `apollo-mysql-main_apollo-mysql-data`.
+
+After initialization, use the following VM options from section 2.1.3 when running `com.ctrip.framework.apollo.assembly.ApolloApplication`:
+
+```text
+-Dapollo_profile=github,auth
+-Dspring.config-datasource.url=jdbc:mysql://127.0.0.1:3306/ApolloConfigDB?useUnicode=true&characterEncoding=UTF8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+-Dspring.config-datasource.username=root
+-Dspring.config-datasource.password=apollo
+-Dspring.portal-datasource.url=jdbc:mysql://127.0.0.1:3306/ApolloPortalDB?useUnicode=true&characterEncoding=UTF8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+-Dspring.portal-datasource.username=root
+-Dspring.portal-datasource.password=apollo
+```
+
+When launching Config Service, Admin Service, or Portal independently with the main classes listed in section 2.1.2, use `spring.datasource.*` instead. For Config Service and Admin Service:
+
+```text
+-Dapollo_profile=github,auth
+-Dspring.datasource.url=jdbc:mysql://127.0.0.1:3306/ApolloConfigDB?useUnicode=true&characterEncoding=UTF8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+-Dspring.datasource.username=root
+-Dspring.datasource.password=apollo
+```
+
+For Portal, use the following options, including the DEV Meta Server address so Portal can discover Admin Service through the Config Service running on port 8080:
+
+```text
+-Dapollo_profile=github,auth
+-Dspring.datasource.url=jdbc:mysql://127.0.0.1:3306/ApolloPortalDB?useUnicode=true&characterEncoding=UTF8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+-Dspring.datasource.username=root
+-Dspring.datasource.password=apollo
+-Ddev_meta=http://localhost:8080
+```
+
+Notes:
+
+- The `github` profile sets `spring.sql.*-init.mode=embedded`, which does not apply to MySQL, so Apollo will not re-run the initialization scripts; Docker creates the databases.
+- If port 3306 is already in use, change `"127.0.0.1:3306:3306"` in `scripts/dev/docker-compose.mysql.yml` to `"127.0.0.1:3307:3306"` and update the JDBC URLs accordingly.
+- The `mysql-default` scripts contain `DROP TABLE IF EXISTS` and are only executed by Docker on an empty data directory. Do not import them into a database that already contains data.
+- To recreate the databases (for example after pulling new schema or delta scripts), or to start from a clean environment on every run:
+
+  ```bash
+  docker compose -p "$APOLLO_MYSQL_PROJECT" -f scripts/dev/docker-compose.mysql.yml down -v
+  docker compose -p "$APOLLO_MYSQL_PROJECT" -f scripts/dev/docker-compose.mysql.yml up -d --wait
+  ```
+
+  `down -v` deletes the data volume for the selected project, so Docker runs the scripts in `docker-entrypoint-initdb.d` again on the next `up`. Running only `restart` or `down` (without `-v`) does not re-initialize the databases.
+- If you only need a clean environment for everyday development and do not need MySQL-specific behavior, use the default in-memory H2 setup instead; this Docker MySQL setup is intended for verifying MySQL dialect, charset, index, pagination, and other production parity concerns, or when you need data to survive restarts.
+
+- To stop the container but keep the data, run `docker compose -p "$APOLLO_MYSQL_PROJECT" -f scripts/dev/docker-compose.mysql.yml down` (without `-v`).
+- DBeaver and other clients can connect to `127.0.0.1:3306` with username `root` and password `apollo`; Apollo does not need to be stopped.
+- The password and port in this setup are for local development only and must not be used in production.
 
 ## 2.2 Java sample client startup
 
