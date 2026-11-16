@@ -286,8 +286,7 @@ public class AppNamespaceServiceTest extends AbstractIntegrationTest {
     appNamespace.setDataChangeCreatedBy("apollo");
     appNamespace.setDataChangeLastModifiedBy("apollo");
 
-    AppNamespace createdAppNamespace =
-        appNamespaceService.importAppNamespaceInLocal(appNamespace);
+    AppNamespace createdAppNamespace = appNamespaceService.importAppNamespaceInLocal(appNamespace);
 
     Assert.assertNotNull(createdAppNamespace);
     Assert.assertNotEquals(142L, createdAppNamespace.getId());
