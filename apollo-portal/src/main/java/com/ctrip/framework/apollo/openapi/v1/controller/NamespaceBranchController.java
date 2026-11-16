@@ -106,7 +106,7 @@ public class NamespaceBranchController implements NamespaceBranchManagementApi {
   @Override
   public ResponseEntity<OpenNamespaceDTO> findBranch(String appId, String env, String clusterName,
       String namespaceName, Boolean extendInfo) {
-    requireConfigReadForUserToken(appId, env, clusterName, namespaceName);
+    requireConfigReadForToken(appId, env, clusterName, namespaceName);
     NamespaceBO namespaceBO =
         namespaceBranchService.findBranch(appId, Env.valueOf(env), clusterName, namespaceName);
     if (namespaceBO == null) {
@@ -121,7 +121,7 @@ public class NamespaceBranchController implements NamespaceBranchManagementApi {
   @Override
   public ResponseEntity<OpenGrayReleaseRuleDTO> getBranchGrayRules(String appId, String env,
       String clusterName, String namespaceName, String branchName) {
-    requireConfigReadForUserToken(appId, env, clusterName, namespaceName);
+    requireConfigReadForToken(appId, env, clusterName, namespaceName);
     GrayReleaseRuleDTO grayReleaseRuleDTO = namespaceBranchService.findBranchGrayRules(appId,
         Env.valueOf(env), clusterName, namespaceName, branchName);
     return grayReleaseRuleDTO == null ? ResponseEntity.ok().build()
@@ -293,9 +293,11 @@ public class NamespaceBranchController implements NamespaceBranchManagementApi {
             namespaceName);
   }
 
-  private void requireConfigReadForUserToken(String appId, String env, String clusterName,
+  private void requireConfigReadForToken(String appId, String env, String clusterName,
       String namespaceName) {
-    if (UserIdentityConstants.USER_TOKEN.equals(UserIdentityContextHolder.getAuthType())
+    String authType = UserIdentityContextHolder.getAuthType();
+    if ((UserIdentityConstants.USER_TOKEN.equals(authType)
+        || UserIdentityConstants.CONSUMER.equals(authType))
         && unifiedPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName,
             namespaceName)) {
       throw new AccessDeniedException("Access is denied");

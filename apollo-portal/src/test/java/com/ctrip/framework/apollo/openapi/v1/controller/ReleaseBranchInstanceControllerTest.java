@@ -60,6 +60,8 @@ import java.util.Collections;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -639,9 +641,10 @@ class ReleaseBranchInstanceControllerTest {
         .isTrue();
   }
 
-  @Test
-  void findBranchShouldRejectUserTokenWithoutConfigRead() {
-    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+  @ParameterizedTest
+  @ValueSource(strings = {UserIdentityConstants.USER_TOKEN, UserIdentityConstants.CONSUMER})
+  void findBranchShouldRejectTokenWithoutConfigRead(String authType) {
+    UserIdentityContextHolder.setAuthType(authType);
     when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE))
         .thenReturn(true);
 
@@ -652,9 +655,10 @@ class ReleaseBranchInstanceControllerTest {
     verifyNoInteractions(namespaceBranchService);
   }
 
-  @Test
-  void getBranchGrayRulesShouldRejectUserTokenWithoutConfigRead() {
-    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+  @ParameterizedTest
+  @ValueSource(strings = {UserIdentityConstants.USER_TOKEN, UserIdentityConstants.CONSUMER})
+  void getBranchGrayRulesShouldRejectTokenWithoutConfigRead(String authType) {
+    UserIdentityContextHolder.setAuthType(authType);
     when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE))
         .thenReturn(true);
 

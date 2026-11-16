@@ -23,8 +23,10 @@ import com.ctrip.framework.apollo.openapi.service.ConsumerRolePermissionService;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
 import com.ctrip.framework.apollo.portal.component.AbstractPermissionValidator;
 import com.ctrip.framework.apollo.portal.component.PermissionValidator;
+import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import com.ctrip.framework.apollo.portal.constant.PermissionType;
 import com.ctrip.framework.apollo.portal.entity.po.Permission;
+import com.ctrip.framework.apollo.portal.service.AppNamespaceService;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -35,11 +37,16 @@ public class ConsumerPermissionValidator extends AbstractPermissionValidator
 
   private final ConsumerRolePermissionService permissionService;
   private final ConsumerAuthUtil consumerAuthUtil;
+  private final PortalConfig portalConfig;
+  private final AppNamespaceService appNamespaceService;
 
   public ConsumerPermissionValidator(final ConsumerRolePermissionService permissionService,
-      final ConsumerAuthUtil consumerAuthUtil) {
+      final ConsumerAuthUtil consumerAuthUtil, final PortalConfig portalConfig,
+      final AppNamespaceService appNamespaceService) {
     this.permissionService = permissionService;
     this.consumerAuthUtil = consumerAuthUtil;
+    this.portalConfig = portalConfig;
+    this.appNamespaceService = appNamespaceService;
   }
 
   @Override
@@ -74,7 +81,18 @@ public class ConsumerPermissionValidator extends AbstractPermissionValidator
   @Override
   public boolean shouldHideConfigToCurrentUser(String appId, String env, String clusterName,
       String namespaceName) {
-    throw new UnsupportedOperationException("Not supported operation");
+    String normalizedEnv = normalizeEnv(env);
+    if (!portalConfig.isConfigViewMemberOnly(normalizedEnv)) {
+      return false;
+    }
+
+    AppNamespace appNamespace = appNamespaceService.findByAppIdAndName(appId, namespaceName);
+    if (appNamespace != null && appNamespace.isPublic()) {
+      return false;
+    }
+
+    return !isAppAdmin(appId)
+        && !hasOperateNamespacePermission(appId, normalizedEnv, clusterName, namespaceName);
   }
 
   @Override

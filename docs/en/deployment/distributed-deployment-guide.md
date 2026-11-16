@@ -1423,6 +1423,10 @@ A list of environments that display configuration information only to project me
 
 For environments that are set to display configuration information only to project members, only the administrator of the project or users with edit or publish privileges for that namespace can see the configuration information and publish history for that private namespace. Public namespaces are always visible to all users.
 
+OpenAPI consumer tokens also follow this setting. Reading a private Namespace in a configured environment requires the consumer to have administration permissions for the target application or modification/release permissions for the target Namespace. Single-resource reads and configuration diffs return HTTP 403 when access is denied; Namespace lists omit unreadable entries. User access tokens remain subject to both the owner's viewing permissions and the token scope.
+
+There is no separate compatibility switch. After upgrading to a version with this behavior, consumers that relied on unrestricted reads may need additional authorization. This setting adds no restriction to public Namespaces or environments outside the list. Release and instance queries retain their existing consumer release-permission requirements.
+
 > Supported since version 1.1.0, see [PR 1531](https://github.com/apolloconfig/apollo/pull/1531)
 
 ### 3.1.10 role.create-application.enabled - whether to enable control over creating project permissions

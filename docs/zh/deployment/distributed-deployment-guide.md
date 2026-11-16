@@ -1370,6 +1370,10 @@ portal上“帮助”链接的地址，默认是Apollo github的wiki首页，可
 
 对设定了只对项目成员显示配置信息的环境，只有该项目的管理员或拥有该namespace的编辑或发布权限的用户才能看到该私有namespace的配置信息和发布历史。公共namespace始终对所有用户可见。
 
+OpenAPI 的 Consumer Token 也遵循此配置：在指定环境中读取私有 Namespace 时，Consumer 必须拥有目标应用的管理员权限或目标 Namespace 的修改/发布权限。单资源读取及配置 diff 无权限时返回 HTTP 403；Namespace 列表过滤不可读的条目。用户访问 Token 同时受所属用户查看权限和 Token scope 限制。
+
+此行为不提供独立兼容开关。升级到包含此行为的版本后，依赖历史开放读取行为的 Consumer 可能需要补充授权。未指定环境及公共 Namespace 不增加此项限制；Release 和实例查询继续保留原有的 Consumer 发布权限要求。
+
 > 从1.1.0版本开始支持，详见[PR 1531](https://github.com/apolloconfig/apollo/pull/1531)
 
 ### 3.1.10 role.create-application.enabled - 是否开启创建项目权限控制
