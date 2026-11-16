@@ -538,3 +538,80 @@ Note that the above steps 1-5 are all SSO code, not Apollo code, Apollo code onl
 
 >Note: The runtime use of different implementations is achieved by [Profiles](http://docs.spring.io/autorepo/docs/spring-boot/current/reference/html/boot-features-profiles.html). For example, if your own sso implementation is in the `custom` profile, you can specify -Dapollo_profile=github,custom in the packaging script. profile. Also note that in [AuthConfiguration](https://github.com/apolloconfig/apollo/blob/master/apollo-portal/src/main/java/com/ctrip/framework/apollo/portal/spi/configuration/AuthConfiguration.java) to modify the default implementation of the condition
 >, from `@ConditionalOnMissingProfile({"ctrip", "auth", "ldap"})` to `@ConditionalOnMissingProfile({"ctrip", "auth", "ldap", "custom"})`.
+
+### Integrate without modifying Apollo source: use your own startup application
+
+If you need to switch between company authentication and the built-in `auth` mode without changing Apollo source, keep the official components and move the assembly logic into your own Spring Boot startup application. The dependency must be a **plain JAR**, not the executable Spring Boot JAR from the distribution ZIP.
+
+#### 1. Prepare a plain JAR dependency
+
+Skip Spring Boot executable repackaging when building the base component, then install it into your local or internal Maven repository:
+
+```bash
+mvn -Dspring-boot.repackage.skip=true package
+```
+
+Include `apollo-portal` and its transitive dependencies through Maven. Do not use the executable distribution JAR as a regular dependency.
+
+#### 2. Exclude the official startup configuration from your scan
+
+The following example shows the scan scope to preserve and the configuration to exclude. It retains common and OpenAPI configuration while preventing the official `PortalApplication` and the entire `AuthConfiguration` family from being registered:
+
+```java
+@ComponentScan(
+    basePackageClasses = {
+        ApolloCommonConfig.class,
+        PortalApplication.class,
+        PortalOpenApiConfig.class
+    },
+    excludeFilters = {
+        @ComponentScan.Filter(
+            type = FilterType.ASSIGNABLE_TYPE,
+            classes = PortalApplication.class),
+        @ComponentScan.Filter(
+            type = FilterType.REGEX,
+            pattern = "com\\.ctrip\\.framework\\.apollo\\.portal\\.spi"
+                + "\\.configuration\\.AuthConfiguration(\\$.*)?")
+    })
+```
+
+Do not exclude only the two default nested classes, because the outer `AuthConfiguration` can still register them. Do not import the official `PortalApplication` from your own startup entry point either.
+
+#### 3. Assemble authentication through two mutually exclusive profiles
+
+Put company authentication in your own configuration class and restrict it to `company & !auth`:
+
+```java
+@Configuration
+@Profile("company & !auth")
+class CompanyAuthConfiguration {
+    // Provide company UserService and UserInfoHolder
+    // Provide LogoutHandler and SsoHeartbeatHandler (use defaults if appropriate)
+    // Register the SecurityFilterChain for the company SSO
+}
+```
+
+Restore the official configuration when switching back to built-in authentication:
+
+```java
+@Configuration
+@Profile("auth & !company")
+@Import(AuthConfiguration.class)
+class BuiltinAuthConfiguration {
+}
+```
+
+Import both configuration classes explicitly from your startup entry point. Beans and filters for company authentication must also use the same mutually exclusive profile conditions.
+
+After the company SSO validates a request, it must establish an authenticated Spring Security `SecurityContext` before `PortalUserSessionFilter` runs and restore that state on subsequent requests. Writing the user only into your own `ThreadLocal` is not enough. If UserToken support is also required, include `UserTokenAuthenticationFilter` in the custom security chain and do not exclude the standalone `AuthFilterConfiguration`.
+
+#### 4. Use one integrated package and restart to switch
+
+```text
+Company authentication: -Dspring.profiles.active=github,company
+Built-in authentication: -Dspring.profiles.active=github,auth
+```
+
+Enable only one mode at a time. Switching requires a restart; it is not a runtime hot switch.
+
+Before deployment, verify company login, logout, session expiration, calls to `/openapi/v1/*`, and built-in username/password login after switching back to `auth`. When upgrading Apollo, also review the startup scan scope, security chain, and dependency versions.
