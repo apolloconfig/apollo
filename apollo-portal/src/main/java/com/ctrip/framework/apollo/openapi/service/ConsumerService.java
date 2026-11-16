@@ -37,7 +37,6 @@ import com.ctrip.framework.apollo.portal.constant.RoleType;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.entity.po.Role;
 import com.ctrip.framework.apollo.portal.entity.vo.consumer.ConsumerInfo;
-import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.repository.RoleRepository;
 import com.ctrip.framework.apollo.portal.service.RolePermissionService;
 import com.ctrip.framework.apollo.portal.spi.UserService;
@@ -579,8 +578,8 @@ public class ConsumerService {
       if (Strings.isNullOrEmpty(namespaceName) || namespaceName.trim().isEmpty()) {
         throw new BadRequestException("Params(NamespaceName) can not be empty.");
       }
-      // 只校验写法是否合法，不使用改名后的值：FWS 会与 FAT 是不同的角色，不能被别名规则改写
-      if (env != null && (env.trim().isEmpty() || Env.UNKNOWN.equals(Env.transformEnv(env)))) {
+      // 历史授权的环境可能已不在 Portal 配置中，只检查空值，按存储的原始范围匹配。
+      if (env != null && env.trim().isEmpty()) {
         throw BadRequestException.invalidEnvFormat(env);
       }
     } else if (!"AppRole".equals(type)) {
@@ -606,8 +605,7 @@ public class ConsumerService {
   /**
    * 判断某条绑定的解析结果是否就是调用方要撤销的那一条。
    *
-   * <p>namespaceName 必须按原始字符串精确比较，重复的 {@code +} 片段不能被折叠；env 只做大小写无关的比较，
-   * 不使用 {@link Env#transformEnv}，这样 FWS 不会因为别名规则被当成 FAT。
+   * <p>namespaceName 和 env 必须按原始字符串精确比较，避免合并大小写不同或带别名的环境授权。
    */
   private boolean matchesRequestedScope(ParsedConsumerRole parsed, String type, String appId,
       String namespaceName, String env) {
@@ -624,7 +622,7 @@ public class ConsumerService {
       // 不传 env 表示“所有环境”的那条授权，不能命中任何一个具体环境的绑定
       return parsed.env == null;
     }
-    return parsed.env != null && parsed.env.equalsIgnoreCase(env);
+    return Objects.equals(parsed.env, env);
   }
 
   /**

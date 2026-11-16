@@ -514,14 +514,13 @@ public class ConsumerServiceTest {
 
   @ParameterizedTest
   @NullSource
-  @ValueSource(strings = {"DEV", "dev", "LOCAL", "local"})
+  @ValueSource(strings = {"DEV", "dev", "LOCAL", "local", "RETIRED-ENV"})
   void testRevokeConsumerNamespaceRoles(String env) {
     when(consumerRepository.existsById(1L)).thenReturn(true);
-    String roleEnv = env == null ? null : env.toUpperCase();
     String modifyRoleName = RoleUtils.buildModifyNamespaceRoleName(testAppId, "application",
-        roleEnv);
+        env);
     String releaseRoleName = RoleUtils.buildReleaseNamespaceRoleName(testAppId, "application",
-        roleEnv);
+        env);
     mockBoundRoles(createRole(2L, modifyRoleName), createRole(3L, releaseRoleName));
 
     consumerService.revokeConsumerRole(1L, "NamespaceRole", testAppId, "application", env,
@@ -549,7 +548,6 @@ public class ConsumerServiceTest {
       "InvalidRole, testAppId, application, NULL",
       "AppRole, NULL, NULL, NULL",
       "NamespaceRole, testAppId, NULL, NULL",
-      "NamespaceRole, testAppId, application, invalid-env",
       "NamespaceRole, testAppId, application, ''"
   }, nullValues = "NULL")
   void testRevokeConsumerRoleRejectsInvalidParameters(String type, String appId,

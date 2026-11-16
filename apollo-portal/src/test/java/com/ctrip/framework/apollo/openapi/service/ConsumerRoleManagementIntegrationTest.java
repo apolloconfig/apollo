@@ -24,8 +24,11 @@ import com.ctrip.framework.apollo.SkipAuthorizationConfiguration;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.openapi.model.OpenConsumerRoleDTO;
 import com.ctrip.framework.apollo.portal.PortalApplication;
+import com.ctrip.framework.apollo.portal.environment.Env;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -70,7 +73,7 @@ class ConsumerRoleManagementIntegrationTest {
   @Test
   void revokesBothNamespaceRolesOnlyForTheTargetConsumerAndEnvironment() {
     consumerService.revokeConsumerRole(1000L, "NamespaceRole", "role-test-app", "application",
-        "dev", "operator");
+        "DEV", "operator");
 
     assertEquals(2,
         count("SELECT COUNT(*) FROM \"ConsumerRole\" WHERE ConsumerId = 1000 "
@@ -175,6 +178,67 @@ class ConsumerRoleManagementIntegrationTest {
 
     assertEquals(2, count("SELECT COUNT(*) FROM \"ConsumerRole\" WHERE ConsumerId = 1000 "
         + "AND RoleId IN (1003, 1004) AND IsDeleted = FALSE"));
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"DEV", "dev"})
+  void revokingListedEnvironmentKeepsBindingsWithDifferentCase(String env) {
+    insertNamespacePair(1020, "dev");
+    jdbcTemplate.update("INSERT INTO \"ConsumerRole\" (Id, ConsumerId, RoleId) "
+        + "VALUES (2020, 1001, 1020), (2021, 1001, 1021)");
+    List<OpenConsumerRoleDTO> roles = consumerService.findConsumerRoleDetailsByConsumerId(1000L);
+    OpenConsumerRoleDTO selected = roles.stream()
+        .filter(role -> "application".equals(role.getNamespaceName()) && env.equals(role.getEnv()))
+        .findFirst().orElseThrow();
+    assertTrue(roles.contains(new OpenConsumerRoleDTO().type("NamespaceRole").appId("role-test-app")
+        .namespaceName("application").env("DEV")));
+    assertTrue(roles.contains(new OpenConsumerRoleDTO().type("NamespaceRole").appId("role-test-app")
+        .namespaceName("application").env("dev")));
+
+    consumerService.revokeConsumerRole(1000L, selected.getType(), selected.getAppId(),
+        selected.getNamespaceName(), selected.getEnv(), "operator");
+
+    String removedIds = "DEV".equals(env) ? "1003, 1004" : "1020, 1021";
+    String keptIds = "DEV".equals(env) ? "1020, 1021" : "1003, 1004";
+    assertEquals(2, count("SELECT COUNT(*) FROM \"ConsumerRole\" WHERE ConsumerId = 1000 "
+        + "AND RoleId IN (" + removedIds + ") AND IsDeleted = TRUE"));
+    assertEquals(2, count("SELECT COUNT(*) FROM \"ConsumerRole\" WHERE ConsumerId = 1000 "
+        + "AND RoleId IN (" + keptIds + ") AND IsDeleted = FALSE"));
+    assertEquals(4, count("SELECT COUNT(*) FROM \"ConsumerRole\" WHERE ConsumerId = 1001 "
+        + "AND RoleId IN (1003, 1004, 1020, 1021) AND IsDeleted = FALSE"));
+    assertEquals(4, count("SELECT COUNT(*) FROM \"Role\" "
+        + "WHERE Id IN (1003, 1004, 1020, 1021) AND IsDeleted = FALSE"));
+  }
+
+  @Test
+  void revokesListedGrantForAnEnvironmentNoLongerRegisteredInPortal() {
+    String env = "RETIRED-ENV";
+    assertEquals(Env.UNKNOWN, Env.transformEnv(env));
+    insertNamespacePair(1020, env);
+    OpenConsumerRoleDTO selected = consumerService.findConsumerRoleDetailsByConsumerId(1000L)
+        .stream().filter(role -> env.equals(role.getEnv())).findFirst().orElseThrow();
+
+    consumerService.revokeConsumerRole(1000L, selected.getType(), selected.getAppId(),
+        selected.getNamespaceName(), selected.getEnv(), "operator");
+
+    assertEquals(2, count("SELECT COUNT(*) FROM \"ConsumerRole\" WHERE ConsumerId = 1000 "
+        + "AND RoleId IN (1020, 1021) AND IsDeleted = TRUE"));
+    assertEquals(2, count("SELECT COUNT(*) FROM \"ConsumerRole\" WHERE ConsumerId = 1000 "
+        + "AND RoleId IN (1003, 1004) AND IsDeleted = FALSE"));
+    assertTrue(consumerService.findConsumerRoleDetailsByConsumerId(1000L).stream()
+        .noneMatch(role -> env.equals(role.getEnv())));
+  }
+
+  private void insertNamespacePair(int firstId, String env) {
+    for (int i = 0; i < 2; i++) {
+      int roleId = firstId + i;
+      String roleType = i == 0 ? "ModifyNamespace" : "ReleaseNamespace";
+      jdbcTemplate.update("INSERT INTO \"Role\" (Id, RoleName) VALUES (?, ?)", roleId,
+          roleType + "+role-test-app+application+" + env);
+      jdbcTemplate.update(
+          "INSERT INTO \"ConsumerRole\" (Id, ConsumerId, RoleId) " + "VALUES (?, 1000, ?)", roleId,
+          roleId);
+    }
   }
 
   private int count(String sql) {

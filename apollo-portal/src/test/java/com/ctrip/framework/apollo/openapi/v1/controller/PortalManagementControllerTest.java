@@ -35,6 +35,7 @@ import static org.mockito.Mockito.when;
 import com.ctrip.framework.apollo.audit.ApolloAuditProperties;
 import com.ctrip.framework.apollo.audit.api.ApolloAuditLogApi;
 import com.ctrip.framework.apollo.common.controller.HttpMessageConverterConfiguration;
+import com.ctrip.framework.apollo.common.controller.GlobalDefaultExceptionHandler;
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.http.SearchResponseEntity;
@@ -628,11 +629,7 @@ public class PortalManagementControllerTest {
   @Test
   public void consumerRoleEndpointsShouldBindGeneratedContractAndSerializePlainFields()
       throws Exception {
-    HttpMessageConverterConfiguration configuration = new HttpMessageConverterConfiguration();
-    MockMvc mvc = MockMvcBuilders.standaloneSetup(controller)
-        .setMessageConverters(configuration.messageConverters(configuration.gson()).getConverters()
-            .toArray(new HttpMessageConverter<?>[0]))
-        .build();
+    MockMvc mvc = consumerRoleMockMvc();
     List<OpenConsumerRoleDTO> roles =
         List.of(new OpenConsumerRoleDTO().type("AppRole").appId("someApp"),
             new OpenConsumerRoleDTO().type("NamespaceRole").appId("someApp")
@@ -654,6 +651,60 @@ public class PortalManagementControllerTest {
         .andExpect(status().isOk());
     verify(consumerService).revokeConsumerRole(1L, "NamespaceRole", "someApp", "application", "DEV",
         "operator");
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"abc", "1.5", "9223372036854775808"})
+  public void consumerRoleEndpointsShouldReturnBadRequestForInvalidConsumerId(String consumerId)
+      throws Exception {
+    MockMvc mvc = consumerRoleMockMvc();
+
+    mvc.perform(get("/openapi/v1/consumers/{consumerId}/roles", consumerId))
+        .andExpect(status().isBadRequest()).andExpect(jsonPath("$.status").value(400))
+        .andExpect(jsonPath("$.exception").value(
+            "org.springframework.web.method.annotation.MethodArgumentTypeMismatchException"));
+    mvc.perform(delete("/openapi/v1/consumers/{consumerId}/roles", consumerId)
+        .param("type", "AppRole").param("appId", "someApp")).andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.status").value(400));
+    verifyNoInteractions(consumerService, userInfoHolder);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"type", "appId"})
+  public void revokeConsumerRolesShouldReturnBadRequestForMissingRequiredParameter(String missing)
+      throws Exception {
+    MockMvc mvc = consumerRoleMockMvc();
+    var request = delete("/openapi/v1/consumers/1/roles");
+    if (!"type".equals(missing)) {
+      request.param("type", "AppRole");
+    }
+    if (!"appId".equals(missing)) {
+      request.param("appId", "someApp");
+    }
+
+    mvc.perform(request).andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.status").value(400)).andExpect(jsonPath("$.exception")
+            .value("org.springframework.web.bind.MissingServletRequestParameterException"));
+    verifyNoInteractions(consumerService, userInfoHolder);
+  }
+
+  @Test
+  public void consumerRoleEndpointsShouldKeepUnexpectedFailuresAsServerErrors() throws Exception {
+    when(consumerService.findConsumerRoleDetailsByConsumerId(1L))
+        .thenThrow(new IllegalStateException("unexpected failure"));
+
+    consumerRoleMockMvc().perform(get("/openapi/v1/consumers/1/roles"))
+        .andExpect(status().isInternalServerError())
+        .andExpect(jsonPath("$.status").value(500));
+  }
+
+  private MockMvc consumerRoleMockMvc() {
+    HttpMessageConverterConfiguration configuration = new HttpMessageConverterConfiguration();
+    return MockMvcBuilders.standaloneSetup(controller)
+        .setControllerAdvice(new GlobalDefaultExceptionHandler())
+        .setMessageConverters(configuration.messageConverters(configuration.gson()).getConverters()
+            .toArray(new HttpMessageConverter<?>[0]))
+        .build();
   }
 
   @Configuration(proxyBeanMethods = false)
