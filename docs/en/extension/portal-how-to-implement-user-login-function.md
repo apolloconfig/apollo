@@ -560,6 +560,7 @@ The following example shows the scan scope to preserve and the configuration to 
 ```java
 @PropertySource(value = {"classpath:portal.properties"})
 @EnableAutoConfiguration
+@AutoConfigurationPackage(basePackages = "com.ctrip.framework.apollo.portal")
 @EnableTransactionManagement
 @EnableAspectJAutoProxy
 @ComponentScan(
@@ -580,6 +581,8 @@ The following example shows the scan scope to preserve and the configuration to 
 ```
 
 Preserve the `portal.properties` property source and the Portal default port 8070 from `PortalApplication`, or provide equivalent settings in your startup application. Auto-configuration, transaction management, and AOP must also remain enabled.
+
+Import `org.springframework.boot.autoconfigure.AutoConfigurationPackage` in the startup class so Portal JPA repositories, including `UserRepository`, are discovered.
 
 Do not exclude only the two default nested classes, because the outer `AuthConfiguration` can still register them. Do not import the official `PortalApplication` from your own startup entry point either.
 

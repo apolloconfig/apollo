@@ -542,6 +542,7 @@ mvn -Dspring-boot.repackage.skip=true install
 ```java
 @PropertySource(value = {"classpath:portal.properties"})
 @EnableAutoConfiguration
+@AutoConfigurationPackage(basePackages = "com.ctrip.framework.apollo.portal")
 @EnableTransactionManagement
 @EnableAspectJAutoProxy
 @ComponentScan(
@@ -562,6 +563,8 @@ mvn -Dspring-boot.repackage.skip=true install
 ```
 
 同时保留 `PortalApplication` 的 `portal.properties` 属性源及默认端口 8070，或在启动工程中提供等价配置。自动配置、事务管理和 AOP 也应保持启用。
+
+启动类还需导入 `org.springframework.boot.autoconfigure.AutoConfigurationPackage`，确保 Portal 的 JPA 仓库（包括 `UserRepository`）能够被发现。
 
 不要只排除两个默认嵌套类，因为外层 `AuthConfiguration` 仍可能重新注册它们；也不要在自己的启动入口中再次导入官方 `PortalApplication`。
 
