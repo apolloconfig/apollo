@@ -24,6 +24,9 @@ on:
       - 'apollo-assembly/**'
       - 'e2e/portal-e2e/**'
       - 'e2e/scripts/**'
+      - 'mvnw'
+      - 'mvnw.cmd'
+      - '.mvn/wrapper/**'
       - '.github/workflows/portal-login-e2e.yml'
   workflow_dispatch:
 
@@ -45,6 +48,12 @@ jobs:
           distribution: temurin
           java-version: 17
           cache: maven
+
+      - name: Cache Maven distribution
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/wrapper/dists
+          key: ${{ runner.os }}-${{ runner.arch }}-maven-wrapper-${{ hashFiles('.mvn/wrapper/maven-wrapper.properties') }}
 
       - name: Set up Node.js 20
         uses: actions/setup-node@v4

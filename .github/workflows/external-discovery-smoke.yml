@@ -27,6 +27,9 @@ on:
       - 'e2e/**'
       - 'scripts/sql/**'
       - 'pom.xml'
+      - 'mvnw'
+      - 'mvnw.cmd'
+      - '.mvn/wrapper/**'
       - '.github/workflows/external-discovery-smoke.yml'
   workflow_dispatch:
     inputs:
@@ -70,6 +73,12 @@ jobs:
           distribution: temurin
           java-version: 17
           cache: maven
+
+      - name: Cache Maven distribution
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/wrapper/dists
+          key: ${{ runner.os }}-${{ runner.arch }}-maven-wrapper-${{ hashFiles('.mvn/wrapper/maven-wrapper.properties') }}
 
       - name: Build Apollo config/admin services
         run: ./mvnw -B -Pnacos-discovery -pl apollo-configservice,apollo-adminservice -am -DskipTests package
