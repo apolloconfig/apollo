@@ -151,6 +151,20 @@ public class AppNamespaceControllerTest extends AbstractControllerTest {
         namespaceRepository.findByAppIdAndName(APP_ID, "DB-Config").getId());
   }
 
+  @Test
+  @Sql(scripts = "/controller/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  public void testGetMatchesTheNameAsTheDatabaseDoes() {
+    // the default H2 schema compares names by case
+    AppNamespaceDTO stored = create(APP_ID, "DB-Config");
+
+    Assert.assertNull(
+        restTemplate.getForObject(getUrl(), AppNamespaceDTO.class, APP_ID, "db-config"));
+    AppNamespaceDTO found =
+        restTemplate.getForObject(getUrl(), AppNamespaceDTO.class, APP_ID, "DB-Config");
+    Assert.assertEquals(stored.getId(), found.getId());
+    Assert.assertEquals("DB-Config", found.getName());
+  }
+
   private AppNamespaceDTO create(String appId, String namespaceName) {
     AppNamespaceDTO dto = new AppNamespaceDTO();
     dto.setAppId(appId);
@@ -159,6 +173,10 @@ public class AppNamespaceControllerTest extends AbstractControllerTest {
     return restTemplate
         .postForEntity(url("/apps/{appId}/appnamespaces"), dto, AppNamespaceDTO.class, appId)
         .getBody();
+  }
+
+  private String getUrl() {
+    return url("/apps/{appId}/appnamespaces/{namespaceName}");
   }
 
   private String deleteByIdUrl() {

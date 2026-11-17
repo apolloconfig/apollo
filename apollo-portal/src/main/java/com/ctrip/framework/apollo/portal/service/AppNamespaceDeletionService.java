@@ -31,10 +31,10 @@ import com.ctrip.framework.apollo.portal.listener.AppNamespaceDeletionEvent;
 import com.ctrip.framework.apollo.tracer.Tracer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 
@@ -42,10 +42,12 @@ import org.springframework.web.client.HttpClientErrorException;
  * Deletes an AppNamespace in the Portal and in every environment, cleans up what remains in the
  * environments after the Portal row is gone, and checks what remains without changing anything.
  * The methods are not transactional, so the changes that took effect stay when an environment
- * fails, and the deletion and the cleanup name the environments where they are not complete. An
- * environment deletes only the AppNamespace with the id listed there just before, so it keeps one
- * recreated under the same name after that. A cleanup fails without deleting in an environment
- * whose adminservice cannot check the id, while a deletion deletes by name there.
+ * fails, and the deletion and the cleanup name the environments where they are not complete. Each
+ * environment's adminservice looks the name up in its database, so the name matches as it does
+ * there. An environment deletes only the AppNamespace with the id found there just before, so it
+ * keeps one recreated under the same name after that. A cleanup fails without deleting in an
+ * environment whose adminservice cannot look the name up or check the id, while a deletion deletes
+ * by name there.
  */
 @Service
 public class AppNamespaceDeletionService {
@@ -158,18 +160,22 @@ public class AppNamespaceDeletionService {
     for (int i = 0; i < envs.size(); i++) {
       Env env = envs.get(i);
       EnvCheck check = checkEnv(env, appId, namespaceName);
+      // a deletion still deletes by name where the adminservice cannot look the name up, as
+      // before, while a cleanup, which needs the id checked, fails there
+      boolean byName = !idCheckRequired && check.lookupMissing;
       if (check.status == Status.SKIPPED) {
         results.skippedEnvs.add(env);
-      } else if (check.status == Status.UNREACHABLE) {
+      } else if (check.status == Status.UNREACHABLE && !byName) {
         results.failedEnvs.add(env);
-      } else if (check.status == Status.REMAINING) {
+      } else if (check.status == Status.REMAINING || byName) {
         // nothing is deleted once the AppNamespace was recreated in the Portal meanwhile
         if (existsInPortal(appId, namespaceName)) {
           results.remainingEnvs.addAll(envs.subList(i, envs.size()));
           break;
         }
         // the environment matches the name as its database does and deletes the AppNamespace only
-        // while it has the listed id, so it keeps one recreated after the listing
+        // while it has the id found there, so it keeps one recreated after the lookup. An
+        // adminservice of an earlier version ignores the id
         Throwable failure =
             deleteInEnv(env, appId, namespaceName, check.storedId, operator, idCheckRequired);
         if (failure == null) {
@@ -185,7 +191,7 @@ public class AppNamespaceDeletionService {
           results.remainingEnvs.addAll(envs.subList(refused ? i : i + 1, envs.size()));
           break;
         } else if (checkEnv(env, appId, namespaceName).status != Status.ABSENT) {
-          // another deletion or cleanup may have removed it between the listing and the delete
+          // another deletion or cleanup may have removed it between the lookup and the delete
           results.failedEnvs.add(env);
         }
       }
@@ -195,35 +201,22 @@ public class AppNamespaceDeletionService {
 
   private EnvCheck checkEnv(Env env, String appId, String namespaceName) {
     if (!portalSettings.isEnvActive(env)) {
-      return new EnvCheck(Status.SKIPPED, 0, null);
+      return new EnvCheck(Status.SKIPPED, 0, null, false);
     }
     try {
-      AppNamespaceDTO stored =
-          findMatching(namespaceAPI.getAppNamespaces(appId, env), namespaceName);
+      // the environment's database matches the name, as it does when it deletes
+      AppNamespaceDTO stored = namespaceAPI.loadAppNamespace(appId, env, namespaceName);
       if (stored == null) {
-        return new EnvCheck(Status.ABSENT, 0, null);
+        return new EnvCheck(Status.ABSENT, 0, null, false);
       }
-      return new EnvCheck(Status.REMAINING, stored.getId(), null);
+      return new EnvCheck(Status.REMAINING, stored.getId(), null, false);
     } catch (Throwable e) {
       logFailure("Check", env, appId, namespaceName, e);
-      return new EnvCheck(Status.UNREACHABLE, 0, e.getMessage());
+      // an adminservice of an earlier version cannot look the name up and answers 400
+      boolean lookupMissing = e instanceof HttpClientErrorException
+          && ((HttpClientErrorException) e).getStatusCode() == HttpStatus.BAD_REQUEST;
+      return new EnvCheck(Status.UNREACHABLE, 0, e.getMessage(), lookupMissing);
     }
-  }
-
-  /**
-   * Returns the listed AppNamespace that the environment's database matches with the name: the one
-   * with exactly this name, or else the only one whose name differs in case, which a database that
-   * ignores case matches, as MySQL does. Only a database that compares case, as the default H2
-   * schema does, stores several names that differ only in case, and it matches none of them unless
-   * one is exactly this name. The environment matches the name again when it deletes, so such a
-   * database also refuses to delete the only one whose name differs in case.
-   */
-  private static AppNamespaceDTO findMatching(List<AppNamespaceDTO> listed, String namespaceName) {
-    List<AppNamespaceDTO> matches = listed.stream()
-        .filter(appNamespace -> namespaceName.equalsIgnoreCase(appNamespace.getName()))
-        .collect(Collectors.toList());
-    return matches.stream().filter(appNamespace -> namespaceName.equals(appNamespace.getName()))
-        .findFirst().orElse(matches.size() == 1 ? matches.get(0) : null);
   }
 
   /**
@@ -276,18 +269,21 @@ public class AppNamespaceDeletionService {
   }
 
   /**
-   * The status of the AppNamespace in one environment, and the id that environment stores.
+   * The status of the AppNamespace in one environment, the id that environment stores, and whether
+   * its adminservice cannot look the name up.
    */
   private static class EnvCheck {
 
     private final Status status;
     private final long storedId;
     private final String message;
+    private final boolean lookupMissing;
 
-    private EnvCheck(Status status, long storedId, String message) {
+    private EnvCheck(Status status, long storedId, String message, boolean lookupMissing) {
       this.status = status;
       this.storedId = storedId;
       this.message = message;
+      this.lookupMissing = lookupMissing;
     }
   }
 

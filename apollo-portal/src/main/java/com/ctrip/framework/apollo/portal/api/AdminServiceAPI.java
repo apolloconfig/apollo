@@ -136,6 +136,15 @@ public class AdminServiceAPI {
       return Arrays.asList(appNamespaceDTOs);
     }
 
+    /**
+     * Loads the AppNamespace whose name the environment's database matches with the given one, or
+     * null when there is none. An adminservice of an earlier version answers 400.
+     */
+    public AppNamespaceDTO loadAppNamespace(String appId, Env env, String namespaceName) {
+      return restTemplate.get(env, "apps/{appId}/appnamespaces/{namespaceName}",
+          AppNamespaceDTO.class, appId, namespaceName);
+    }
+
     @ApolloAuditLog(type = OpType.RPC, name = "Namespace.deleteInRemote")
     public void deleteNamespace(Env env, String appId, String clusterName, String namespaceName,
         String operator) {

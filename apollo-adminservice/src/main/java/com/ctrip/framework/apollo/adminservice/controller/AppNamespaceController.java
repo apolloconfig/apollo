@@ -125,4 +125,16 @@ public class AppNamespaceController {
 
     return BeanUtils.batchTransform(AppNamespaceDTO.class, appNamespaces);
   }
+
+  /**
+   * Finds the AppNamespace whose name this database matches with the given one, as {@link #delete}
+   * does, so a caller follows the database's own rule for the case of names. The answer has no body
+   * when there is none.
+   */
+  @GetMapping("/apps/{appId}/appnamespaces/{namespaceName:.+}")
+  public AppNamespaceDTO get(@PathVariable("appId") String appId,
+      @PathVariable("namespaceName") String namespaceName) {
+    AppNamespace appNamespace = appNamespaceService.findOne(appId, namespaceName);
+    return BeanUtils.transform(AppNamespaceDTO.class, appNamespace);
+  }
 }

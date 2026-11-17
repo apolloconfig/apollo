@@ -34,6 +34,9 @@ import com.ctrip.framework.apollo.portal.component.PortalSettings;
 import com.ctrip.framework.apollo.portal.component.RestTemplateFactory;
 import com.ctrip.framework.apollo.portal.component.RetryableRestTemplate;
 import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
+import com.ctrip.framework.apollo.portal.entity.bo.AppNamespaceDeletionCheckBO;
+import com.ctrip.framework.apollo.portal.entity.bo.AppNamespaceEnvDeletionStatusBO;
+import com.ctrip.framework.apollo.portal.entity.bo.AppNamespaceEnvDeletionStatusBO.Status;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.environment.PortalMetaDomainService;
 import java.util.ArrayList;
@@ -65,8 +68,9 @@ import org.springframework.web.client.RestTemplate;
 /**
  * Tests a deletion and a cleanup while the adminservices run different versions. The requests that
  * the Portal sends go through its rest template to DEV, whose adminservice is a release up to 3.0.0
- * that cannot check the id of the AppNamespace it deletes, and to PRO, whose adminservice checks
- * it. Both databases compare names by case, as the default H2 schema does.
+ * that can neither look an AppNamespace up by name nor check the id of the one it deletes, and to
+ * PRO, whose adminservice does both. Both databases compare names by case, as the default H2 schema
+ * does.
  */
 @ExtendWith(MockitoExtension.class)
 class AppNamespaceDeletionMixedVersionTest {
@@ -123,9 +127,9 @@ class AppNamespaceDeletionMixedVersionTest {
   void cleanUpShouldKeepAppNamespaceRecreatedAfterTheFinalPortalCheck() {
     dev.idsByName.put(NAMESPACE, LISTED_ID);
     pro.idsByName.put(NAMESPACE, LISTED_ID);
-    // the Portal has no row at the start and right before the DEV deletion. Right after that
-    // check another cleanup removes the AppNamespace and someone creates it again, so the delayed
-    // deletion reaches DEV after the recreation
+    // DEV cannot look the name up and is left alone. The Portal has no row at the start and right
+    // before the PRO deletion. Right after that check another cleanup removes the AppNamespace and
+    // someone creates it again, so the delayed deletion reaches PRO after the recreation
     AtomicInteger portalChecks = new AtomicInteger();
     when(appNamespaceService.findByAppIdAndName(APP_ID, NAMESPACE)).thenAnswer(invocation -> {
       int check = portalChecks.incrementAndGet();
@@ -190,6 +194,24 @@ class AppNamespaceDeletionMixedVersionTest {
     assertThat(pro.idsByName).containsOnly(entry(OTHER_NAMESPACE, OTHER_ID));
   }
 
+  @Test
+  void checkAndCleanUpShouldFindNothingWhereTheDatabaseStoresOnlyANameDifferingInCase() {
+    // every environment runs this version here: only PRO, whose database stores DB-Config alone
+    when(portalSettings.getAllEnvs()).thenReturn(Collections.singletonList(Env.PRO));
+    pro.idsByName.put(OTHER_NAMESPACE, OTHER_ID);
+    when(appNamespaceService.findByAppIdAndName(APP_ID, NAMESPACE)).thenReturn(null);
+
+    AppNamespaceDeletionCheckBO check = service.checkAppNamespaceDeletion(APP_ID, NAMESPACE);
+    Throwable error =
+        catchThrowable(() -> service.cleanUpAppNamespace(APP_ID, NAMESPACE, OPERATOR));
+
+    assertThat(check.getEnvironments()).extracting(AppNamespaceEnvDeletionStatusBO::getStatus)
+        .containsExactly(Status.ABSENT);
+    assertThat(error).isInstanceOf(BadRequestException.class)
+        .hasMessage("appNamespace not exist for appId:sample-app namespaceName:db-config");
+    assertThat(pro.idsByName).containsOnly(entry(OTHER_NAMESPACE, OTHER_ID));
+  }
+
   private static ClientHttpRequestFactory adminService(Object controller) {
     return new MockMvcClientHttpRequestFactory(MockMvcBuilders.standaloneSetup(controller)
         .setControllerAdvice(new GlobalDefaultExceptionHandler()).build());
@@ -229,14 +251,16 @@ class AppNamespaceDeletionMixedVersionTest {
     @GetMapping("/apps/{appId}/appnamespaces")
     public List<AppNamespaceDTO> getAppNamespaces(@PathVariable("appId") String appId) {
       List<AppNamespaceDTO> appNamespaces = new ArrayList<>();
-      idsByName.forEach((name, id) -> {
-        AppNamespaceDTO appNamespace = new AppNamespaceDTO();
-        appNamespace.setId(id);
-        appNamespace.setAppId(appId);
-        appNamespace.setName(name);
-        appNamespaces.add(appNamespace);
-      });
+      idsByName.forEach((name, id) -> appNamespaces.add(appNamespace(appId, name, id)));
       return appNamespaces;
+    }
+
+    static AppNamespaceDTO appNamespace(String appId, String namespaceName, long id) {
+      AppNamespaceDTO appNamespace = new AppNamespaceDTO();
+      appNamespace.setId(id);
+      appNamespace.setAppId(appId);
+      appNamespace.setName(namespaceName);
+      return appNamespace;
     }
 
     void remove(String appId, String namespaceName, Long appNamespaceId) {
@@ -254,7 +278,7 @@ class AppNamespaceDeletionMixedVersionTest {
 
   /**
    * The AppNamespace delete of the adminservice as released up to 3.0.0. It has no appNamespaceId,
-   * so it deletes by name whatever else the request carries.
+   * so it deletes by name whatever else the request carries, and no lookup by name.
    */
   @RestController
   @Profile(ADMIN_SERVICE_PROFILE)
@@ -268,12 +292,20 @@ class AppNamespaceDeletionMixedVersionTest {
   }
 
   /**
-   * The AppNamespace deletes of the adminservice of this version, which delete the AppNamespace
-   * only while it has the given id.
+   * The AppNamespace lookup and deletes of the adminservice of this version. The lookup matches the
+   * name as the database does, and the deletes delete the AppNamespace only while it has the given
+   * id.
    */
   @RestController
   @Profile(ADMIN_SERVICE_PROFILE)
   static class UpgradedAdminService extends AdminService {
+
+    @GetMapping("/apps/{appId}/appnamespaces/{namespaceName:.+}")
+    public AppNamespaceDTO get(@PathVariable("appId") String appId,
+        @PathVariable("namespaceName") String namespaceName) {
+      Long id = idsByName.get(namespaceName);
+      return id == null ? null : appNamespace(appId, namespaceName, id);
+    }
 
     @DeleteMapping("/apps/{appId}/appnamespaces/{namespaceName:.+}")
     public void delete(@PathVariable("appId") String appId,
