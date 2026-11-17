@@ -30,6 +30,8 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,6 +41,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -50,7 +53,8 @@ public class UserTokenAuthenticationFilter extends OncePerRequestFilter {
   private static final Logger logger = LoggerFactory.getLogger(UserTokenAuthenticationFilter.class);
 
   private static final String OPEN_API_PREFIX = "/openapi/";
-  private static final String BEARER_PREFIX = "Bearer ";
+  private static final Pattern BEARER_PATTERN =
+      Pattern.compile("^Bearer\\s+(?<token>\\S+.*)$", Pattern.CASE_INSENSITIVE);
   private static final String USER_ROLE = "ROLE_user";
   private static final int RATE_LIMITER_CACHE_MAX_SIZE = 20000;
   private static final int TOO_MANY_REQUESTS = 429;
@@ -72,12 +76,22 @@ public class UserTokenAuthenticationFilter extends OncePerRequestFilter {
 
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request) {
+    return !isOpenApiRequest(request);
+  }
+
+  /**
+   * Checks whether the request path targets OpenAPI endpoints.
+   *
+   * @param request the HTTP request
+   * @return true if the request path starts with {@link #OPEN_API_PREFIX}
+   */
+  public static boolean isOpenApiRequest(HttpServletRequest request) {
     String requestUri = request.getRequestURI();
     String contextPath = request.getContextPath();
     if (contextPath != null && !contextPath.isEmpty() && requestUri.startsWith(contextPath)) {
       requestUri = requestUri.substring(contextPath.length());
     }
-    return !requestUri.startsWith(OPEN_API_PREFIX);
+    return requestUri.startsWith(OPEN_API_PREFIX);
   }
 
   @Override
@@ -113,17 +127,30 @@ public class UserTokenAuthenticationFilter extends OncePerRequestFilter {
 
     userTokenAuthUtil.storeUserToken(request, userToken);
     userTokenAuditUtil.audit(request, userToken);
-    SecurityContextHolder.getContext().setAuthentication(UserTokenAuthenticationToken.authenticated(
-        userToken, Collections.singletonList(new SimpleGrantedAuthority(USER_ROLE))));
+    // The current context may be shared with the Portal session.
+    SecurityContext context = SecurityContextHolder.createEmptyContext();
+    context.setAuthentication(UserTokenAuthenticationToken.authenticated(userToken,
+        Collections.singletonList(new SimpleGrantedAuthority(USER_ROLE))));
+    SecurityContextHolder.setContext(context);
     filterChain.doFilter(request, response);
   }
 
-  private String resolveUserToken(HttpServletRequest request) {
+  /**
+   * Resolves a user access token from the Authorization header matching a Bearer scheme.
+   *
+   * @param request the HTTP request
+   * @return the token value starting with {@link UserTokenService#TOKEN_PREFIX}, or null
+   */
+  public static String resolveUserToken(HttpServletRequest request) {
     String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
-    if (authorization == null || !authorization.startsWith(BEARER_PREFIX)) {
+    if (authorization == null) {
       return null;
     }
-    String token = authorization.substring(BEARER_PREFIX.length()).trim();
+    Matcher matcher = BEARER_PATTERN.matcher(authorization);
+    if (!matcher.matches()) {
+      return null;
+    }
+    String token = matcher.group("token").trim();
     if (!token.startsWith(UserTokenService.TOKEN_PREFIX)) {
       return null;
     }

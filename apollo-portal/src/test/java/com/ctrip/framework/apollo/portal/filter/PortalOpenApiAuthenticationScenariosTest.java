@@ -28,6 +28,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -74,9 +75,11 @@ import org.springframework.mock.env.MockEnvironment;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
@@ -158,7 +161,7 @@ public class PortalOpenApiAuthenticationScenariosTest {
       @GetMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}")
       public ResponseEntity<String> loadPortalCluster(@PathVariable String appId,
           @PathVariable String env, @PathVariable String clusterName) {
-        return ResponseEntity.ok("portal-ok");
+        return ResponseEntity.ok(SecurityContextHolder.getContext().getAuthentication().getName());
       }
     }
 
@@ -169,7 +172,7 @@ public class PortalOpenApiAuthenticationScenariosTest {
       @GetMapping("/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}")
       public ResponseEntity<String> loadOpenApiCluster(@PathVariable String env,
           @PathVariable String appId, @PathVariable String clusterName) {
-        return ResponseEntity.ok("openapi-ok");
+        return ResponseEntity.ok(SecurityContextHolder.getContext().getAuthentication().getName());
       }
     }
   }
@@ -274,6 +277,29 @@ public class PortalOpenApiAuthenticationScenariosTest {
         .andExpect(status().isOk());
 
     verify(consumerAuthUtil, never()).getConsumerToken(any());
+  }
+
+  @Test
+  void openApiRequestWithUserTokenShouldPreservePortalSessionIdentity() throws Exception {
+    String tokenValue = UserTokenService.TOKEN_PREFIX + "abc_secret";
+    UserToken userToken = new UserToken();
+    userToken.setId(1L);
+    userToken.setUserId("token-owner");
+    userToken.setTokenPrefix("abc");
+    when(userTokenService.authenticate(eq(tokenValue), any(HttpServletRequest.class)))
+        .thenReturn(userToken);
+
+    MockHttpSession session = new MockHttpSession();
+    mockMvc.perform(get(PORTAL_URI).session(session).with(user("session-user").roles("user")))
+        .andExpect(status().isOk()).andExpect(content().string("session-user"));
+
+    mockMvc
+        .perform(get(OPEN_API_URI).session(session).header(HttpHeaders.AUTHORIZATION,
+            "Bearer " + tokenValue))
+        .andExpect(status().isOk()).andExpect(content().string("token-owner"));
+
+    mockMvc.perform(get(PORTAL_URI).session(session)).andExpect(status().isOk())
+        .andExpect(content().string("session-user"));
   }
 
   // Scenario 2.2-4: Unauthenticated call without token gets 401 Unauthorized.

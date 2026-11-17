@@ -241,6 +241,63 @@ public class AppNamespaceServiceTest extends AbstractIntegrationTest {
     Assert.assertEquals(appNamespace.getName(), createdAppNamespace.getName());
   }
 
+  @Test
+  @Sql(scripts = "/sql/appnamespaceservice/init-appnamespace.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  public void testCreateAppNamespaceIgnoresSuppliedId() {
+    // A client-supplied id must never turn a create into a merge/UPDATE of an
+    // existing row (the AppNamespace JPA controllable-id issue). Row 142 is the
+    // victim namespace 'application' of app 'song0711-02' from the fixture.
+    AppNamespace appNamespace = assembleBaseAppNamespace();
+    appNamespace.setId(142L);
+    appNamespace.setAppId("1000");
+    appNamespace.setName("poc-takeover");
+    appNamespace.setPublic(false);
+    appNamespace.setFormat(ConfigFileFormat.Properties.getValue());
+
+    AppNamespace createdAppNamespace =
+        appNamespaceService.createAppNamespaceInLocal(appNamespace, "apollo");
+
+    Assert.assertNotNull(createdAppNamespace);
+    Assert.assertNotEquals(142L, createdAppNamespace.getId());
+    Assert.assertEquals("1000", createdAppNamespace.getAppId());
+    Assert.assertEquals("poc-takeover", createdAppNamespace.getName());
+
+    AppNamespace victimAppNamespace =
+        appNamespaceService.findByAppIdAndName("song0711-02", "application");
+    Assert.assertNotNull(victimAppNamespace);
+    Assert.assertEquals(142L, victimAppNamespace.getId());
+    Assert.assertEquals("song0711-02", victimAppNamespace.getAppId());
+  }
+
+  @Test
+  @Sql(scripts = "/sql/appnamespaceservice/init-appnamespace.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  public void testImportAppNamespaceIgnoresSuppliedId() {
+    // Same protection for the import path, which also saves the entity directly.
+    AppNamespace appNamespace = assembleBaseAppNamespace();
+    appNamespace.setId(142L);
+    appNamespace.setAppId("1000");
+    appNamespace.setName("poc-import");
+    appNamespace.setPublic(false);
+    appNamespace.setFormat(ConfigFileFormat.Properties.getValue());
+    appNamespace.setDataChangeCreatedBy("apollo");
+    appNamespace.setDataChangeLastModifiedBy("apollo");
+
+    AppNamespace createdAppNamespace =
+        appNamespaceService.importAppNamespaceInLocal(appNamespace);
+
+    Assert.assertNotNull(createdAppNamespace);
+    Assert.assertNotEquals(142L, createdAppNamespace.getId());
+
+    AppNamespace victimAppNamespace =
+        appNamespaceService.findByAppIdAndName("song0711-02", "application");
+    Assert.assertNotNull(victimAppNamespace);
+    Assert.assertEquals(142L, victimAppNamespace.getId());
+  }
+
   private AppNamespace assembleBaseAppNamespace() {
     AppNamespace appNamespace = new AppNamespace();
     appNamespace.setName("appNamespace");
