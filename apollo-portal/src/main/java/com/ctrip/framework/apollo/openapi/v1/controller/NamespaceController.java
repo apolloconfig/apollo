@@ -127,7 +127,12 @@ public class NamespaceController
   @ApolloAuditLog(type = OpType.DELETE, name = "AppNamespace.delete")
   @Override
   public ResponseEntity<Void> deleteAppNamespace(String appId, String namespaceName,
-      String operator) {
+      String operator, Boolean recovery) {
+    // Reject recovery requests until the dedicated cleanup flow is available.
+    if (Boolean.TRUE.equals(recovery)) {
+      throw new BadRequestException(
+          "AppNamespace recovery is not supported by this Portal version.");
+    }
     namespaceOpenApiService.deleteAppNamespace(appId, namespaceName,
         resolveOperator(operator, null));
     return ResponseEntity.ok().build();
