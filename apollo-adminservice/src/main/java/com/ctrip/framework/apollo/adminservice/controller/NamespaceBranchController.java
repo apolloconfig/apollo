@@ -151,9 +151,12 @@ public class NamespaceBranchController {
     // 1. check parent namespace
     checkNamespace(appId, clusterName, namespaceName);
 
-    // 2. check child namespace
-    Namespace childNamespace = namespaceService.findOne(appId, branchName, namespaceName);
-    if (childNamespace == null) {
+    // 2. check the branch is really a gray branch of the parent cluster.
+    // findBranch only returns the child namespace of clusterName, so a branchName
+    // naming any other cluster (including the protected `default` cluster) is
+    // rejected here instead of being treated as a branch. See GHSA-hv72.
+    Namespace childNamespace = namespaceBranchService.findBranch(appId, clusterName, namespaceName);
+    if (childNamespace == null || !branchName.equals(childNamespace.getClusterName())) {
       throw new BadRequestException(
           "Namespace's branch not exist. AppId = %s, ClusterName = %s, NamespaceName = %s, BranchName = %s",
           appId, clusterName, namespaceName, branchName);

@@ -21,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -284,6 +285,42 @@ class ReleaseBranchInstanceControllerTest {
     verify(releaseService).publish(modelCaptor.capture());
     assertThat(modelCaptor.getValue().getClusterName()).isEqualTo(BRANCH);
     assertThat(modelCaptor.getValue().getReleasedBy()).isEqualTo(PORTAL_USER);
+  }
+
+  @Test
+  void createGrayReleaseShouldRejectNonBranchClusterAsBranchName() {
+    // GHSA-hv72: passing `default` (or any other real cluster) as branchName must
+    // not publish that cluster's configuration.
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
+    doThrow(new BadRequestException(
+        "Namespace's branch not exist. AppId = %s, ClusterName = %s, NamespaceName = %s, BranchName = %s",
+        APP_ID, CLUSTER, NAMESPACE, CLUSTER)).when(namespaceBranchService)
+        .checkBranch(APP_ID, Env.DEV, CLUSTER, NAMESPACE, CLUSTER);
+
+    NamespaceReleaseDTO request = releaseRequest("gray release", "spoofed-user", false);
+
+    assertThatThrownBy(() -> releaseController.createGrayRelease(APP_ID, ENV, CLUSTER, NAMESPACE,
+        CLUSTER, request, null)).isInstanceOf(BadRequestException.class);
+
+    verify(releaseService, never()).publish(any(NamespaceReleaseModel.class));
+  }
+
+  @Test
+  void createGrayDelReleaseShouldRejectNonBranchClusterAsBranchName() {
+    // GHSA-hv72: same binding check as createGrayRelease.
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
+    doThrow(new BadRequestException(
+        "Namespace's branch not exist. AppId = %s, ClusterName = %s, NamespaceName = %s, BranchName = %s",
+        APP_ID, CLUSTER, NAMESPACE, CLUSTER)).when(namespaceBranchService)
+        .checkBranch(APP_ID, Env.DEV, CLUSTER, NAMESPACE, CLUSTER);
+
+    NamespaceGrayDelReleaseDTO request =
+        grayDelReleaseRequest("gray delete release", "spoofed-user", false);
+
+    assertThatThrownBy(() -> releaseController.createGrayDelRelease(APP_ID, ENV, CLUSTER, NAMESPACE,
+        CLUSTER, request, null)).isInstanceOf(BadRequestException.class);
+
+    verify(releaseService, never()).publish(any(NamespaceGrayDelReleaseModel.class), anyString());
   }
 
   @Test
