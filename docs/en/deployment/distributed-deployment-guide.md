@@ -1441,11 +1441,11 @@ Default is false, all project administrators can add/remove administrators for t
 
 If set to true, only super administrators and accounts with project administrator assignment privileges can add/remove administrators for a specific project, and super administrators can assign project-specific administrator assignment privileges to users via `Administrator Tools - System Rights Management
 
-### 3.1.12 admin-services.access.tokens - set the access token required by apollo-portal to access the apollo-adminservice for each environment
+### 3.1.12 admin-service.access.tokens - set the access token required by apollo-portal to access the apollo-adminservice for each environment
 
 > for version 1.7.1 and above
 
-If the corresponding environment apollo-adminservice has [access control enabled](en/deployment/distributed-deployment-guide?id=_326-admin-servicesaccesscontrolenabled-configure-whether-apollo-adminservice-has-access-control-enabled), then you need to configure apollo-portal access here access token required for this environment apollo-adminservice, otherwise access will fail .
+If the corresponding environment apollo-adminservice has [access control enabled](en/deployment/distributed-deployment-guide?id=_326-admin-serviceaccesscontrolenabled-configure-whether-apollo-adminservice-has-access-control-enabled), then you need to configure apollo-portal access here access token required for this environment apollo-adminservice, otherwise access will fail .
 
 The format is json, as follows.
 
@@ -1574,13 +1574,13 @@ namespace.value.length.limit.override = {1:200,3:20}
 
 The above configuration specifies a maximum length limit of 200 for the value of namespace with id=1 and 20 for the value of namespace with id=3 in the ApolloConfigDB.Namespace table
 
-### 3.2.6 `admin-services.access.control.enabled` - Configure whether apollo-adminservice has access control enabled
+### 3.2.6 `admin-service.access.control.enabled` - Configure whether apollo-adminservice has access control enabled
 
 > For versions 1.7.1 and above
 
-Default is false, if configured to true, then apollo-portal needs to be [properly configured](en/deployment/distributed-deployment-guide?id=_3112-admin-servicesaccesstokens-set-the-access-token-required-by-apollo-portal-to-access-the-apollo-adminservice-for-each-environment) to access the access token of that environment, otherwise access will be denied
+Default is false, if configured to true, then apollo-portal needs to be [properly configured](en/deployment/distributed-deployment-guide?id=_3112-admin-serviceaccesstokens-set-the-access-token-required-by-apollo-portal-to-access-the-apollo-adminservice-for-each-environment) to access the access token of that environment, otherwise access will be denied
 
-### 3.2.7 `admin-services.access.tokens` - Configure the list of access tokens allowed to access apollo-adminservice
+### 3.2.7 `admin-service.access.tokens` - Configure the list of access tokens allowed to access apollo-adminservice
 
 > For versions 1.7.1 and above
 
@@ -1589,8 +1589,8 @@ If this configuration item is empty, then access control will not take effect. I
 Example.
 
 ```properties
-admin-services.access.tokens=098f6bcd4621d373cade4e832627b4f6
-admin-services.access.tokens=098f6bcd4621d373cade4e832627b4f6,ad0234829205b9033196ba818f7a872b
+admin-service.access.tokens=098f6bcd4621d373cade4e832627b4f6
+admin-service.access.tokens=098f6bcd4621d373cade4e832627b4f6,ad0234829205b9033196ba818f7a872b
 ```
 
 ### 3.2.8 `apollo.access-key.auth-time-diff-tolerance` - Configure server-side AccessKey checksum tolerance for time deviation
