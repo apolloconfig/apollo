@@ -26,6 +26,7 @@ import com.ctrip.framework.apollo.portal.entity.bo.ReleaseBO;
 import com.ctrip.framework.apollo.portal.entity.model.NamespaceReleaseModel;
 import com.ctrip.framework.apollo.portal.entity.vo.ReleaseCompareResult;
 import com.ctrip.framework.apollo.portal.listener.ConfigPublishEvent;
+import com.ctrip.framework.apollo.portal.service.NamespaceBranchService;
 import com.ctrip.framework.apollo.portal.service.ReleaseService;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import javax.validation.Valid;
@@ -51,16 +52,19 @@ import java.util.List;
 public class ReleaseController {
 
   private final ReleaseService releaseService;
+  private final NamespaceBranchService namespaceBranchService;
   private final ApplicationEventPublisher publisher;
   private final PortalConfig portalConfig;
   private final UnifiedPermissionValidator unifiedPermissionValidator;
   private final UserInfoHolder userInfoHolder;
 
   public ReleaseController(final ReleaseService releaseService,
+      final NamespaceBranchService namespaceBranchService,
       final ApplicationEventPublisher publisher, final PortalConfig portalConfig,
       final UnifiedPermissionValidator unifiedPermissionValidator,
       final UserInfoHolder userInfoHolder) {
     this.releaseService = releaseService;
+    this.namespaceBranchService = namespaceBranchService;
     this.publisher = publisher;
     this.portalConfig = portalConfig;
     this.unifiedPermissionValidator = unifiedPermissionValidator;
@@ -101,6 +105,10 @@ public class ReleaseController {
   public ReleaseDTO createGrayRelease(@PathVariable String appId, @PathVariable String env,
       @PathVariable String clusterName, @PathVariable String namespaceName,
       @PathVariable String branchName, @RequestBody NamespaceReleaseModel model) {
+    // GHSA-hv72: the release is published to branchName, so verify branchName is
+    // really a gray branch of clusterName before targeting it.
+    namespaceBranchService.checkBranch(appId, Env.valueOf(env), clusterName, namespaceName,
+        branchName);
     model.setAppId(appId);
     model.setEnv(env);
     model.setClusterName(branchName);

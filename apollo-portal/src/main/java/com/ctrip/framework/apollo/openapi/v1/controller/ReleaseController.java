@@ -139,6 +139,10 @@ public class ReleaseController {
   public OpenReleaseDTO createGrayRelease(@PathVariable String appId, @PathVariable String env,
       @PathVariable String clusterName, @PathVariable String namespaceName,
       @PathVariable String branchName, @RequestBody NamespaceReleaseDTO model) {
+    // GHSA-hv72: the release is published to branchName, so verify branchName is
+    // really a gray branch of clusterName before targeting it.
+    namespaceBranchService.checkBranch(appId, Env.valueOf(env), clusterName, namespaceName,
+        branchName);
     RequestPrecondition.checkArguments(
         !StringUtils.isContainEmpty(model.getReleasedBy(), model.getReleaseTitle()),
         "Params(releaseTitle and releasedBy) can not be empty");
@@ -171,6 +175,10 @@ public class ReleaseController {
   public OpenReleaseDTO createGrayDelRelease(@PathVariable String appId, @PathVariable String env,
       @PathVariable String clusterName, @PathVariable String namespaceName,
       @PathVariable String branchName, @RequestBody NamespaceGrayDelReleaseDTO model) {
+    // GHSA-hv72: the release is published to branchName, so verify branchName is
+    // really a gray branch of clusterName before targeting it.
+    namespaceBranchService.checkBranch(appId, Env.valueOf(env), clusterName, namespaceName,
+        branchName);
     RequestPrecondition.checkArguments(
         !StringUtils.isContainEmpty(model.getReleasedBy(), model.getReleaseTitle()),
         "Params(releaseTitle and releasedBy) can not be empty");

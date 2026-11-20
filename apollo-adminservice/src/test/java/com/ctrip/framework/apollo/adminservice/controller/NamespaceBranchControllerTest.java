@@ -47,9 +47,13 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 /** Verifies that gray rule updates persist only the resource identified by the request path. */
+// The branch check resolves the branch through the Cluster hierarchy (GHSA-hv72), so the
+// fixture must include the parent/child Cluster rows, not just the Namespaces.
 @SpringBootTest(classes = AdminServiceTestConfiguration.class,
     webEnvironment = WebEnvironment.RANDOM_PORT)
 @Sql(statements = {
+    "INSERT INTO `Cluster` (Id, Name, AppId, ParentClusterId, IsDeleted, DataChange_CreatedBy, DataChange_LastModifiedBy) VALUES (9001, 'default', 'rule-owner', 0, 0, 'operator', 'operator')",
+    "INSERT INTO `Cluster` (Id, Name, AppId, ParentClusterId, IsDeleted, DataChange_CreatedBy, DataChange_LastModifiedBy) VALUES (9002, 'owner-branch', 'rule-owner', 9001, 0, 'operator', 'operator')",
     "INSERT INTO `Namespace` (AppId, ClusterName, NamespaceName) VALUES ('rule-owner', 'default', 'application')",
     "INSERT INTO `Namespace` (AppId, ClusterName, NamespaceName) VALUES ('rule-owner', 'owner-branch', 'application')",
     "INSERT INTO `Release` (Id, ReleaseKey, Name, Comment, AppId, ClusterName, NamespaceName, Configurations, IsAbandoned) VALUES (7001, 'gray-rule-test', 'branch release', '', 'rule-owner', 'owner-branch', 'application', '{}', false)",
@@ -59,7 +63,8 @@ import org.springframework.web.client.RestTemplate;
         "DELETE FROM `ReleaseHistory` WHERE AppId = 'rule-owner'",
         "DELETE FROM `ReleaseMessage` WHERE Message = 'rule-owner+default+application'",
         "DELETE FROM `Release` WHERE AppId = 'rule-owner'",
-        "DELETE FROM `Namespace` WHERE AppId = 'rule-owner'"},
+        "DELETE FROM `Namespace` WHERE AppId = 'rule-owner'",
+        "DELETE FROM `Cluster` WHERE AppId = 'rule-owner'"},
     executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
 class NamespaceBranchControllerTest {
 
