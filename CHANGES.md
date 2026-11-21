@@ -5,6 +5,7 @@ Release Notes.
 Apollo 3.1.0
 
 ------------------
+* [Fix: enforce member-only config viewing for Consumer Token OpenAPI reads](https://github.com/apolloconfig/apollo/pull/5717)
 * [Change: migrate the deprecated stale bot to GitHub Actions](https://github.com/apolloconfig/apollo/pull/5690)
 * [Change: standardize Maven POM formatting with Spotless SortPom](https://github.com/apolloconfig/apollo/pull/5702)
 * [Docs: clarify consumer token salt configuration and existing-token rotation](https://github.com/apolloconfig/apollo/pull/5703)

@@ -341,9 +341,10 @@ public class NamespaceControllerParamBindLowLevelTest {
     verify(namespaceOpenApiService).findNamespace(APP_ID, ENV, CLUSTER, NAMESPACE, false, true);
   }
 
-  @Test
-  public void findNamespaceShouldRejectHiddenUserTokenConfig() throws Exception {
-    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+  @ParameterizedTest
+  @ValueSource(strings = {UserIdentityConstants.USER_TOKEN, UserIdentityConstants.CONSUMER})
+  public void findNamespaceShouldRejectHiddenTokenConfig(String authType) throws Exception {
+    UserIdentityContextHolder.setAuthType(authType);
     when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE))
         .thenReturn(true);
 
@@ -410,9 +411,11 @@ public class NamespaceControllerParamBindLowLevelTest {
         .andExpect(jsonPath("$[0].namespaceName").value(NAMESPACE));
   }
 
-  @Test
-  public void publicNamespaceInstancesShouldFilterHiddenUserTokenNamespaces() throws Exception {
-    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+  @ParameterizedTest
+  @ValueSource(strings = {UserIdentityConstants.USER_TOKEN, UserIdentityConstants.CONSUMER})
+  public void publicNamespaceInstancesShouldFilterHiddenTokenNamespaces(String authType)
+      throws Exception {
+    UserIdentityContextHolder.setAuthType(authType);
     when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE))
         .thenReturn(true);
     when(namespaceOpenApiService.getPublicAppNamespaceInstances(ENV, NAMESPACE, 0, 10))
@@ -452,9 +455,10 @@ public class NamespaceControllerParamBindLowLevelTest {
         anyString(), anyString());
   }
 
-  @Test
-  public void findNamespacesShouldFilterHiddenUserTokenNamespaces() throws Exception {
-    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+  @ParameterizedTest
+  @ValueSource(strings = {UserIdentityConstants.USER_TOKEN, UserIdentityConstants.CONSUMER})
+  public void findNamespacesShouldFilterHiddenTokenNamespaces(String authType) throws Exception {
+    UserIdentityContextHolder.setAuthType(authType);
     OpenNamespaceDTO visible = new OpenNamespaceDTO();
     visible.setAppId(APP_ID);
     visible.setClusterName(CLUSTER);

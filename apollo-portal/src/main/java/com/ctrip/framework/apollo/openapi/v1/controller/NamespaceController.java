@@ -145,7 +145,7 @@ public class NamespaceController
   @Override
   public ResponseEntity<OpenNamespaceDTO> findNamespace(String appId, String env,
       String clusterName, String namespaceName, Boolean fillItemDetail, Boolean extendInfo) {
-    requireConfigReadForUserToken(appId, env, clusterName, namespaceName);
+    requireConfigReadForToken(appId, env, clusterName, namespaceName);
     return ResponseEntity.ok(namespaceOpenApiService.findNamespace(appId, env, clusterName,
         namespaceName, Boolean.TRUE.equals(fillItemDetail), Boolean.TRUE.equals(extendInfo)));
   }
@@ -164,7 +164,7 @@ public class NamespaceController
     if (shouldHideConfigToPortalUser(appId, env, clusterName, namespaceName)) {
       return ResponseEntity.ok().build();
     }
-    requireConfigReadForUserToken(appId, env, clusterName, namespaceName);
+    requireConfigReadForToken(appId, env, clusterName, namespaceName);
     return ResponseEntity.ok(namespaceOpenApiService.findPublicNamespaceForAssociatedNamespace(env,
         appId, clusterName, namespaceName, Boolean.TRUE.equals(extendInfo)));
   }
@@ -175,7 +175,7 @@ public class NamespaceController
     if (shouldHideConfigToPortalUser(appId, env, clusterName, namespaceName)) {
       return ResponseEntity.ok().build();
     }
-    requireConfigReadForUserToken(appId, env, clusterName, namespaceName);
+    requireConfigReadForToken(appId, env, clusterName, namespaceName);
     return ResponseEntity
         .ok(namespaceOpenApiService.getNamespaceLock(appId, env, clusterName, namespaceName));
   }
@@ -209,7 +209,7 @@ public class NamespaceController
     if (shouldHideConfigToPortalUser(appId, env, clusterName, namespaceName)) {
       return ResponseEntity.ok(Collections.emptyList());
     }
-    requireConfigReadForUserToken(appId, env, clusterName, namespaceName);
+    requireConfigReadForToken(appId, env, clusterName, namespaceName);
     return ResponseEntity
         .ok(namespaceOpenApiService.findNamespaceUsage(appId, env, clusterName, namespaceName));
   }
@@ -321,7 +321,7 @@ public class NamespaceController
     }
     // Portal users retain namespace metadata; the service hides their configuration items.
     return namespaces.stream()
-        .filter(namespace -> namespace != null && !shouldDenyConfigReadToUserToken(
+        .filter(namespace -> namespace != null && !shouldDenyConfigReadToToken(
             StringUtils.isBlank(namespace.getAppId()) ? appId : namespace.getAppId(), env,
             StringUtils.isBlank(namespace.getClusterName()) ? clusterName
                 : namespace.getClusterName(),
@@ -336,16 +336,18 @@ public class NamespaceController
             namespaceName);
   }
 
-  private boolean shouldDenyConfigReadToUserToken(String appId, String env, String clusterName,
+  private boolean shouldDenyConfigReadToToken(String appId, String env, String clusterName,
       String namespaceName) {
-    return UserIdentityConstants.USER_TOKEN.equals(UserIdentityContextHolder.getAuthType())
+    String authType = UserIdentityContextHolder.getAuthType();
+    return (UserIdentityConstants.USER_TOKEN.equals(authType)
+        || UserIdentityConstants.CONSUMER.equals(authType))
         && unifiedPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName,
             namespaceName);
   }
 
-  private void requireConfigReadForUserToken(String appId, String env, String clusterName,
+  private void requireConfigReadForToken(String appId, String env, String clusterName,
       String namespaceName) {
-    if (shouldDenyConfigReadToUserToken(appId, env, clusterName, namespaceName)) {
+    if (shouldDenyConfigReadToToken(appId, env, clusterName, namespaceName)) {
       throw new AccessDeniedException("Access is denied");
     }
   }

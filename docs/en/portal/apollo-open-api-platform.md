@@ -31,6 +31,8 @@ The modal box page of [View token and empower] is shown in the following figure:
 
 Third-party applications should not be able to manipulate any Namespace configuration, so you need to bind the token to a Namespace that can be manipulated. Apollo administrators assign rights to the token in the `http://{portal_address}/open/add-consumer.html` page. After the assignment, the third-party application can manage the configuration of the authorized Namespace through the Http REST interface provided by Apollo.
 
+Consumer configuration reads follow `configView.memberOnly.envs`. Private Namespaces in configured environments require administration permissions for the target application or modification/release permissions for the target Namespace. Unauthorized single-resource reads and configuration diffs return HTTP 403; Namespace lists omit unreadable entries. There is no separate compatibility switch, so consumers that relied on unrestricted reads may need additional authorization after upgrading. This setting adds no restriction to public Namespaces or other environments. Release and instance queries retain their existing consumer release-permission requirements.
+
 Starting from Apollo 3.0.0, consumer tokens can also call User Management Open APIs when the administrator enables **Allow user management?** (`ManageUsers`) for that consumer. Without this permission, user search/create/update/enable/disable requests return HTTP 403. Mutating User Management and Permission Management calls with a consumer token require a valid `operator` query parameter (an existing Portal user).
 
 #### 2.4 Third-party application calls Apollo Open API

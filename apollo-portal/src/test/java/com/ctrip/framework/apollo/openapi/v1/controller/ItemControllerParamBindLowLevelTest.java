@@ -32,7 +32,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.ctrip.framework.apollo.openapi.model.OpenItemDTO;
-import com.ctrip.framework.apollo.openapi.model.OpenItemPageDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceIdentifier;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceSyncDTO;
 import com.ctrip.framework.apollo.openapi.server.service.ItemOpenApiService;
@@ -317,9 +316,10 @@ public class ItemControllerParamBindLowLevelTest {
         anyString(), any(Integer.class), any(Integer.class));
   }
 
-  @Test
-  public void findItemsShouldRejectHiddenUserTokenConfig() throws Exception {
-    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+  @ParameterizedTest
+  @ValueSource(strings = {UserIdentityConstants.USER_TOKEN, UserIdentityConstants.CONSUMER})
+  public void findItemsShouldRejectHiddenTokenConfig(String authType) throws Exception {
+    UserIdentityContextHolder.setAuthType(authType);
     when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE))
         .thenReturn(true);
 
@@ -347,9 +347,10 @@ public class ItemControllerParamBindLowLevelTest {
         anyString());
   }
 
-  @Test
-  public void getItemShouldRejectHiddenUserTokenConfig() throws Exception {
-    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+  @ParameterizedTest
+  @ValueSource(strings = {UserIdentityConstants.USER_TOKEN, UserIdentityConstants.CONSUMER})
+  public void getItemShouldRejectHiddenTokenConfig(String authType) throws Exception {
+    UserIdentityContextHolder.setAuthType(authType);
     when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE))
         .thenReturn(true);
 
@@ -361,9 +362,10 @@ public class ItemControllerParamBindLowLevelTest {
         anyString());
   }
 
-  @Test
-  public void findBranchItemsShouldRejectHiddenUserTokenConfig() throws Exception {
-    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+  @ParameterizedTest
+  @ValueSource(strings = {UserIdentityConstants.USER_TOKEN, UserIdentityConstants.CONSUMER})
+  public void findBranchItemsShouldRejectHiddenTokenConfig(String authType) throws Exception {
+    UserIdentityContextHolder.setAuthType(authType);
     String branchName = "gray";
     when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, branchName,
         NAMESPACE)).thenReturn(true);
@@ -420,26 +422,6 @@ public class ItemControllerParamBindLowLevelTest {
         anyString());
   }
 
-  @Test
-  public void findItemsShouldDelegateForConsumerEvenWhenConfigWouldBeHiddenForUser()
-      throws Exception {
-    when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER,
-        NAMESPACE)).thenReturn(true);
-    OpenItemPageDTO page = new OpenItemPageDTO();
-    page.setPage(0);
-    page.setSize(50);
-    page.setTotal(0L);
-    page.setContent(Collections.emptyList());
-    when(itemOpenApiService.findItemsByNamespace(APP_ID, ENV, CLUSTER, NAMESPACE, 0, 50))
-        .thenReturn(page);
-
-    mockMvc.perform(get(
-            "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items",
-            ENV, APP_ID, CLUSTER, NAMESPACE).param("page", "0").param("size", "50"))
-        .andExpect(status().isOk());
-
-    verify(itemOpenApiService).findItemsByNamespace(APP_ID, ENV, CLUSTER, NAMESPACE, 0, 50);
-  }
 
   @Test
   public void compareItemsShouldAcceptEmptySyncItems() throws Exception {
@@ -466,9 +448,11 @@ public class ItemControllerParamBindLowLevelTest {
     assertThat(requestCaptor.getValue().getSyncItems()).isEmpty();
   }
 
-  @Test
-  public void compareItemsShouldRejectUserTokenWithoutSourceConfigRead() throws Exception {
-    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+  @ParameterizedTest
+  @ValueSource(strings = {UserIdentityConstants.USER_TOKEN, UserIdentityConstants.CONSUMER})
+  public void compareItemsShouldRejectTokenWithoutSourceConfigRead(String authType)
+      throws Exception {
+    UserIdentityContextHolder.setAuthType(authType);
     when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE))
         .thenReturn(true);
 
@@ -483,9 +467,11 @@ public class ItemControllerParamBindLowLevelTest {
         anyString(), any(OpenNamespaceSyncDTO.class));
   }
 
-  @Test
-  public void compareItemsShouldRejectUserTokenWithoutTargetConfigRead() throws Exception {
-    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+  @ParameterizedTest
+  @ValueSource(strings = {UserIdentityConstants.USER_TOKEN, UserIdentityConstants.CONSUMER})
+  public void compareItemsShouldRejectTokenWithoutTargetConfigRead(String authType)
+      throws Exception {
+    UserIdentityContextHolder.setAuthType(authType);
     when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE))
         .thenReturn(false);
     when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, "secret"))
