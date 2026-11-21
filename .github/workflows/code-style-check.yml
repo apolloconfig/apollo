@@ -23,6 +23,10 @@ on:
   pull_request:
     branches: [ master ]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   code-style-check:
     runs-on: ubuntu-latest
@@ -31,15 +35,19 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Set up JDK 17
-      uses: actions/setup-java@v1
+      uses: actions/setup-java@v4
       with:
+        distribution: temurin
         java-version: 17
-    - name: Cache Maven packages
-      uses: actions/cache@v4
-      with:
-        path: ~/.m2/repository
-        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-        restore-keys: |
-          ${{ runner.os }}-maven-
+    - name: Set up CI Maven
+      id: maven
+      uses: ./.github/actions/setup-maven
     - name: Code Style Check
       run: mvn spotless:check
+    - name: Save Maven caches
+      uses: ./.github/actions/save-maven-cache
+      with:
+        dependencies-key: ${{ steps.maven.outputs.dependencies-key }}
+        dependencies-hit: ${{ steps.maven.outputs.dependencies-hit }}
+        distribution-key: ${{ steps.maven.outputs.distribution-key }}
+        distribution-hit: ${{ steps.maven.outputs.distribution-hit }}

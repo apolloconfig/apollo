@@ -23,7 +23,14 @@ on:
       - 'apollo-configservice/src/main/docker/Dockerfile'
       - 'apollo-adminservice/src/main/docker/Dockerfile'
       - 'apollo-portal/src/main/docker/Dockerfile'
+      - '.github/actions/setup-maven/**'
+      - '.github/actions/save-maven-cache/**'
+      - '.github/workflows/docker-validation.yml'
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   docker-smoke:
@@ -36,19 +43,22 @@ jobs:
       with:
         distribution: temurin
         java-version: 17
-    - name: Cache Maven packages
-      uses: actions/cache@v4
-      with:
-        path: ~/.m2/repository
-        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-        restore-keys: |
-          ${{ runner.os }}-maven-
+    - name: Set up CI Maven
+      id: maven
+      uses: ./.github/actions/setup-maven
     - name: Build package
       run: ./scripts/build.sh
     - name: Resolve Maven project version
       id: project-version
       run: |
         echo "version=$(mvn -q -N help:evaluate -Dexpression=project.version -DforceStdout)" >> $GITHUB_OUTPUT
+    - name: Save Maven caches
+      uses: ./.github/actions/save-maven-cache
+      with:
+        dependencies-key: ${{ steps.maven.outputs.dependencies-key }}
+        dependencies-hit: ${{ steps.maven.outputs.dependencies-hit }}
+        distribution-key: ${{ steps.maven.outputs.distribution-key }}
+        distribution-hit: ${{ steps.maven.outputs.distribution-hit }}
     - name: Validate Dockerfiles
       env:
         VERSION: ${{ steps.project-version.outputs.version }}

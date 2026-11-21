@@ -27,6 +27,11 @@ on:
       - 'e2e/**'
       - 'scripts/sql/**'
       - 'pom.xml'
+      - 'mvnw'
+      - 'mvnw.cmd'
+      - '.mvn/wrapper/**'
+      - '.github/actions/setup-maven/**'
+      - '.github/actions/save-maven-cache/**'
       - '.github/workflows/external-discovery-smoke.yml'
   workflow_dispatch:
     inputs:
@@ -40,6 +45,10 @@ on:
           - nacos
           - consul
           - zookeeper
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   resolve-provider-matrix:
@@ -69,10 +78,23 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
-          cache: maven
+
+      - name: Set up CI Maven
+        id: maven
+        uses: ./.github/actions/setup-maven
+        with:
+          cache-wrapper: 'true'
 
       - name: Build Apollo config/admin services
         run: ./mvnw -B -Pnacos-discovery -pl apollo-configservice,apollo-adminservice -am -DskipTests package
+
+      - name: Save Maven caches
+        uses: ./.github/actions/save-maven-cache
+        with:
+          dependencies-key: ${{ steps.maven.outputs.dependencies-key }}
+          dependencies-hit: ${{ steps.maven.outputs.dependencies-hit }}
+          distribution-key: ${{ steps.maven.outputs.distribution-key }}
+          distribution-hit: ${{ steps.maven.outputs.distribution-hit }}
 
       - name: Prepare runnable service artifacts
         run: |

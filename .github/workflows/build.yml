@@ -24,6 +24,10 @@ on:
   pull_request:
     branches: [ master ]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -37,24 +41,29 @@ jobs:
       with:
         distribution: temurin
         java-version: ${{ matrix.jdk }}
-    - name: Cache Maven packages
-      uses: actions/cache@v4
+    - name: Set up CI Maven
+      id: maven
+      uses: ./.github/actions/setup-maven
       with:
-        path: ~/.m2/repository
-        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-        restore-keys: |
-          ${{ runner.os }}-maven-
+        cache-suffix: ${{ matrix.jdk }}
     - name: JDK 17
       if: matrix.jdk == '17'
       uses: nick-fields/retry@v3
       with:
           timeout_minutes: 10
           max_attempts: 3
-          retry_wait_seconds: 1
+          retry_wait_seconds: 60
           command: mvn -B clean package jacoco:report -Dmaven.gitcommitid.skip=true
     - name: JDK 21
       if: matrix.jdk == '21'
       run: mvn -B clean compile -Dmaven.gitcommitid.skip=true
+    - name: Save Maven caches
+      uses: ./.github/actions/save-maven-cache
+      with:
+        dependencies-key: ${{ steps.maven.outputs.dependencies-key }}
+        dependencies-hit: ${{ steps.maven.outputs.dependencies-hit }}
+        distribution-key: ${{ steps.maven.outputs.distribution-key }}
+        distribution-hit: ${{ steps.maven.outputs.distribution-hit }}
     - name: Upload coverage to Codecov
       if: matrix.jdk == '17'
       uses: codecov/codecov-action@v1
