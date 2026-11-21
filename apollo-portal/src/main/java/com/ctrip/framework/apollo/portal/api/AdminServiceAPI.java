@@ -136,6 +136,15 @@ public class AdminServiceAPI {
       return Arrays.asList(appNamespaceDTOs);
     }
 
+    /**
+     * Loads the AppNamespace whose name the environment's database matches with the given one, or
+     * null when there is none. An adminservice of an earlier version answers 400.
+     */
+    public AppNamespaceDTO loadAppNamespace(String appId, Env env, String namespaceName) {
+      return restTemplate.get(env, "apps/{appId}/appnamespaces/{namespaceName}",
+          AppNamespaceDTO.class, appId, namespaceName);
+    }
+
     @ApolloAuditLog(type = OpType.RPC, name = "Namespace.deleteInRemote")
     public void deleteNamespace(Env env, String appId, String clusterName, String namespaceName,
         String operator) {
@@ -166,9 +175,24 @@ public class AdminServiceAPI {
     }
 
     @ApolloAuditLog(type = OpType.RPC, name = "AppNamespace.deleteInRemote")
-    public void deleteAppNamespace(Env env, String appId, String namespaceName, String operator) {
-      restTemplate.delete(env, "/apps/{appId}/appnamespaces/{namespaceName}?operator={operator}",
-          appId, namespaceName, operator);
+    public void deleteAppNamespace(Env env, String appId, String namespaceName, long appNamespaceId,
+        String operator) {
+      restTemplate.delete(env, "/apps/{appId}/appnamespaces/{namespaceName}?operator={operator}"
+          + "&appNamespaceId={appNamespaceId}", appId, namespaceName, operator, appNamespaceId);
+    }
+
+    /**
+     * Deletes the AppNamespace only while it has the given id. An adminservice of an earlier
+     * version refuses this request without deleting anything, while it ignores the id that
+     * {@link #deleteAppNamespace} sends and deletes by name.
+     */
+    @ApolloAuditLog(type = OpType.RPC, name = "AppNamespace.deleteInRemote")
+    public void deleteAppNamespaceIfIdMatches(Env env, String appId, String namespaceName,
+        long appNamespaceId, String operator) {
+      restTemplate.delete(env,
+          "/apps/{appId}/appnamespaces?namespaceName={namespaceName}"
+              + "&appNamespaceId={appNamespaceId}&operator={operator}",
+          appId, namespaceName, appNamespaceId, operator);
     }
   }
 

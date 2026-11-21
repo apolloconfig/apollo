@@ -88,16 +88,39 @@ public class NamespaceBranchService {
 
   public void deleteBranch(String appId, Env env, String clusterName, String namespaceName,
       String branchName, String operator) {
+    checkBranch(appId, env, clusterName, namespaceName, branchName);
     namespaceBranchAPI.deleteBranch(appId, env, clusterName, namespaceName, branchName, operator);
 
     Tracer.logEvent(TracerEventType.DELETE_GRAY_RELEASE,
         String.format("%s+%s+%s+%s", appId, env, clusterName, namespaceName));
   }
 
+  /**
+   * Rejects a branchName that is not the gray branch of the given parent cluster.
+   * The authorization checks on gray-release endpoints are evaluated against
+   * clusterName, while the operation targets branchName, so without this binding
+   * any cluster name — including the protected `default` cluster — could be
+   * passed as branchName. See GHSA-hv72.
+   */
+  public void checkBranch(String appId, Env env, String clusterName, String namespaceName,
+      String branchName) {
+    NamespaceDTO branch = findBranchBaseInfo(appId, env, clusterName, namespaceName);
+    if (branch == null || !branchName.equals(branch.getClusterName())) {
+      throw new BadRequestException(
+          "Namespace's branch not exist. AppId = %s, ClusterName = %s, NamespaceName = %s, BranchName = %s",
+          appId, clusterName, namespaceName, branchName);
+    }
+  }
 
   public ReleaseDTO merge(String appId, Env env, String clusterName, String namespaceName,
       String branchName, String title, String comment, boolean isEmergencyPublish,
       boolean deleteBranch, String operator) {
+    // GHSA-hv72: merge reads branchName's items and publishes them into clusterName,
+    // so verify branchName is really a gray branch of clusterName before merging.
+    // This matters most with deleteBranch=false: then the biz deleteBranch guard
+    // never runs, and without this check an arbitrary cluster's items could be
+    // merged into the parent namespace.
+    checkBranch(appId, env, clusterName, namespaceName, branchName);
 
     ItemChangeSets changeSets =
         calculateBranchChangeSet(appId, env, clusterName, namespaceName, branchName, operator);

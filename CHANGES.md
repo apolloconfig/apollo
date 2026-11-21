@@ -16,6 +16,8 @@ Apollo 3.1.0
 * [Fix: clarify when a Portal rollback takes effect](https://github.com/apolloconfig/apollo/pull/5715)
 * [Fix: resolve bearer token conflict between resource server jwt and user tokens](https://github.com/apolloconfig/apollo/pull/5711)
 * [Fix: reduce Maven Central download rate limits in CI](https://github.com/apolloconfig/apollo/pull/5718)
+* [Fix: report incomplete app namespace deletion and add manual recovery](https://github.com/apolloconfig/apollo/pull/5705)
+* [Chore: add local Docker MySQL for local development](https://github.com/apolloconfig/apollo/pull/5709)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/22?closed=1)

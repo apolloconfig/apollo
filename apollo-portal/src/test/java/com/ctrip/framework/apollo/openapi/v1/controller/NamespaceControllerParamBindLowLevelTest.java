@@ -20,6 +20,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -31,7 +33,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
 import com.ctrip.framework.apollo.audit.annotation.OpType;
+import com.ctrip.framework.apollo.common.exception.BadRequestException;
+import com.ctrip.framework.apollo.common.exception.ServiceException;
 import com.ctrip.framework.apollo.openapi.model.OpenAppNamespaceDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenAppNamespaceDeletionCheckDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenAppNamespaceEnvDeletionStatusDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenAppNamespaceEnvDeletionStatusDTO.StatusEnum;
 import com.ctrip.framework.apollo.openapi.model.OpenCreateNamespaceDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceExtendDTO;
@@ -55,10 +62,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -78,6 +87,9 @@ public class NamespaceControllerParamBindLowLevelTest {
   private static final String ENV = "DEV";
   private static final String CLUSTER = "default";
   private static final String NAMESPACE = "application";
+  private static final String APP_NAMESPACE_PATH =
+      "/openapi/v1/apps/{appId}/appnamespaces/{namespaceName}";
+  private static final String DELETION_CHECK_PATH = APP_NAMESPACE_PATH + "/deletion-check";
 
   @Autowired
   private MockMvc mockMvc;
@@ -311,6 +323,146 @@ public class NamespaceControllerParamBindLowLevelTest {
     assertThat(createNamespacesAudit).isNotNull();
     assertThat(createNamespacesAudit.type()).isEqualTo(OpType.CREATE);
     assertThat(createNamespacesAudit.name()).isEqualTo("Namespace.create");
+  }
+
+  @Test
+  public void deleteAppNamespaceShouldDeleteNormallyWithoutRecovery() throws Exception {
+    mockMvc.perform(delete(APP_NAMESPACE_PATH, APP_ID, NAMESPACE).param("operator", "tester"))
+        .andExpect(status().isOk());
+
+    verify(namespaceOpenApiService).deleteAppNamespace(APP_ID, NAMESPACE, "tester", false);
+  }
+
+  @Test
+  public void deleteAppNamespaceShouldRouteRecoveryToCleanup() throws Exception {
+    mockMvc.perform(delete(APP_NAMESPACE_PATH, APP_ID, NAMESPACE).param("operator", "tester")
+        .param("recovery", "true")).andExpect(status().isOk());
+
+    verify(namespaceOpenApiService).deleteAppNamespace(APP_ID, NAMESPACE, "tester", true);
+  }
+
+  @Test
+  public void deleteAppNamespaceShouldAnswerServerErrorWhenIncomplete() throws Exception {
+    String incomplete = "Deleting AppNamespace app-1:application is incomplete";
+    doThrow(new ServiceException(incomplete)).when(namespaceOpenApiService)
+        .deleteAppNamespace(APP_ID, NAMESPACE, "tester", false);
+
+    mockMvc.perform(delete(APP_NAMESPACE_PATH, APP_ID, NAMESPACE).param("operator", "tester"))
+        .andExpect(status().isInternalServerError())
+        .andExpect(jsonPath("$.message").value(incomplete));
+  }
+
+  @Test
+  public void recoveryShouldAnswerBadRequestWhenAppNamespaceIsInPortal() throws Exception {
+    String inPortal = "AppNamespace app-1:application exists in the Portal";
+    doThrow(new BadRequestException(inPortal)).when(namespaceOpenApiService)
+        .deleteAppNamespace(APP_ID, NAMESPACE, "tester", true);
+
+    mockMvc
+        .perform(delete(APP_NAMESPACE_PATH, APP_ID, NAMESPACE).param("operator", "tester")
+            .param("recovery", "true"))
+        .andExpect(status().isBadRequest()).andExpect(jsonPath("$.message").value(inPortal));
+  }
+
+  @Test
+  public void checkAppNamespaceDeletionShouldReturnEveryEnvironmentStatus() throws Exception {
+    when(namespaceOpenApiService.checkAppNamespaceDeletion(APP_ID, NAMESPACE))
+        .thenReturn(deletionCheck(envStatus("DEV", StatusEnum.REMAINING, null),
+            envStatus("FAT", StatusEnum.ABSENT, null),
+            envStatus("UAT", StatusEnum.UNREACHABLE, "Admin servers are unresponsive."),
+            envStatus("PRO", StatusEnum.SKIPPED, null)));
+
+    mockMvc.perform(get(DELETION_CHECK_PATH, APP_ID, NAMESPACE)).andExpect(status().isOk())
+        .andExpect(jsonPath("$.appId").value(APP_ID))
+        .andExpect(jsonPath("$.namespaceName").value(NAMESPACE))
+        .andExpect(jsonPath("$.existsInPortal").value(false))
+        .andExpect(jsonPath("$.environments.length()").value(4))
+        .andExpect(jsonPath("$.environments[0].env").value("DEV"))
+        .andExpect(jsonPath("$.environments[0].status").value("REMAINING"))
+        .andExpect(jsonPath("$.environments[1].status").value("ABSENT"))
+        .andExpect(jsonPath("$.environments[2].status").value("UNREACHABLE"))
+        .andExpect(jsonPath("$.environments[2].message").value("Admin servers are unresponsive."))
+        .andExpect(jsonPath("$.environments[3].status").value("SKIPPED"));
+  }
+
+  @Test
+  public void checkAppNamespaceDeletionShouldRequireDeleteNamespacePermission() throws Exception {
+    when(unifiedPermissionValidator.hasDeleteNamespacePermission(APP_ID)).thenReturn(false);
+
+    mockMvc.perform(get(DELETION_CHECK_PATH, APP_ID, NAMESPACE))
+        .andExpect(status().isForbidden());
+
+    verify(namespaceOpenApiService, never()).checkAppNamespaceDeletion(anyString(), anyString());
+  }
+
+  @Test
+  public void recoveryShouldRequireDeleteNamespacePermission() throws Exception {
+    when(unifiedPermissionValidator.hasDeleteNamespacePermission(APP_ID)).thenReturn(false);
+
+    mockMvc.perform(delete(APP_NAMESPACE_PATH, APP_ID, NAMESPACE).param("operator", "tester")
+        .param("recovery", "true")).andExpect(status().isForbidden());
+
+    verify(namespaceOpenApiService, never()).deleteAppNamespace(anyString(), anyString(),
+        anyString(), anyBoolean());
+  }
+
+  @Test
+  public void recoveryAfterReopeningDeletePageShouldCheckThenCleanUp() throws Exception {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
+    // an earlier deletion removed the Portal row and left the AppNamespace in DEV
+    when(namespaceOpenApiService.findAppNamespace(APP_ID, NAMESPACE))
+        .thenThrow(BadRequestException.appNamespaceNotExists(APP_ID, NAMESPACE));
+    when(namespaceOpenApiService.checkAppNamespaceDeletion(APP_ID, NAMESPACE))
+        .thenReturn(deletionCheck(envStatus("DEV", StatusEnum.REMAINING, null),
+            envStatus("PRO", StatusEnum.ABSENT, null)));
+
+    mockMvc.perform(get(APP_NAMESPACE_PATH, APP_ID, NAMESPACE)).andExpect(status().isBadRequest());
+    mockMvc.perform(get(DELETION_CHECK_PATH, APP_ID, NAMESPACE)).andExpect(status().isOk())
+        .andExpect(jsonPath("$.existsInPortal").value(false))
+        .andExpect(jsonPath("$.environments[0].env").value("DEV"))
+        .andExpect(jsonPath("$.environments[0].status").value("REMAINING"));
+    mockMvc.perform(delete(APP_NAMESPACE_PATH, APP_ID, NAMESPACE).param("recovery", "true"))
+        .andExpect(status().isOk());
+
+    InOrder inOrder = inOrder(namespaceOpenApiService);
+    inOrder.verify(namespaceOpenApiService).findAppNamespace(APP_ID, NAMESPACE);
+    inOrder.verify(namespaceOpenApiService).checkAppNamespaceDeletion(APP_ID, NAMESPACE);
+    inOrder.verify(namespaceOpenApiService).deleteAppNamespace(APP_ID, NAMESPACE, "tester", true);
+  }
+
+  @Test
+  public void appNamespaceDeletionOperationsShouldKeepTheirAnnotations() throws Exception {
+    Method deleteAppNamespace = NamespaceController.class.getMethod("deleteAppNamespace",
+        String.class, String.class, String.class, Boolean.class);
+    ApolloAuditLog deleteAudit = deleteAppNamespace.getAnnotation(ApolloAuditLog.class);
+    assertThat(deleteAudit).isNotNull();
+    assertThat(deleteAudit.type()).isEqualTo(OpType.DELETE);
+    assertThat(deleteAudit.name()).isEqualTo("AppNamespace.delete");
+
+    Method checkAppNamespaceDeletion = NamespaceController.class
+        .getMethod("checkAppNamespaceDeletion", String.class, String.class);
+    assertThat(checkAppNamespaceDeletion.getAnnotation(ApolloAuditLog.class)).isNull();
+    assertThat(checkAppNamespaceDeletion.getAnnotation(PreAuthorize.class).value())
+        .isEqualTo(deleteAppNamespace.getAnnotation(PreAuthorize.class).value());
+  }
+
+  private OpenAppNamespaceDeletionCheckDTO deletionCheck(
+      OpenAppNamespaceEnvDeletionStatusDTO... environments) {
+    OpenAppNamespaceDeletionCheckDTO check = new OpenAppNamespaceDeletionCheckDTO();
+    check.setAppId(APP_ID);
+    check.setNamespaceName(NAMESPACE);
+    check.setExistsInPortal(false);
+    check.setEnvironments(Arrays.asList(environments));
+    return check;
+  }
+
+  private OpenAppNamespaceEnvDeletionStatusDTO envStatus(String env, StatusEnum status,
+      String message) {
+    OpenAppNamespaceEnvDeletionStatusDTO envStatus = new OpenAppNamespaceEnvDeletionStatusDTO();
+    envStatus.setEnv(env);
+    envStatus.setStatus(status);
+    envStatus.setMessage(message);
+    return envStatus;
   }
 
   @Test

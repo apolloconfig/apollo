@@ -171,6 +171,14 @@ public class NamespaceBranchService {
       return;
     }
 
+    // Defence in depth for GHSA-hv72: only delete a cluster that is really a gray
+    // branch of clusterName. Without this, any cluster name passed as branchName —
+    // including the protected `default` cluster — would be deleted whole.
+    Cluster parentCluster = clusterService.findOne(appId, clusterName);
+    if (parentCluster == null || toDeleteCluster.getParentClusterId() != parentCluster.getId()) {
+      throw BadRequestException.clusterNotExists(branchName);
+    }
+
     Release latestBranchRelease =
         releaseService.findLatestActiveRelease(appId, branchName, namespaceName);
 
