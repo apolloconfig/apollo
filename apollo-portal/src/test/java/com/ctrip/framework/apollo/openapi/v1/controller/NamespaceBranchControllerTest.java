@@ -101,8 +101,7 @@ public class NamespaceBranchControllerTest {
 
     assertNotNull(result);
     assertEquals(APP_ID, result.getAppId());
-    verify(namespaceBranchService).findBranchGrayRules(APP_ID, Env.DEV, CLUSTER, NAMESPACE,
-        BRANCH);
+    verify(namespaceBranchService).findBranchGrayRules(APP_ID, Env.DEV, CLUSTER, NAMESPACE, BRANCH);
   }
 
   @Test
@@ -118,7 +117,6 @@ public class NamespaceBranchControllerTest {
 
     assertNotNull(result);
     assertEquals(APP_ID, result.getAppId());
-    verify(namespaceBranchService).findBranchGrayRules(APP_ID, Env.DEV, CLUSTER, NAMESPACE,
-        BRANCH);
+    verify(namespaceBranchService).findBranchGrayRules(APP_ID, Env.DEV, CLUSTER, NAMESPACE, BRANCH);
   }
 }
