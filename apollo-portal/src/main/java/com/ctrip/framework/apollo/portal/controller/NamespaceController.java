@@ -297,6 +297,7 @@ public class NamespaceController {
     return response;
   }
 
+  @PreAuthorize(value = "@unifiedPermissionValidator.hasCreateNamespacePermission(#appId)")
   @PostMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/missing-namespaces")
   @ApolloAuditLog(type = OpType.CREATE, name = "Namespace.createMissingNamespaces")
   public ResponseEntity<Void> createMissingNamespaces(@PathVariable String appId,
