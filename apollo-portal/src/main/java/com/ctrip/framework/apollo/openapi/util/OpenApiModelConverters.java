@@ -33,6 +33,8 @@ import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.openapi.model.OpenAppDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenAppNamespaceDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenAppNamespaceDeletionCheckDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenAppNamespaceEnvDeletionStatusDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenAccessKeyDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenAppRoleUserDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenClusterDTO;
@@ -62,6 +64,8 @@ import com.ctrip.framework.apollo.openapi.model.OpenReleaseDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenReleaseDiffDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenUserDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenUserInfoDTO;
+import com.ctrip.framework.apollo.portal.entity.bo.AppNamespaceDeletionCheckBO;
+import com.ctrip.framework.apollo.portal.entity.bo.AppNamespaceEnvDeletionStatusBO;
 import com.ctrip.framework.apollo.portal.entity.bo.ItemBO;
 import com.ctrip.framework.apollo.portal.entity.bo.KVEntity;
 import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
@@ -201,6 +205,29 @@ public final class OpenApiModelConverters {
     Preconditions.checkArgument(openAppNamespaceDTO != null);
     AppNamespace result = BeanUtils.transform(AppNamespace.class, openAppNamespaceDTO);
     result.setPublic(Boolean.TRUE.equals(openAppNamespaceDTO.getIsPublic()));
+    return result;
+  }
+
+  public static OpenAppNamespaceDeletionCheckDTO fromAppNamespaceDeletionCheckBO(
+      AppNamespaceDeletionCheckBO deletionCheck) {
+    Preconditions.checkArgument(deletionCheck != null);
+    OpenAppNamespaceDeletionCheckDTO result = new OpenAppNamespaceDeletionCheckDTO();
+    result.setAppId(deletionCheck.getAppId());
+    result.setNamespaceName(deletionCheck.getNamespaceName());
+    result.setExistsInPortal(deletionCheck.isExistsInPortal());
+    result.setEnvironments(deletionCheck.getEnvironments().stream()
+        .map(OpenApiModelConverters::fromAppNamespaceEnvDeletionStatusBO)
+        .collect(Collectors.toList()));
+    return result;
+  }
+
+  private static OpenAppNamespaceEnvDeletionStatusDTO fromAppNamespaceEnvDeletionStatusBO(
+      AppNamespaceEnvDeletionStatusBO envStatus) {
+    OpenAppNamespaceEnvDeletionStatusDTO result = new OpenAppNamespaceEnvDeletionStatusDTO();
+    result.setEnv(envStatus.getEnv().getName());
+    result.setStatus(
+        OpenAppNamespaceEnvDeletionStatusDTO.StatusEnum.valueOf(envStatus.getStatus().name()));
+    result.setMessage(envStatus.getMessage());
     return result;
   }
 

@@ -76,12 +76,31 @@ public class AppNamespaceController {
 
   @DeleteMapping("/apps/{appId}/appnamespaces/{namespaceName:.+}")
   public void delete(@PathVariable("appId") String appId,
-      @PathVariable("namespaceName") String namespaceName, @RequestParam String operator) {
+      @PathVariable("namespaceName") String namespaceName, @RequestParam String operator,
+      @RequestParam(required = false) Long appNamespaceId) {
     AppNamespace entity = appNamespaceService.findOne(appId, namespaceName);
     if (entity == null) {
       throw BadRequestException.appNamespaceNotExists(appId, namespaceName);
     }
+    // a caller that read the id before does not delete an AppNamespace recreated since then
+    if (appNamespaceId != null && appNamespaceId != entity.getId()) {
+      throw new BadRequestException(
+          "appNamespace %s:%s has id %s instead of %s, it may have been recreated", appId,
+          namespaceName, entity.getId(), appNamespaceId);
+    }
     appNamespaceService.deleteAppNamespace(entity, operator);
+  }
+
+  /**
+   * Deletes the AppNamespace only while it has the given id, as {@link #delete} does when it gets
+   * one. An adminservice of an earlier version has no DELETE on this path and refuses the request
+   * without deleting anything, so a caller that needs the id checked never deletes by name there.
+   */
+  @DeleteMapping("/apps/{appId}/appnamespaces")
+  public void deleteIfIdMatches(@PathVariable("appId") String appId,
+      @RequestParam String namespaceName, @RequestParam long appNamespaceId,
+      @RequestParam String operator) {
+    delete(appId, namespaceName, operator, appNamespaceId);
   }
 
   @GetMapping("/appnamespaces/{publicNamespaceName}/namespaces")
@@ -105,5 +124,17 @@ public class AppNamespaceController {
     List<AppNamespace> appNamespaces = appNamespaceService.findByAppId(appId);
 
     return BeanUtils.batchTransform(AppNamespaceDTO.class, appNamespaces);
+  }
+
+  /**
+   * Finds the AppNamespace whose name this database matches with the given one, as {@link #delete}
+   * does, so a caller follows the database's own rule for the case of names. The answer has no body
+   * when there is none.
+   */
+  @GetMapping("/apps/{appId}/appnamespaces/{namespaceName:.+}")
+  public AppNamespaceDTO get(@PathVariable("appId") String appId,
+      @PathVariable("namespaceName") String namespaceName) {
+    AppNamespace appNamespace = appNamespaceService.findOne(appId, namespaceName);
+    return BeanUtils.transform(AppNamespaceDTO.class, appNamespace);
   }
 }
