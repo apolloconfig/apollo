@@ -313,9 +313,54 @@ public class AppControllerParamBindLowLevelTest {
   }
 
   @Test
-  public void createAppInEnv_shouldAllowPortalUserWithoutCreateApplicationPermission()
+  public void createAppInEnv_shouldRejectPortalUserWithoutCreateApplicationPermissionAndNotAppAdmin()
       throws Exception {
     when(unifiedPermissionValidator.hasCreateApplicationPermission()).thenReturn(false);
+    when(unifiedPermissionValidator.isAppAdmin("demo")).thenReturn(false);
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
+    UserInfo currentUser = new UserInfo();
+    currentUser.setUserId("portal-user");
+    when(userInfoHolder.getUser()).thenReturn(currentUser);
+
+    OpenAppDTO dto = new OpenAppDTO();
+    dto.setAppId("demo");
+    dto.setName("demo-name");
+
+    mockMvc.perform(post("/openapi/v1/apps/envs/{env}", "DEV")
+        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(dto))).andExpect(
+            org.springframework.test.web.servlet.result.MockMvcResultMatchers.status()
+                .isForbidden());
+
+    verify(appOpenApiService, never()).createAppInEnv(anyString(), any(OpenAppDTO.class),
+        anyString());
+  }
+
+  @Test
+  public void createAppInEnv_shouldAllowPortalAppAdminWithoutCreateApplicationPermission()
+      throws Exception {
+    when(unifiedPermissionValidator.hasCreateApplicationPermission()).thenReturn(false);
+    when(unifiedPermissionValidator.isAppAdmin("demo")).thenReturn(true);
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
+    UserInfo currentUser = new UserInfo();
+    currentUser.setUserId("portal-user");
+    when(userInfoHolder.getUser()).thenReturn(currentUser);
+
+    OpenAppDTO dto = new OpenAppDTO();
+    dto.setAppId("demo");
+    dto.setName("demo-name");
+
+    mockMvc.perform(post("/openapi/v1/apps/envs/{env}", "DEV")
+        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(dto))).andExpect(
+            org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isOk());
+
+    verify(appOpenApiService, times(1)).createAppInEnv(eq("DEV"), any(OpenAppDTO.class),
+        eq("portal-user"));
+  }
+
+  @Test
+  public void createAppInEnv_shouldAllowPortalUserWithCreateApplicationPermission()
+      throws Exception {
+    when(unifiedPermissionValidator.hasCreateApplicationPermission()).thenReturn(true);
     when(unifiedPermissionValidator.isAppAdmin("demo")).thenReturn(false);
     UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
     UserInfo currentUser = new UserInfo();
