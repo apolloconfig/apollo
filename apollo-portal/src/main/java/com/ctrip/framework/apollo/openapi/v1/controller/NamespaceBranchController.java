@@ -22,6 +22,8 @@ import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.common.utils.RequestPrecondition;
 import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
+import com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder;
+import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
 import com.ctrip.framework.apollo.openapi.dto.OpenGrayReleaseRuleDTO;
@@ -129,6 +131,9 @@ public class NamespaceBranchController {
   public OpenGrayReleaseRuleDTO getBranchGrayRules(@PathVariable String appId,
       @PathVariable String env, @PathVariable String clusterName,
       @PathVariable String namespaceName, @PathVariable String branchName) {
+    if (shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
+      throw new AccessDeniedException("Access is denied");
+    }
     GrayReleaseRuleDTO grayReleaseRuleDTO = namespaceBranchService.findBranchGrayRules(appId,
         Env.valueOf(env.toUpperCase()), clusterName, namespaceName, branchName);
     if (grayReleaseRuleDTO == null) {
@@ -161,5 +166,12 @@ public class NamespaceBranchController {
     namespaceBranchService.updateBranchGrayRules(appId, Env.valueOf(env.toUpperCase()), clusterName,
         namespaceName, branchName, grayReleaseRuleDTO, operator);
 
+  }
+
+  private boolean shouldHideConfigToCurrentUser(String appId, String env, String clusterName,
+      String namespaceName) {
+    return UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())
+        && unifiedPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName,
+            namespaceName);
   }
 }
