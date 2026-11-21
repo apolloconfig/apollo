@@ -16,19 +16,26 @@
  */
 package com.ctrip.framework.apollo.portal.controller;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.ctrip.framework.apollo.common.dto.ReleaseDTO;
+import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
 import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
+import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
+import com.ctrip.framework.apollo.portal.entity.model.NamespaceReleaseModel;
 import com.ctrip.framework.apollo.portal.entity.vo.ReleaseCompareResult;
 import com.ctrip.framework.apollo.portal.environment.Env;
+import com.ctrip.framework.apollo.portal.service.NamespaceBranchService;
 import com.ctrip.framework.apollo.portal.service.ReleaseService;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import org.junit.jupiter.api.Test;
@@ -55,6 +62,9 @@ class ReleaseControllerTest {
 
   @Mock
   private UnifiedPermissionValidator unifiedPermissionValidator;
+
+  @Mock
+  private NamespaceBranchService namespaceBranchService;
 
   @Mock
   private UserInfoHolder userInfoHolder;
@@ -167,6 +177,49 @@ class ReleaseControllerTest {
     assertSame(expected, result);
     verifyNoInteractions(unifiedPermissionValidator);
     verify(releaseService, never()).findReleaseById(Env.DEV, 0);
+  }
+
+  @Test
+  void shouldPublishGrayReleaseToRealBranch() {
+    NamespaceReleaseModel model = grayReleaseModel("gray release");
+    when(releaseService.publish(model))
+        .thenReturn(release(1, "sample-app", "gray-release", "application"));
+    when(userInfoHolder.getUser()).thenReturn(userInfo("portal-user"));
+
+    ReleaseDTO result = releaseController.createGrayRelease("sample-app", ENV, "default",
+        "application", "gray-release", model);
+
+    assertEquals(1L, result.getId());
+    verify(namespaceBranchService).checkBranch("sample-app", Env.DEV, "default", "application",
+        "gray-release");
+    verify(releaseService).publish(model);
+  }
+
+  @Test
+  void shouldRejectGrayReleaseTargetingNonBranchCluster() {
+    // GHSA-hv72: passing `default` as branchName must not publish the default cluster.
+    NamespaceReleaseModel model = grayReleaseModel("gray release");
+    doThrow(new BadRequestException(
+        "Namespace's branch not exist. AppId = %s, ClusterName = %s, NamespaceName = %s, BranchName = %s",
+        "sample-app", "default", "application", "default")).when(namespaceBranchService)
+        .checkBranch("sample-app", Env.DEV, "default", "application", "default");
+
+    assertThrows(BadRequestException.class, () -> releaseController.createGrayRelease("sample-app",
+        ENV, "default", "application", "default", model));
+
+    verify(releaseService, never()).publish(any(NamespaceReleaseModel.class));
+  }
+
+  private static NamespaceReleaseModel grayReleaseModel(String title) {
+    NamespaceReleaseModel model = new NamespaceReleaseModel();
+    model.setReleaseTitle(title);
+    return model;
+  }
+
+  private static UserInfo userInfo(String userId) {
+    UserInfo userInfo = new UserInfo();
+    userInfo.setUserId(userId);
+    return userInfo;
   }
 
   private static ReleaseDTO release(long id, String appId, String clusterName,
