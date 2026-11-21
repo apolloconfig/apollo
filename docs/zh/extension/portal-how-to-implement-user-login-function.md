@@ -521,3 +521,92 @@ server:
 >注：运行时使用不同的实现是通过[Profiles](http://docs.spring.io/autorepo/docs/spring-boot/current/reference/html/boot-features-profiles.html)实现的，比如你自己的sso实现是在`custom` profile中的话，在打包脚本中可以指定-Dapollo_profile=github,custom。其中`github`是Apollo必须的一个profile，用于数据库的配置，`custom`是你自己实现的profile。同时需要注意在[AuthConfiguration](https://github.com/apolloconfig/apollo/blob/master/apollo-portal/src/main/java/com/ctrip/framework/apollo/portal/spi/configuration/AuthConfiguration.java)中修改默认实现的条件
 ，从`@ConditionalOnMissingProfile({"ctrip", "auth", "ldap"})`改为`@ConditionalOnMissingProfile({"ctrip", "auth", "ldap", "custom"})`。
 
+### 不修改 Apollo 源码的集成方式：自建启动工程
+
+如果需要在公司认证与内置 `auth` 之间切换，又不想修改 Apollo 源码，可以保留官方组件，把装配逻辑放在自己的 Spring Boot 启动工程中。这里的依赖必须是**普通 JAR**，不是发行 ZIP 中可直接执行的 Spring Boot JAR。
+
+#### 1. 准备普通 JAR 依赖
+
+构建基础组件时跳过 Spring Boot 可执行包重打包，并把组件安装到本地或内部 Maven 仓库：
+
+```bash
+mvn -Dspring-boot.repackage.skip=true install
+```
+
+在自己的工程中通过 Maven 引入 `apollo-portal` 及其传递依赖。不要把发行包中的可执行 JAR 当作普通依赖。
+
+#### 2. 在自己的扫描配置中排除官方启动配置
+
+下面的配置用于说明需要保留的扫描范围和需要排除的配置类。它会保留公共配置与 OpenAPI 配置，同时避免官方 `PortalApplication` 和整个 `AuthConfiguration` 配置族被重复装配：
+
+```java
+@PropertySource(value = {"classpath:portal.properties"})
+@EnableAutoConfiguration
+@AutoConfigurationPackage(basePackages = {"com.ctrip.framework.apollo.portal", "com.yourcompany.apollo"})
+@EnableTransactionManagement
+@EnableAspectJAutoProxy
+@ComponentScan(
+    basePackageClasses = {
+        ApolloCommonConfig.class,
+        PortalApplication.class,
+        PortalOpenApiConfig.class
+    },
+    excludeFilters = {
+        @ComponentScan.Filter(
+            type = FilterType.ASSIGNABLE_TYPE,
+            classes = PortalApplication.class),
+        @ComponentScan.Filter(
+            type = FilterType.REGEX,
+            pattern = "com\\.ctrip\\.framework\\.apollo\\.portal\\.spi"
+                + "\\.configuration\\.AuthConfiguration(\\$.*)?")
+    })
+```
+
+同时保留 `PortalApplication` 的 `portal.properties` 属性源及默认端口 8070，或在启动工程中提供等价配置。自动配置、事务管理和 AOP 也应保持启用。
+
+启动类还需导入 `org.springframework.boot.autoconfigure.AutoConfigurationPackage`，确保 Portal 的 JPA 仓库（包括 `UserRepository`）能够被发现。
+
+其中 `com.yourcompany.apollo` 是占位符，请替换为启动类及公司 Repository 所在的实际包名。
+
+不要只排除两个默认嵌套类，因为外层 `AuthConfiguration` 仍可能重新注册它们；也不要在自己的启动入口中再次导入官方 `PortalApplication`。
+
+#### 3. 用两个互斥 profile 装配认证
+
+公司认证放在自己的配置类中，并限制为 `company & !auth`：
+
+```java
+@Configuration
+@Profile("company & !auth")
+@EnableMethodSecurity
+class CompanyAuthConfiguration {
+    // 提供公司 UserService、UserInfoHolder
+    // 提供 LogoutHandler、SsoHeartbeatHandler（可按需使用默认实现）
+    // 注册接入公司 SSO 的 SecurityFilterChain
+}
+```
+
+切回内置认证时恢复官方配置：
+
+```java
+@Configuration
+@Profile("auth & !company")
+@Import(AuthConfiguration.class)
+class BuiltinAuthConfiguration {
+}
+```
+
+在自己的启动入口中显式导入这两个配置类。公司认证相关的 Bean 和 Filter 也应受同样的互斥 profile 条件限制。
+
+公司 SSO 校验成功后，必须在 `PortalUserSessionFilter` 执行前建立已认证的 Spring Security `SecurityContext`，并确保后续请求能够恢复该状态。只把用户信息写进自己的 `ThreadLocal` 不足以完成接入。如果还需要 UserToken，自定义安全链应接入 `UserTokenAuthenticationFilter`，不要排除独立的 `AuthFilterConfiguration`。
+
+#### 4. 使用同一个集成包重启切换
+
+```text
+公司认证：-Dspring.profiles.active=github,company
+内置认证：-Dspring.profiles.active=github,auth
+```
+
+两种模式只能择一启用，切换需要重启，不是运行时热切换。
+
+上线前至少验证：公司登录、退出、会话过期、`/openapi/v1/*` 调用，以及切回 `auth` 后的账号密码登录。升级 Apollo 时，还应同步检查启动扫描范围、认证链和依赖版本。
+
