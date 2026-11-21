@@ -53,6 +53,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -321,6 +322,38 @@ public class NamespaceControllerParamBindLowLevelTest {
 
     verify(namespaceOpenApiService, never()).deleteNamespace(anyString(), anyString(), anyString(),
         anyString(), anyString());
+  }
+
+  @ParameterizedTest
+  @NullSource
+  @ValueSource(strings = {"false"})
+  public void deleteAppNamespaceShouldKeepNormalDeletionWhenRecoveryIsDisabled(String recovery)
+      throws Exception {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
+    var request =
+        delete("/openapi/v1/apps/{appId}/appnamespaces/{namespaceName}", APP_ID, NAMESPACE)
+            .param("operator", "spoofed-user");
+    if (recovery != null) {
+      request.param("recovery", recovery);
+    }
+
+    mockMvc.perform(request).andExpect(status().isOk());
+
+    verify(namespaceOpenApiService).deleteAppNamespace(APP_ID, NAMESPACE, "tester");
+  }
+
+  @Test
+  public void deleteAppNamespaceShouldRejectUnsupportedRecoveryWithoutDeleting() throws Exception {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
+
+    mockMvc
+        .perform(delete("/openapi/v1/apps/{appId}/appnamespaces/{namespaceName}", APP_ID, NAMESPACE)
+            .param("recovery", "true"))
+        .andExpect(status().isBadRequest()).andExpect(jsonPath("$.message")
+            .value("AppNamespace recovery is not supported by this Portal version."));
+
+    verify(namespaceOpenApiService, never()).deleteAppNamespace(anyString(), anyString(),
+        anyString());
   }
 
   @Test

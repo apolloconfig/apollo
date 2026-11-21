@@ -26,7 +26,7 @@
   <artifactId>apollo-portal</artifactId>
   <name>Apollo Portal</name>
   <properties>
-    <apollo.openapi.spec.url>https://raw.githubusercontent.com/apolloconfig/apollo-openapi/v0.3.12/apollo-openapi.yaml</apollo.openapi.spec.url>
+    <apollo.openapi.spec.url>https://raw.githubusercontent.com/apolloconfig/apollo-openapi/v0.3.14/apollo-openapi.yaml</apollo.openapi.spec.url>
     <github.path>${project.artifactId}</github.path>
     <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
   </properties>
@@ -171,6 +171,7 @@
                   <useTags>true</useTags>
                   <dateLibrary>java8</dateLibrary>
                   <useSpringBoot4>true</useSpringBoot4>
+                  <openApiNullable>false</openApiNullable>
                 </configOptions>
                 <skipValidateSpec>true</skipValidateSpec>
               </configuration>
