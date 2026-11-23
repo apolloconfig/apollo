@@ -23,6 +23,11 @@ on:
   pull_request:
     branches: [ master ]
 
+concurrency:
+  # Preserve every non-PR run; only PR updates share a cancellation group.
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   code-style-check:
     runs-on: ubuntu-latest

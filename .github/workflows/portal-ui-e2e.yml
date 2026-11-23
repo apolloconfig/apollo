@@ -28,6 +28,11 @@ on:
       - '.github/workflows/portal-ui-e2e.yml'
   workflow_dispatch:
 
+concurrency:
+  # Preserve every non-PR run; only PR updates share a cancellation group.
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   portal-ui-e2e:
     name: portal-ui-e2e
