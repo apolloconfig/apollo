@@ -29,6 +29,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.env.MockEnvironment;
+import org.springframework.test.util.ReflectionTestUtils;
 
 /**
  * Test coverage for PortalConfig.isConfigViewMemberOnly() environment normalization.
@@ -47,6 +49,25 @@ class PortalConfigTest {
   @BeforeEach
   void setUp() {
     portalConfig = spy(new PortalConfig(portalDBPropertySource));
+  }
+
+  @Test
+  void consumerVisibilityDefaultsToUnrestrictedWithOnlyPortalSetting() {
+    MockEnvironment environment =
+        new MockEnvironment().withProperty("configView.memberOnly.envs", "PRO,DEV");
+    ReflectionTestUtils.setField(portalConfig, "environment", environment);
+
+    assertThat(portalConfig.isConfigViewMemberOnly("prod")).isTrue();
+    assertThat(portalConfig.isConsumerConfigViewMemberOnly("prod")).isFalse();
+    assertThat(portalConfig.isConsumerConfigViewMemberOnly("DEV")).isFalse();
+
+    environment.setProperty("configView.memberOnly.consumer.envs", " , prod, fws,invalid, ");
+    assertThat(portalConfig.isConsumerConfigViewMemberOnly("PRO")).isTrue();
+    assertThat(portalConfig.isConsumerConfigViewMemberOnly("FAT")).isTrue();
+    assertThat(portalConfig.isConsumerConfigViewMemberOnly("DEV")).isFalse();
+    assertThat(portalConfig.isConsumerConfigViewMemberOnly("invalid")).isFalse();
+    assertThat(portalConfig.isConfigViewMemberOnly("DEV")).isTrue();
+    assertThat(portalConfig.isConfigViewMemberOnly("FAT")).isFalse();
   }
 
   // ========== All Environment Aliases Tests ==========

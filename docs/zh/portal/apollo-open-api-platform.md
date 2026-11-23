@@ -31,6 +31,12 @@ Apollo管理员在 `http://{portal_address}/open/manage.html` 页面可以查看
 #### 2.3 给已注册的第三方应用授权
 第三方应用不应该能操作任何Namespace的配置，所以需要给token绑定可以操作的Namespace。Apollo管理员在 `http://{portal_address}/open/add-consumer.html` 页面给token赋权。赋权之后，第三方应用就可以通过Apollo提供的Http REST接口来管理已授权的Namespace的配置了。
 
+Consumer Token 的配置读取限制通过独立配置 `configView.memberOnly.consumer.envs` 显式开启。该配置位于 PortalDB.ServerConfig，是以英文逗号分隔的环境列表，默认为空。升级时仅配置旧的 `configView.memberOnly.envs` 不会改变 Consumer 的读取行为。
+
+为某个环境开启新配置前，请先为受影响的 Consumer 授予目标应用管理员权限或目标 Namespace 的修改/发布权限；灰度分支读取也接受父集群上的授权。开启后，无权限的私有 Namespace 单资源读取和配置 diff 返回 HTTP 403；Namespace 列表过滤不可读条目，公共 Namespace 使用实例列表先过滤再分页。
+
+公共 Namespace 和 Consumer 列表以外的环境不增加此项查看限制；Release 和实例查询仍要求原有的 Consumer 发布权限。
+
 从 Apollo 3.0.0 开始，如果管理员为该第三方应用勾选了**允许管理用户？**（`ManageUsers`），Consumer Token 也可以调用用户管理 Open API。未授予该权限时，用户查询/创建/更新/启用/禁用请求会返回 HTTP 403。使用 Consumer Token 调用用户管理或权限管理的写接口时，需要传入有效的 `operator` 查询参数（已存在的 Portal 用户）。
 
 #### 2.4 第三方应用调用Apollo Open API

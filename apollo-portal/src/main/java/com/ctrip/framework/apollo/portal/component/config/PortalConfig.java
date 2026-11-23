@@ -148,6 +148,17 @@ public class PortalConfig extends RefreshableConfig {
   }
 
   public boolean isConfigViewMemberOnly(String env) {
+    return isConfigViewMemberOnly(env, "configView.memberOnly.envs");
+  }
+
+  /**
+   * Consumer read restrictions are opt-in and independent of Portal user visibility settings.
+   */
+  public boolean isConsumerConfigViewMemberOnly(String env) {
+    return isConfigViewMemberOnly(env, "configView.memberOnly.consumer.envs");
+  }
+
+  private boolean isConfigViewMemberOnly(String env, String propertyName) {
     // Normalize env to handle aliases (prod/PROD/PRO)
     Env transformedEnv = Env.transformEnv(env);
     if (Env.UNKNOWN == transformedEnv) {
@@ -156,8 +167,7 @@ public class PortalConfig extends RefreshableConfig {
     }
     String normalizedEnv = transformedEnv.getName();
 
-    String[] configViewMemberOnlyEnvs =
-        getArrayProperty("configView.memberOnly.envs", EMPTY_STRING_ARRAY);
+    String[] configViewMemberOnlyEnvs = getArrayProperty(propertyName, EMPTY_STRING_ARRAY);
 
     for (String memberOnlyEnv : trimAndOmitEmpty(configViewMemberOnlyEnvs)) {
       // Normalize configured env as well for consistent comparison

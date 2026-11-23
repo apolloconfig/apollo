@@ -493,9 +493,10 @@ public class NamespaceControllerParamBindLowLevelTest {
     verify(namespaceOpenApiService).findNamespace(APP_ID, ENV, CLUSTER, NAMESPACE, false, true);
   }
 
-  @Test
-  public void findNamespaceShouldRejectHiddenUserTokenConfig() throws Exception {
-    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+  @ParameterizedTest
+  @ValueSource(strings = {UserIdentityConstants.USER_TOKEN, UserIdentityConstants.CONSUMER})
+  public void findNamespaceShouldRejectHiddenTokenConfig(String authType) throws Exception {
+    UserIdentityContextHolder.setAuthType(authType);
     when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE))
         .thenReturn(true);
 
@@ -562,9 +563,11 @@ public class NamespaceControllerParamBindLowLevelTest {
         .andExpect(jsonPath("$[0].namespaceName").value(NAMESPACE));
   }
 
-  @Test
-  public void publicNamespaceInstancesShouldFilterHiddenUserTokenNamespaces() throws Exception {
-    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+  @ParameterizedTest
+  @ValueSource(strings = {UserIdentityConstants.USER_TOKEN, UserIdentityConstants.CONSUMER})
+  public void publicNamespaceInstancesShouldFilterHiddenTokenNamespaces(String authType)
+      throws Exception {
+    UserIdentityContextHolder.setAuthType(authType);
     when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE))
         .thenReturn(true);
     when(namespaceOpenApiService.getPublicAppNamespaceInstances(ENV, NAMESPACE, 0, 10))
@@ -575,6 +578,47 @@ public class NamespaceControllerParamBindLowLevelTest {
             get("/openapi/v1/envs/{env}/appnamespaces/{namespaceName}/instances", ENV, NAMESPACE)
                 .param("page", "0").param("size", "10"))
         .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(0));
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {UserIdentityConstants.USER_TOKEN, UserIdentityConstants.CONSUMER})
+  public void publicNamespaceInstancesShouldPaginateReadableResults(String authType)
+      throws Exception {
+    UserIdentityContextHolder.setAuthType(authType);
+    when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE))
+        .thenReturn(true);
+    OpenNamespaceDTO first = readableNamespace("visible-1");
+    OpenNamespaceDTO second = readableNamespace("visible-2");
+    OpenNamespaceDTO third = readableNamespace("visible-3");
+    OpenNamespaceDTO fourth = readableNamespace("visible-4");
+    when(namespaceOpenApiService.getPublicAppNamespaceInstances(ENV, NAMESPACE, 0, 2))
+        .thenReturn(Arrays.asList(hiddenNamespace(), hiddenNamespace()));
+    when(namespaceOpenApiService.getPublicAppNamespaceInstances(ENV, NAMESPACE, 1, 2))
+        .thenReturn(Arrays.asList(first, hiddenNamespace()));
+    when(namespaceOpenApiService.getPublicAppNamespaceInstances(ENV, NAMESPACE, 2, 2))
+        .thenReturn(Arrays.asList(second, third));
+    when(namespaceOpenApiService.getPublicAppNamespaceInstances(ENV, NAMESPACE, 3, 2))
+        .thenReturn(Collections.singletonList(fourth));
+    String path = "/openapi/v1/envs/{env}/appnamespaces/{namespaceName}/instances";
+
+    mockMvc.perform(get(path, ENV, NAMESPACE).param("page", "0").param("size", "2"))
+        .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(2))
+        .andExpect(jsonPath("$[0].appId").value("visible-1"))
+        .andExpect(jsonPath("$[1].appId").value("visible-2"));
+    mockMvc.perform(get(path, ENV, NAMESPACE).param("page", "1").param("size", "2"))
+        .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(2))
+        .andExpect(jsonPath("$[0].appId").value("visible-3"))
+        .andExpect(jsonPath("$[1].appId").value("visible-4"));
+    mockMvc.perform(get(path, ENV, NAMESPACE).param("page", "2").param("size", "2"))
+        .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(0));
+  }
+
+  private OpenNamespaceDTO readableNamespace(String appId) {
+    OpenNamespaceDTO namespace = new OpenNamespaceDTO();
+    namespace.setAppId(appId);
+    namespace.setClusterName(CLUSTER);
+    namespace.setNamespaceName(NAMESPACE);
+    return namespace;
   }
 
   private OpenNamespaceDTO hiddenNamespace() {
@@ -604,9 +648,10 @@ public class NamespaceControllerParamBindLowLevelTest {
         anyString(), anyString());
   }
 
-  @Test
-  public void findNamespacesShouldFilterHiddenUserTokenNamespaces() throws Exception {
-    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+  @ParameterizedTest
+  @ValueSource(strings = {UserIdentityConstants.USER_TOKEN, UserIdentityConstants.CONSUMER})
+  public void findNamespacesShouldFilterHiddenTokenNamespaces(String authType) throws Exception {
+    UserIdentityContextHolder.setAuthType(authType);
     OpenNamespaceDTO visible = new OpenNamespaceDTO();
     visible.setAppId(APP_ID);
     visible.setClusterName(CLUSTER);
