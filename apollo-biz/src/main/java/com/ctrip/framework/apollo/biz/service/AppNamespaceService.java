@@ -23,6 +23,7 @@ import com.ctrip.framework.apollo.biz.entity.Cluster;
 import com.ctrip.framework.apollo.biz.entity.Namespace;
 import com.ctrip.framework.apollo.biz.repository.AppNamespaceRepository;
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
+import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.exception.ServiceException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.core.ConfigConsts;
@@ -188,7 +189,14 @@ public class AppNamespaceService {
     logger.info("{} is deleting AppNamespace, appId: {}, namespace: {}", operator, appId,
         namespaceName);
 
-    // 1. delete namespaces
+    // 1. delete app namespace by its id, only if nobody deleted it since it was read. This locks
+    // its row until the transaction ends, so no AppNamespace can be recreated under the same name
+    // before its namespaces are deleted.
+    if (appNamespaceRepository.delete(appNamespace.getId(), operator) == 0) {
+      throw BadRequestException.appNamespaceNotExists(appId, namespaceName);
+    }
+
+    // 2. delete namespaces
     List<Namespace> namespaces = namespaceService.findByAppIdAndNamespaceName(appId, namespaceName);
 
     if (namespaces != null) {
@@ -196,8 +204,5 @@ public class AppNamespaceService {
         namespaceService.deleteNamespace(namespace, operator);
       }
     }
-
-    // 2. delete app namespace
-    appNamespaceRepository.delete(appId, namespaceName, operator);
   }
 }

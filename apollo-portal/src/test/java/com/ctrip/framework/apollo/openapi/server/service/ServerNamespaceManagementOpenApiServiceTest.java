@@ -18,16 +18,23 @@ package com.ctrip.framework.apollo.openapi.server.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
+import com.ctrip.framework.apollo.common.exception.ServiceException;
+import com.ctrip.framework.apollo.openapi.model.OpenAppNamespaceDeletionCheckDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenAppNamespaceEnvDeletionStatusDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenAppNamespaceEnvDeletionStatusDTO.StatusEnum;
 import com.ctrip.framework.apollo.openapi.model.OpenCreateNamespaceDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceLockDTO;
@@ -36,10 +43,14 @@ import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
 import com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder;
 import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
+import com.ctrip.framework.apollo.portal.entity.bo.AppNamespaceDeletionCheckBO;
+import com.ctrip.framework.apollo.portal.entity.bo.AppNamespaceEnvDeletionStatusBO;
+import com.ctrip.framework.apollo.portal.entity.bo.AppNamespaceEnvDeletionStatusBO.Status;
 import com.ctrip.framework.apollo.portal.entity.bo.ItemBO;
 import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
 import com.ctrip.framework.apollo.portal.entity.vo.LockInfo;
 import com.ctrip.framework.apollo.portal.environment.Env;
+import com.ctrip.framework.apollo.portal.service.AppNamespaceDeletionService;
 import com.ctrip.framework.apollo.portal.service.AppNamespaceService;
 import com.ctrip.framework.apollo.portal.service.NamespaceLockService;
 import com.ctrip.framework.apollo.portal.service.NamespaceService;
@@ -85,6 +96,8 @@ class ServerNamespaceManagementOpenApiServiceTest {
   private AdminServiceAPI.NamespaceAPI namespaceAPI;
   @Mock
   private UnifiedPermissionValidator unifiedPermissionValidator;
+  @Mock
+  private AppNamespaceDeletionService appNamespaceDeletionService;
 
   private ServerNamespaceManagementOpenApiService service;
 
@@ -92,7 +105,7 @@ class ServerNamespaceManagementOpenApiServiceTest {
   void setUp() {
     service = new ServerNamespaceManagementOpenApiService(appNamespaceService, publisher,
         namespaceService, namespaceLockService, roleInitializationService, portalConfig,
-        namespaceAPI, unifiedPermissionValidator);
+        namespaceAPI, unifiedPermissionValidator, appNamespaceDeletionService);
   }
 
   @AfterEach
@@ -223,6 +236,61 @@ class ServerNamespaceManagementOpenApiServiceTest {
     assertThat(result.getIsEmergencyPublishAllowed()).isTrue();
     verify(namespaceLockService).getNamespaceLockInfo(APP_ID, Env.valueOf(ENV), CLUSTER,
         LINKED_NAMESPACE);
+  }
+
+  @Test
+  void deleteAppNamespaceShouldDelegateToDeletionService() {
+    service.deleteAppNamespace(APP_ID, PRIVATE_NAMESPACE, "operator", false);
+
+    verify(appNamespaceDeletionService).deleteAppNamespace(APP_ID, PRIVATE_NAMESPACE, "operator");
+    verify(appNamespaceDeletionService, never()).cleanUpAppNamespace(any(), any(), any());
+    verifyNoInteractions(appNamespaceService, publisher);
+  }
+
+  @Test
+  void deleteAppNamespaceShouldCleanUpOnRecovery() {
+    service.deleteAppNamespace(APP_ID, PRIVATE_NAMESPACE, "operator", true);
+
+    verify(appNamespaceDeletionService).cleanUpAppNamespace(APP_ID, PRIVATE_NAMESPACE, "operator");
+    verify(appNamespaceDeletionService, never()).deleteAppNamespace(any(), any(), any());
+    verifyNoInteractions(appNamespaceService, publisher);
+  }
+
+  @Test
+  void deleteAppNamespaceShouldPropagateIncompleteDeletion() {
+    ServiceException incomplete = new ServiceException("incomplete");
+    doThrow(incomplete).when(appNamespaceDeletionService).deleteAppNamespace(APP_ID,
+        PRIVATE_NAMESPACE, "operator");
+
+    assertThatThrownBy(
+        () -> service.deleteAppNamespace(APP_ID, PRIVATE_NAMESPACE, "operator", false))
+        .isSameAs(incomplete);
+  }
+
+  @Test
+  void checkAppNamespaceDeletionShouldConvertEveryEnvironmentStatus() {
+    when(appNamespaceDeletionService.checkAppNamespaceDeletion(APP_ID, PRIVATE_NAMESPACE))
+        .thenReturn(new AppNamespaceDeletionCheckBO(APP_ID, PRIVATE_NAMESPACE, false,
+            Arrays.asList(
+                new AppNamespaceEnvDeletionStatusBO(Env.DEV, Status.REMAINING, null),
+                new AppNamespaceEnvDeletionStatusBO(Env.FAT, Status.ABSENT, null),
+                new AppNamespaceEnvDeletionStatusBO(Env.UAT, Status.UNREACHABLE, "timeout"),
+                new AppNamespaceEnvDeletionStatusBO(Env.PRO, Status.SKIPPED, null))));
+
+    OpenAppNamespaceDeletionCheckDTO result =
+        service.checkAppNamespaceDeletion(APP_ID, PRIVATE_NAMESPACE);
+
+    assertThat(result.getAppId()).isEqualTo(APP_ID);
+    assertThat(result.getNamespaceName()).isEqualTo(PRIVATE_NAMESPACE);
+    assertThat(result.getExistsInPortal()).isFalse();
+    assertThat(result.getEnvironments())
+        .extracting(OpenAppNamespaceEnvDeletionStatusDTO::getEnv,
+            OpenAppNamespaceEnvDeletionStatusDTO::getStatus,
+            OpenAppNamespaceEnvDeletionStatusDTO::getMessage)
+        .containsExactly(tuple("DEV", StatusEnum.REMAINING, null),
+            tuple("FAT", StatusEnum.ABSENT, null), tuple("UAT", StatusEnum.UNREACHABLE, "timeout"),
+            tuple("PRO", StatusEnum.SKIPPED, null));
+    verifyNoInteractions(appNamespaceService, namespaceAPI, publisher);
   }
 
   private NamespaceBO createNamespaceBO() {

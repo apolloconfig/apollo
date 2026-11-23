@@ -22,6 +22,7 @@ import com.ctrip.framework.apollo.biz.entity.Namespace;
 import com.ctrip.framework.apollo.biz.entity.ReleaseHistory;
 import com.ctrip.framework.apollo.common.constants.NamespaceBranchStatus;
 import com.ctrip.framework.apollo.common.constants.ReleaseOperation;
+import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.utils.GrayReleaseRuleItemTransformer;
 import com.ctrip.framework.apollo.common.dto.GrayReleaseRuleItemDTO;
 import java.lang.reflect.Type;
@@ -239,6 +240,45 @@ public class NamespaceBranchServiceTest extends AbstractIntegrationTest {
 
   }
 
+
+  @Test
+  @Sql(scripts = "/sql/namespace-branch-test.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  public void testDeleteBranchRejectsDefaultClusterAsBranchName() {
+    // GHSA-hv72: passing `default` as branchName must not delete the default cluster.
+    try {
+      namespaceBranchService.deleteBranch(testApp, testCluster, testNamespace, testCluster,
+          NamespaceBranchStatus.DELETED, operator);
+      Assert.fail("Expected BadRequestException for branchName=default");
+    } catch (BadRequestException expected) {
+      // expected
+    }
+
+    // Nothing was deleted: the real gray branch is still there.
+    Namespace branch = namespaceBranchService.findBranch(testApp, testCluster, testNamespace);
+    Assert.assertNotNull(branch);
+    Assert.assertEquals(testBranchName, branch.getClusterName());
+  }
+
+  @Test
+  @Sql(scripts = "/sql/namespace-branch-test.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  public void testDeleteBranchRejectsBranchOfAnotherParentCluster() {
+    // GHSA-hv72: the branch cluster's parent must be the cluster named in the path.
+    try {
+      namespaceBranchService.deleteBranch(testApp, testBranchName, testNamespace, testBranchName,
+          NamespaceBranchStatus.DELETED, operator);
+      Assert.fail("Expected BadRequestException for mismatched parent cluster");
+    } catch (BadRequestException expected) {
+      // expected
+    }
+
+    Namespace branch = namespaceBranchService.findBranch(testApp, testCluster, testNamespace);
+    Assert.assertNotNull(branch);
+    Assert.assertEquals(testBranchName, branch.getClusterName());
+  }
 
   private GrayReleaseRule instanceGrayReleaseRule() {
     GrayReleaseRule rule = new GrayReleaseRule();

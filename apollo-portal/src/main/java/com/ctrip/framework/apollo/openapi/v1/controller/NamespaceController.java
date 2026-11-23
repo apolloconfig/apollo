@@ -28,6 +28,7 @@ import com.ctrip.framework.apollo.openapi.api.AppNamespaceManagementApi;
 import com.ctrip.framework.apollo.openapi.api.NamespaceLockManagementApi;
 import com.ctrip.framework.apollo.openapi.api.NamespaceManagementApi;
 import com.ctrip.framework.apollo.openapi.model.OpenAppNamespaceDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenAppNamespaceDeletionCheckDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenCreateNamespaceDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceLockDTO;
@@ -124,6 +125,14 @@ public class NamespaceController
   }
 
   @PreAuthorize(value = "@unifiedPermissionValidator.hasDeleteNamespacePermission(#appId)")
+  @Override
+  public ResponseEntity<OpenAppNamespaceDeletionCheckDTO> checkAppNamespaceDeletion(String appId,
+      String namespaceName) {
+    return ResponseEntity
+        .ok(namespaceOpenApiService.checkAppNamespaceDeletion(appId, namespaceName));
+  }
+
+  @PreAuthorize(value = "@unifiedPermissionValidator.hasDeleteNamespacePermission(#appId)")
   @ApolloAuditLog(type = OpType.DELETE, name = "AppNamespace.delete")
   @Override
   public ResponseEntity<Void> deleteAppNamespace(String appId, String namespaceName,
@@ -134,7 +143,7 @@ public class NamespaceController
           "AppNamespace recovery is not supported by this Portal version.");
     }
     namespaceOpenApiService.deleteAppNamespace(appId, namespaceName,
-        resolveOperator(operator, null));
+        resolveOperator(operator, null), Boolean.TRUE.equals(recovery));
     return ResponseEntity.ok().build();
   }
 

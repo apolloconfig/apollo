@@ -16,7 +16,6 @@
  */
 package com.ctrip.framework.apollo.portal.component.emailbuilder;
 
-import com.google.common.base.Joiner;
 import com.google.gson.Gson;
 
 import com.ctrip.framework.apollo.common.constants.GsonType;
@@ -38,7 +37,6 @@ public class GrayPublishEmailBuilder extends ConfigPublishEmailBuilder {
   private static final String EMAIL_SUBJECT = "[Apollo] 灰度发布";
 
   private Gson gson = new Gson();
-  private Joiner IP_JOINER = Joiner.on(", ");
 
   @Override
   protected String subject() {
@@ -78,10 +76,19 @@ public class GrayPublishEmailBuilder extends ConfigPublishEmailBuilder {
       String clientAppId = ruleItem.getClientAppId();
       Set<String> ips = ruleItem.getClientIpList();
 
-      rulesHtmlBuilder.append("<b>AppId:&nbsp;</b>").append(clientAppId)
+      rulesHtmlBuilder.append("<b>AppId:&nbsp;</b>").append(escapeHtml(clientAppId))
           .append("&nbsp;&nbsp; <b>IP:&nbsp;</b>");
 
-      IP_JOINER.appendTo(rulesHtmlBuilder, ips);
+      if (ips != null) {
+        boolean firstIp = true;
+        for (String ip : ips) {
+          if (!firstIp) {
+            rulesHtmlBuilder.append(", ");
+          }
+          firstIp = false;
+          rulesHtmlBuilder.append(escapeHtml(ip));
+        }
+      }
     }
     String grayRulesModuleContent = portalConfig.emailGrayRulesModuleTemplate().replaceAll(
         EMAIL_CONTENT_GRAY_RULES_CONTENT, Matcher.quoteReplacement(rulesHtmlBuilder.toString()));

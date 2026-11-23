@@ -48,7 +48,7 @@ jobs:
       if: matrix.jdk == '17'
       uses: nick-fields/retry@v3
       with:
-          timeout_minutes: 5
+          timeout_minutes: 10
           max_attempts: 3
           retry_wait_seconds: 1
           command: mvn -B clean package jacoco:report -Dmaven.gitcommitid.skip=true

@@ -161,6 +161,11 @@ public class NamespaceBranchController {
       @PathVariable String clusterName, @PathVariable String namespaceName,
       @PathVariable String branchName) {
 
+    if (unifiedPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName,
+        namespaceName)) {
+      throw new AccessDeniedException("Access is denied");
+    }
+
     return namespaceBranchService.findBranchGrayRules(appId, Env.valueOf(env), clusterName,
         namespaceName, branchName);
   }

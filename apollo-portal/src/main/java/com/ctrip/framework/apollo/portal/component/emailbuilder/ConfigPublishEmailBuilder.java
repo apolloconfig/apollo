@@ -40,6 +40,7 @@ import com.ctrip.framework.apollo.portal.util.RoleUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.util.HtmlUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -152,24 +153,23 @@ public abstract class ConfigPublishEmailBuilder {
     }
 
     renderResult = renderResult.replaceAll(EMAIL_CONTENT_FIELD_APPID,
-        Matcher.quoteReplacement(releaseHistory.getAppId()));
-    renderResult =
-        renderResult.replaceAll(EMAIL_CONTENT_FIELD_ENV, Matcher.quoteReplacement(env.toString()));
+        Matcher.quoteReplacement(escapeHtml(releaseHistory.getAppId())));
+    renderResult = renderResult.replaceAll(EMAIL_CONTENT_FIELD_ENV,
+        Matcher.quoteReplacement(escapeHtml(env.toString())));
     renderResult = renderResult.replaceAll(EMAIL_CONTENT_FIELD_CLUSTER,
-        Matcher.quoteReplacement(releaseHistory.getClusterName()));
+        Matcher.quoteReplacement(escapeHtml(releaseHistory.getClusterName())));
     renderResult = renderResult.replaceAll(EMAIL_CONTENT_FIELD_NAMESPACE,
-        Matcher.quoteReplacement(releaseHistory.getNamespaceName()));
+        Matcher.quoteReplacement(escapeHtml(releaseHistory.getNamespaceName())));
     renderResult = renderResult.replaceAll(EMAIL_CONTENT_FIELD_OPERATOR,
-        Matcher.quoteReplacement(releaseHistory.getOperator()));
+        Matcher.quoteReplacement(escapeHtml(releaseHistory.getOperator())));
     renderResult = renderResult.replaceAll(EMAIL_CONTENT_FIELD_RELEASE_TITLE,
-        Matcher.quoteReplacement(releaseHistory.getReleaseTitle()));
+        Matcher.quoteReplacement(escapeHtml(releaseHistory.getReleaseTitle())));
     renderResult = renderResult.replaceAll(EMAIL_CONTENT_FIELD_RELEASE_ID,
         String.valueOf(releaseHistory.getReleaseId()));
     renderResult = renderResult.replaceAll(EMAIL_CONTENT_FIELD_RELEASE_HISTORY_ID,
         String.valueOf(releaseHistory.getId()));
-    renderResult =
-        renderResult.replaceAll(EMAIL_CONTENT_FIELD_RELEASE_COMMENT, Matcher.quoteReplacement(
-            releaseHistory.getReleaseComment() == null ? "" : releaseHistory.getReleaseComment()));
+    renderResult = renderResult.replaceAll(EMAIL_CONTENT_FIELD_RELEASE_COMMENT,
+        Matcher.quoteReplacement(escapeHtml(releaseHistory.getReleaseComment())));
     renderResult = renderResult.replaceAll(EMAIL_CONTENT_FIELD_APOLLO_SERVER_ADDRESS,
         getApolloPortalAddress());
     return renderResult.replaceAll(EMAIL_CONTENT_FIELD_RELEASE_TIME,
@@ -209,10 +209,11 @@ public abstract class ConfigPublishEmailBuilder {
       changesHtmlBuilder.append("<tr>");
       changesHtmlBuilder.append("<td width=\"10%\">").append(change.getType().toString())
           .append("</td>");
-      changesHtmlBuilder.append("<td width=\"20%\">").append(cutOffString(key)).append("</td>");
-      changesHtmlBuilder.append("<td width=\"35%\">").append(cutOffString(oldValue))
+      changesHtmlBuilder.append("<td width=\"20%\">").append(escapeHtml(cutOffString(key)))
           .append("</td>");
-      changesHtmlBuilder.append("<td width=\"35%\">").append(cutOffString(newValue))
+      changesHtmlBuilder.append("<td width=\"35%\">").append(escapeHtml(cutOffString(oldValue)))
+          .append("</td>");
+      changesHtmlBuilder.append("<td width=\"35%\">").append(escapeHtml(cutOffString(newValue)))
           .append("</td>");
 
       changesHtmlBuilder.append("</tr>");
@@ -222,7 +223,8 @@ public abstract class ConfigPublishEmailBuilder {
     String diffModuleTemplate = getDiffModuleTemplate();
     String diffModuleRenderResult =
         diffModuleTemplate.replaceAll(EMAIL_CONTENT_FIELD_DIFF_CONTENT, diffContent);
-    return bodyTemplate.replaceAll(EMAIL_CONTENT_DIFF_MODULE, diffModuleRenderResult);
+    return bodyTemplate.replaceAll(EMAIL_CONTENT_DIFF_MODULE,
+        Matcher.quoteReplacement(diffModuleRenderResult));
   }
 
   private ReleaseCompareResult getReleaseCompareResult(Env env, ReleaseHistoryBO releaseHistory) {
@@ -294,7 +296,20 @@ public abstract class ConfigPublishEmailBuilder {
     return portalConfig.portalAddress();
   }
 
+  /**
+   * Escape a value interpolated into the HTML mail body. The values rendered here come from
+   * stored configuration (keys/values), release metadata (title/comment) and gray rules, all
+   * of which a user holding ModifyNamespace can control, so they must never be concatenated
+   * into HTML raw. See GHSA-47xv-g6gr-fw5c.
+   */
+  protected static String escapeHtml(String value) {
+    return value == null ? "" : HtmlUtils.htmlEscape(value);
+  }
+
   private String cutOffString(String source) {
+    if (source == null) {
+      return "";
+    }
     if (source.length() > VALUE_MAX_LENGTH) {
       return source.substring(0, VALUE_MAX_LENGTH) + "...";
     }

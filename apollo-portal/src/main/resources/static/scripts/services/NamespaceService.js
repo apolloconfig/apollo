@@ -52,6 +52,10 @@ appService.service("NamespaceService", ['$resource', '$q', 'AppUtil', function (
             method: 'DELETE',
             url: AppUtil.prefixPath() + '/openapi/v1/apps/:appId/appnamespaces/:namespaceName'
         },
+        checkAppNamespaceDeletion: {
+            method: 'GET',
+            url: AppUtil.prefixPath() + '/openapi/v1/apps/:appId/appnamespaces/:namespaceName/deletion-check'
+        },
         getLinkedNamespaceUsage: {
             method: 'GET',
             url: AppUtil.prefixPath() + '/openapi/v1/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/usage',
@@ -287,6 +291,39 @@ appService.service("NamespaceService", ['$resource', '$q', 'AppUtil', function (
         return d.promise;
     }
 
+    function checkAppNamespaceDeletion(appId, namespaceName) {
+        var d = $q.defer();
+        namespace_source.checkAppNamespaceDeletion({
+                                                    appId: appId,
+                                                    namespaceName: namespaceName
+                                                },
+                                                function (result) {
+                                                    d.resolve(result);
+                                                },
+                                                function (result) {
+                                                    d.reject(result);
+                                                });
+
+        return d.promise;
+    }
+
+    function cleanUpAppNamespace(appId, namespaceName) {
+        var d = $q.defer();
+        namespace_source.deleteAppNamespace({
+                                             appId: appId,
+                                             namespaceName: namespaceName,
+                                             recovery: true
+                                         },
+                                         function (result) {
+                                             d.resolve(result);
+                                         },
+                                         function (result) {
+                                             d.reject(result);
+                                         });
+
+        return d.promise;
+    }
+
     function getLinkedNamespaceUsage(appId, env, clusterName, namespaceName) {
         var d = $q.defer();
         namespace_source.getLinkedNamespaceUsage({
@@ -340,6 +377,8 @@ appService.service("NamespaceService", ['$resource', '$q', 'AppUtil', function (
         getPublicAppNamespaceAllNamespaces: getPublicAppNamespaceAllNamespaces,
         loadAppNamespace: loadAppNamespace,
         deleteAppNamespace: deleteAppNamespace,
+        checkAppNamespaceDeletion: checkAppNamespaceDeletion,
+        cleanUpAppNamespace: cleanUpAppNamespace,
         getLinkedNamespaceUsage: getLinkedNamespaceUsage,
         getNamespaceUsage: getNamespaceUsage,
         findPublicNamespaceNames: findPublicNamespaceNames

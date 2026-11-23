@@ -109,6 +109,11 @@ public class ReleaseController implements ReleaseManagementApi {
         Boolean.TRUE.equals(namespaceGrayDelReleaseDTO.getIsEmergencyPublish());
     checkEmergencyPublishAllowedForUser(env, emergencyPublish);
 
+    // GHSA-hv72: the release is published to branchName, so verify branchName is
+    // really a gray branch of clusterName before targeting it.
+    namespaceBranchService.checkBranch(appId, Env.valueOf(env), clusterName, namespaceName,
+        branchName);
+
     NamespaceGrayDelReleaseModel releaseModel = new NamespaceGrayDelReleaseModel();
     releaseModel.setAppId(appId);
     releaseModel.setEnv(env);
@@ -132,6 +137,10 @@ public class ReleaseController implements ReleaseManagementApi {
   public ResponseEntity<OpenReleaseDTO> createGrayRelease(String appId, String env,
       String clusterName, String namespaceName, String branchName,
       NamespaceReleaseDTO namespaceReleaseDTO, String operator) {
+    // GHSA-hv72: the release is published to branchName, so verify branchName is
+    // really a gray branch of clusterName before targeting it.
+    namespaceBranchService.checkBranch(appId, Env.valueOf(env), clusterName, namespaceName,
+        branchName);
     NamespaceReleaseModel releaseModel = toReleaseModel(appId, env, branchName, namespaceName,
         namespaceReleaseDTO, resolveOperator(operator, payloadReleasedBy(namespaceReleaseDTO)));
     checkEmergencyPublishAllowedForUser(env, releaseModel.isEmergencyPublish());
