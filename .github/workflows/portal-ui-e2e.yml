@@ -33,10 +33,6 @@ on:
       - '.github/workflows/portal-ui-e2e.yml'
   workflow_dispatch:
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
-
 jobs:
   portal-ui-e2e:
     name: portal-ui-e2e

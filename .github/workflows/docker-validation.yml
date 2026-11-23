@@ -28,10 +28,6 @@ on:
       - '.github/workflows/docker-validation.yml'
   workflow_dispatch:
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
-
 jobs:
   docker-smoke:
     runs-on: ubuntu-latest
