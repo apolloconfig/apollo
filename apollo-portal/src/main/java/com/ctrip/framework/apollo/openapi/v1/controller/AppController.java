@@ -209,7 +209,7 @@ public class AppController implements AppManagementApi {
     if (app == null) {
       throw new BadRequestException("App is null");
     }
-    requireCreateAppInEnvPermission();
+    requireCreateAppInEnvPermission(app.getAppId());
     String resolvedOperator = resolveOperator(operator);
     app.setDataChangeCreatedBy(resolvedOperator);
     app.setDataChangeLastModifiedBy(resolvedOperator);
@@ -242,13 +242,19 @@ public class AppController implements AppManagementApi {
     return ResponseEntity.ok(appOpenApiService.findMissEnvs(appId));
   }
 
-  private void requireCreateAppInEnvPermission() {
+  private void requireCreateAppInEnvPermission(String appId) {
     String authType = UserIdentityContextHolder.getAuthType();
     if (UserIdentityConstants.USER.equals(authType)) {
       // The legacy Portal WebAPI path for creating an app in a missing environment did not
-      // perform method-level authorization. Keep Portal UI behavior compatible after routing
-      // it through OpenAPI, but do not extend that compatibility to consumer tokens.
-      return;
+      // perform method-level authorization. Routing it through OpenAPI must not keep that
+      // gap for Portal users: a Portal user may register a missing environment for an app
+      // they administer (recovery), or if they hold the platform create-application
+      // permission. The recovery allowance must not extend to consumer tokens.
+      if (unifiedPermissionValidator.isAppAdmin(appId)
+          || unifiedPermissionValidator.hasCreateApplicationPermission()) {
+        return;
+      }
+      throw new AccessDeniedException("Create application permission is required");
     }
     if (UserIdentityConstants.CONSUMER.equals(authType)
         && unifiedPermissionValidator.hasCreateApplicationPermission()) {

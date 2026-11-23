@@ -166,6 +166,12 @@ public class AppController {
     return response;
   }
 
+  // Registering an app in a missing environment is also how an app admin recovers their own
+  // app, so the platform create-application permission is not the only way in: an admin of
+  // the target app may do it too. Role initialization below only sets up the env roles, it
+  // does not grant the caller an administrator role.
+  @PreAuthorize(
+      value = "@unifiedPermissionValidator.hasCreateApplicationPermission() or @unifiedPermissionValidator.isAppAdmin(#app.appId)")
   @PostMapping(value = "/envs/{env}", consumes = {"application/json"})
   @ApolloAuditLog(type = OpType.CREATE, name = "App.create.forEnv")
   public ResponseEntity<Void> create(@PathVariable String env, @Valid @RequestBody App app) {

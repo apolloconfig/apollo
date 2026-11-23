@@ -122,6 +122,9 @@ public class NamespaceBranchController implements NamespaceBranchManagementApi {
   public ResponseEntity<OpenGrayReleaseRuleDTO> getBranchGrayRules(String appId, String env,
       String clusterName, String namespaceName, String branchName) {
     requireConfigReadForUserToken(appId, env, clusterName, namespaceName);
+    if (shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
+      throw new AccessDeniedException("Access is denied");
+    }
     GrayReleaseRuleDTO grayReleaseRuleDTO = namespaceBranchService.findBranchGrayRules(appId,
         Env.valueOf(env), clusterName, namespaceName, branchName);
     return grayReleaseRuleDTO == null ? ResponseEntity.ok().build()
