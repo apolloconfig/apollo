@@ -578,8 +578,8 @@ public class ConsumerService {
       if (Strings.isNullOrEmpty(namespaceName) || namespaceName.trim().isEmpty()) {
         throw new BadRequestException("Params(NamespaceName) can not be empty.");
       }
-      // 历史授权的环境可能已不在 Portal 配置中，只检查空值，按存储的原始范围匹配。
-      if (env != null && env.trim().isEmpty()) {
+      // 历史授权可能包含纯空白环境，按原始值匹配；空字符串没有对应的可识别角色。
+      if (env != null && env.isEmpty()) {
         throw BadRequestException.invalidEnvFormat(env);
       }
     } else if (!"AppRole".equals(type)) {

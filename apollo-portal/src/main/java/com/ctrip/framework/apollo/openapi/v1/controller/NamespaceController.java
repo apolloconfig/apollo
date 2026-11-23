@@ -137,11 +137,6 @@ public class NamespaceController
   @Override
   public ResponseEntity<Void> deleteAppNamespace(String appId, String namespaceName,
       String operator, Boolean recovery) {
-    // Reject recovery requests until the dedicated cleanup flow is available.
-    if (Boolean.TRUE.equals(recovery)) {
-      throw new BadRequestException(
-          "AppNamespace recovery is not supported by this Portal version.");
-    }
     namespaceOpenApiService.deleteAppNamespace(appId, namespaceName,
         resolveOperator(operator, null), Boolean.TRUE.equals(recovery));
     return ResponseEntity.ok().build();

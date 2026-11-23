@@ -491,21 +491,7 @@ public class NamespaceControllerParamBindLowLevelTest {
 
     mockMvc.perform(request).andExpect(status().isOk());
 
-    verify(namespaceOpenApiService).deleteAppNamespace(APP_ID, NAMESPACE, "tester");
-  }
-
-  @Test
-  public void deleteAppNamespaceShouldRejectUnsupportedRecoveryWithoutDeleting() throws Exception {
-    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
-
-    mockMvc
-        .perform(delete("/openapi/v1/apps/{appId}/appnamespaces/{namespaceName}", APP_ID, NAMESPACE)
-            .param("recovery", "true"))
-        .andExpect(status().isBadRequest()).andExpect(jsonPath("$.message")
-            .value("AppNamespace recovery is not supported by this Portal version."));
-
-    verify(namespaceOpenApiService, never()).deleteAppNamespace(anyString(), anyString(),
-        anyString());
+    verify(namespaceOpenApiService).deleteAppNamespace(APP_ID, NAMESPACE, "tester", false);
   }
 
   @Test

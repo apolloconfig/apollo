@@ -229,6 +229,35 @@ class ConsumerRoleManagementIntegrationTest {
         .noneMatch(role -> env.equals(role.getEnv())));
   }
 
+  @ParameterizedTest
+  @ValueSource(strings = {" ", "  ", "\t"})
+  void revokingListedWhitespaceEnvironmentKeepsOtherGrants(String env) {
+    String otherEnv = env + " ";
+    insertNamespacePair(1020, env);
+    insertNamespacePair(1022, otherEnv);
+    jdbcTemplate.update("INSERT INTO \"ConsumerRole\" (Id, ConsumerId, RoleId) "
+        + "VALUES (2020, 1001, 1020), (2021, 1001, 1021), "
+        + "(2022, 1001, 1022), (2023, 1001, 1023)");
+    OpenConsumerRoleDTO selected = consumerService.findConsumerRoleDetailsByConsumerId(1000L)
+        .stream().filter(role -> env.equals(role.getEnv())).findFirst().orElseThrow();
+
+    consumerService.revokeConsumerRole(1000L, selected.getType(), selected.getAppId(),
+        selected.getNamespaceName(), selected.getEnv(), "operator");
+
+    assertEquals(2, count("SELECT COUNT(*) FROM \"ConsumerRole\" WHERE ConsumerId = 1000 "
+        + "AND RoleId IN (1020, 1021) AND IsDeleted = TRUE"));
+    assertEquals(6, count("SELECT COUNT(*) FROM \"ConsumerRole\" WHERE ConsumerId = 1000 "
+        + "AND RoleId IN (1001, 1002, 1003, 1004, 1022, 1023) AND IsDeleted = FALSE"));
+    assertEquals(4, count("SELECT COUNT(*) FROM \"ConsumerRole\" WHERE ConsumerId = 1001 "
+        + "AND RoleId IN (1020, 1021, 1022, 1023) AND IsDeleted = FALSE"));
+    assertEquals(4, count("SELECT COUNT(*) FROM \"Role\" "
+        + "WHERE Id IN (1020, 1021, 1022, 1023) AND IsDeleted = FALSE"));
+    List<OpenConsumerRoleDTO> remaining =
+        consumerService.findConsumerRoleDetailsByConsumerId(1000L);
+    assertTrue(remaining.stream().noneMatch(role -> env.equals(role.getEnv())));
+    assertTrue(remaining.stream().anyMatch(role -> otherEnv.equals(role.getEnv())));
+  }
+
   private void insertNamespacePair(int firstId, String env) {
     for (int i = 0; i < 2; i++) {
       int roleId = firstId + i;
