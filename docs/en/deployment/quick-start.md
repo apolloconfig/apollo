@@ -44,27 +44,15 @@ SHOW VARIABLES WHERE Variable_name = 'version';
 | version       | 5.7.11 |
 
 ## 1.3 Downloading the Quick Start installation package
-We have prepared a Quick Start installation package, you just need to download it locally and you can use it directly, eliminating the need to compile and package the process.
 
-The installation package is 50M, if you can't access github, you can download it from Baidu.com.
-
-1. Download from GitHub
-    * Checkout or download the [apollo-quick-start project](https://github.com/apolloconfig/apollo-quick-start)
-    * **Since the Quick Start project is relatively large, it is placed in a different repository, so please note the project address**
-        * https://github.com/apolloconfig/apollo-quick-start
-2. Download from Baidu.com
-    * Downloaded via [weblink](https://pan.baidu.com/s/1Ieelw6y3adECgktO0ea0Gg), extraction code: 9wwe
-    * After downloading to local, unzip apollo-quick-start.zip locally
-3. why is the installation package so large as 58M?
-    * Because it is a self-starting jar package, which contains all the dependent jar packages and a built-in tomcat container
+Choose a version on [Quick Start Releases](https://github.com/apolloconfig/apollo-quick-start/releases), download the `apollo-quick-start-<version>.zip` asset and extract it. From the extracted directory, follow the database and startup instructions below. The ZIP includes the server JAR, demo client, SQL files and startup script.
 
 ### 1.3.1 Manually packaged Quick Start installation package
 
 Quick Start is only for local testing, so generally users do not need to download the source code to package it themselves, but just download the already typed package. However, there are some users who want to repackage the package after modifying the code, then you can refer to the following steps.
 
-1. Modify the apollo-configservice, apollo-adminservice and apollo-portal pom.xml, comment out spring-boot-maven-plugin and maven-assembly-plugin
-2. Execute `mvn clean package -pl apollo-assembly -am -DskipTests=true` in the root directory.
-3. Copy the jar package under apollo-assembly/target and rename it to apollo-all-in-one.jar
+1. In the matching Apollo source checkout, run `./mvnw -pl apollo-assembly -am -DskipTests package`.
+2. Copy the resulting `apollo-assembly/target/apollo-assembly-<version>.jar` into the extracted directory as `apollo-all-in-one.jar`.
 
 # II. Initialization and Startup
 #### Precautions

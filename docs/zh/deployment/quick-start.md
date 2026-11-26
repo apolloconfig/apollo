@@ -44,27 +44,15 @@ SHOW VARIABLES WHERE Variable_name = 'version';
 | version       | 5.7.11 |
 
 ## 1.3 下载Quick Start安装包
-我们准备好了一个Quick Start安装包，大家只需要下载到本地，就可以直接使用，免去了编译、打包过程。
 
-安装包共50M，如果访问github网速不给力的话，可以从百度网盘下载。
-
-1. 从GitHub下载
-    * checkout或下载[apollo-quick-start项目](https://github.com/apolloconfig/apollo-quick-start)
-    * **由于Quick Start项目比较大，所以放在了另外的repository，请注意项目地址**
-        * https://github.com/apolloconfig/apollo-quick-start
-2. 从百度网盘下载
-    * 通过[网盘链接](https://pan.baidu.com/s/1Ieelw6y3adECgktO0ea0Gg)下载，提取码: 9wwe
-    * 下载到本地后，在本地解压apollo-quick-start.zip
-3. 为啥安装包要58M这么大？
-    * 因为这是一个可以自启动的jar包，里面包含了所有依赖jar包以及一个内置的tomcat容器
+在 [Quick Start Releases](https://github.com/apolloconfig/apollo-quick-start/releases) 选择要运行的版本，下载附件 `apollo-quick-start-<版本>.zip` 并解压。进入解压目录，按下文配置数据库并启动服务。安装包包含服务端 JAR、示例客户端、SQL 和启动脚本。
 
 ### 1.3.1 手动打包Quick Start安装包
 
 Quick Start只针对本地测试使用，所以一般用户不需要自己下载源码打包，只需要下载已经打好的包即可。不过也有部分用户希望在修改代码后重新打包，那么可以参考如下步骤：
 
-1. 修改apollo-configservice, apollo-adminservice和apollo-portal的pom.xml，注释掉spring-boot-maven-plugin和maven-assembly-plugin
-2. 在根目录下执行`mvn clean package -pl apollo-assembly -am -DskipTests=true`
-3. 复制apollo-assembly/target下的jar包，rename为apollo-all-in-one.jar
+1. 在对应版本的 Apollo 源码根目录执行 `./mvnw -pl apollo-assembly -am -DskipTests package`。
+2. 将生成的 `apollo-assembly/target/apollo-assembly-<版本>.jar` 复制到解压目录，命名为 `apollo-all-in-one.jar`。
 
 # 二、数据库初始化及启动
 #### 注意事项
