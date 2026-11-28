@@ -41,6 +41,10 @@ function OpenManageController($scope, $translate, toastr, AppUtil, OrganizationS
     $scope.preDeleteConsumer = preDeleteConsumer;
     $scope.deleteConsumer = deleteConsumer;
     $scope.preGrantPermission = preGrantPermission;
+    $scope.preViewPermissions = function (consumer) {
+        $scope.permissionConsumer = angular.copy(consumer);
+        AppUtil.showModal('#viewConsumerPermissionsModal');
+    };
     $scope.toggleRateLimitEnabledInput = function() {
         if (!$scope.consumer.rateLimitEnabled) {
             $scope.consumer.rateLimit = 0;
@@ -214,6 +218,7 @@ function OpenManageController($scope, $translate, toastr, AppUtil, OrganizationS
     }
 
     function preGrantPermission(app){
+        $scope.consumerRole = { type: 'NamespaceRole' };
         $scope.consumer.appId = app.appId;
         getTokenByAppId();
         AppUtil.showModal('#grantPermissionModal');

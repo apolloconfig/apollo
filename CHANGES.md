@@ -18,6 +18,8 @@ Apollo 3.1.0
 * [Fix: reduce Maven Central download rate limits in CI](https://github.com/apolloconfig/apollo/pull/5718)
 * [Fix: report incomplete app namespace deletion and add manual recovery](https://github.com/apolloconfig/apollo/pull/5705)
 * [Chore: add local Docker MySQL for local development](https://github.com/apolloconfig/apollo/pull/5709)
+* [Add consumer permission viewing and revocation](https://github.com/apolloconfig/apollo/pull/5708)
+
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/22?closed=1)
