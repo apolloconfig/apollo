@@ -7,25 +7,32 @@ If you are deploying Apollo in your company, please refer to the [distributed-de
 ## I. Preparation
 
 ### 1.1 Installing Docker
-
-Install Docker and the Compose plugin. On Linux, see the [Docker Compose plugin installation guide](https://docs.docker.com/compose/install/linux/). Verify both commands before continuing.
-
-```sh
+You can refer to [Docker Installation Guide](https://yeasy.gitbooks.io/docker_practice/content/install/) for the specific steps, and test whether the installation is successful with the following command
+```
 docker -v
-docker compose version
 ```
 
 To speed up Docker image download, it is recommended to [configure image gas pedal](https://yeasy.gitbooks.io/docker_practice/content/install/mirror.html).
 
-### 1.2 Download the Quick Start distribution
+### 1.2 Download Docker Quick Start configuration file
 
-Download the `apollo-quick-start-<version>.zip` asset for your version from [Quick Start Releases](https://github.com/apolloconfig/apollo-quick-start/releases) and extract it. Both Compose files and the `sql/` directory for database initialization are in the extracted directory.
+Download [docker-compose.yml](https://github.com/apolloconfig/apollo-quick-start/blob/master/docker-compose.yml) and [sql folder](https://github.com/apolloconfig/apollo-quick-start/tree/master/sql) to a local directory, such as docker-quick-start.
+
+> If you are using a machine with an ARM architecture, such as a Mac M1, you will need to download [docker-compose-arm64.yml](https://github.com/apolloconfig/apollo-quick-start/blob/master/docker-compose-arm64.yml)
+
+```bash
+- docker-quick-start
+  - docker-compose.yml
+  - sql
+    - apolloconfigdb.sql
+    - apolloportaldb.sql
+```
 
 ## II. Starting Apollo Configuration Center
 
-Execute `docker compose up` in the extracted directory, the first execution will trigger downloading images and other operations, you need to be patient and wait for some time.
+Execute `docker-compose up` in the docker-quick-start directory, the first execution will trigger downloading images and other operations, you need to be patient and wait for some time.
 
-> If you are using a machine with an ARM architecture, such as a Mac M1, execute `docker compose -f docker-compose-arm64.yml up`
+> If you are using a machine with an ARM architecture, such as a Mac M1, execute `docker-compose -f docker-compose-arm64.yml up`
 
 The following `isActive: true` messages in the `apollo-quick-start` logs indicate that all three application contexts have finished starting. After the final `portalContext` message, visit http://localhost:8070.
 

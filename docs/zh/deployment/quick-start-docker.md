@@ -7,25 +7,32 @@
 ## 一、 准备工作
 
 ### 1.1 安装Docker
-
-安装 Docker 和 Compose 插件。Linux 用户可参考 [Docker Compose 插件安装指南](https://docs.docker.com/compose/install/linux/)。执行以下命令确认两者均可用。
-
-```sh
+具体步骤可以参考[Docker安装指南](https://yeasy.gitbooks.io/docker_practice/content/install/)，通过以下命令测试是否成功安装
+```
 docker -v
-docker compose version
 ```
 
 为了加速Docker镜像下载，建议[配置镜像加速器](https://yeasy.gitbooks.io/docker_practice/content/install/mirror.html)。
 
-### 1.2 下载 Quick Start 安装包
+### 1.2 下载Docker Quick Start配置文件
 
-在 [Quick Start Releases](https://github.com/apolloconfig/apollo-quick-start/releases) 下载所需版本的 `apollo-quick-start-<版本>.zip` 并解压。两份 Compose 文件和初始化数据库的 `sql/` 位于同一目录。
+下载[docker-compose.yml](https://github.com/apolloconfig/apollo-quick-start/blob/master/docker-compose.yml)和[sql 文件夹](https://github.com/apolloconfig/apollo-quick-start/tree/master/sql)到本地目录，如 docker-quick-start。
+
+> 如果使用的是 arm 架构的机器，例如 mac m1，需要下载[docker-compose-arm64.yml](https://github.com/apolloconfig/apollo-quick-start/blob/master/docker-compose-arm64.yml)
+
+```bash
+- docker-quick-start
+  - docker-compose.yml
+  - sql
+    - apolloconfigdb.sql
+    - apolloportaldb.sql
+```
 
 ## 二、启动Apollo配置中心
 
-在解压目录下执行`docker compose up`，第一次执行会触发下载镜像等操作，需要耐心等待一些时间。
+在docker-quick-start目录下执行`docker-compose up`，第一次执行会触发下载镜像等操作，需要耐心等待一些时间。
 
-> 如果使用的是 arm 架构的机器，例如 mac m1，执行 `docker compose -f docker-compose-arm64.yml up`
+> 如果使用的是 arm 架构的机器，例如 mac m1，执行 `docker-compose -f docker-compose-arm64.yml up`
 
 在 `apollo-quick-start` 的日志中，看到下面三个应用上下文的 `isActive: true`，说明三个服务都已完成启动；最后的 `portalContext` 日志出现后，可以访问 http://localhost:8070。
 

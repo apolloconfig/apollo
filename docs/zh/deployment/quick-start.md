@@ -51,8 +51,9 @@ SHOW VARIABLES WHERE Variable_name = 'version';
 
 Quick Start只针对本地测试使用，所以一般用户不需要自己下载源码打包，只需要下载已经打好的包即可。不过也有部分用户希望在修改代码后重新打包，那么可以参考如下步骤：
 
-1. 在对应版本的 Apollo 源码根目录执行 `./mvnw -pl apollo-assembly -am -DskipTests clean package`。
-2. 将生成的 `apollo-assembly/target/apollo-assembly-<版本>.jar` 复制到解压目录，命名为 `apollo-all-in-one.jar`。
+1. 修改apollo-configservice, apollo-adminservice和apollo-portal的pom.xml，注释掉spring-boot-maven-plugin和maven-assembly-plugin
+2. 在根目录下执行`mvn clean package -pl apollo-assembly -am -DskipTests=true`
+3. 复制apollo-assembly/target下的jar包，rename为apollo-all-in-one.jar
 
 # 二、数据库初始化及启动
 #### 注意事项
@@ -158,6 +159,8 @@ java -jar apollo-all-in-one.jar
 - `sql/apolloconfigdb.sql` 初始化 `ApolloConfigDB`，并写入已发布的样例配置。
 - `sql/apolloportaldb.sql` 初始化 `ApolloPortalDB`，并在 Portal 中创建 `SampleApp` 项目。
 
+启动服务后，登录 Portal 即可打开 `SampleApp`，其中已发布的 `timeout` 初始值为 `100`。可直接按 4.1.2 节运行示例客户端读取该值。
+
 ### 2.4.2 运行
 #### 注意事项
 1. 脚本环境变量中的 your-mysql-server:3306 需要替换为实际的 mysql 服务器地址和端口，ApolloConfigDB 和 ApolloPortalDB 需要替换为实际的数据库名称
@@ -200,19 +203,15 @@ Quick Start只是用来帮助大家快速体验Apollo项目，具体实际使用
 
 ![首页](https://cdn.jsdelivr.net/gh/apolloconfig/apollo-quick-start@master/images/apollo-sample-home.jpg)
 
-如果你导入了 ZIP 中的 SQL 文件，或用随包的 Compose 文件初始化了新数据库，直接打开 **SampleApp**。在 `DEV` 环境、`default` 集群的 `application` 命名空间中，`timeout` 已发布，值为 `100`。接着按 4.1.2 节启动客户端。
-
-如果数据库中还没有样例项目，请先完成以下步骤。
-
-1. 点击创建应用，输入`SampleApp`信息并提交
+3. 点击创建应用，输入`SampleApp`信息并提交
 
 ![创建应用](https://cdn.jsdelivr.net/gh/apolloconfig/apollo-quick-start@master/images/apollo-create-sample-app.jpg)
 
-2. 进入SampleApp配置界面，点击新增配置，输入键 `timeout`、值 `100` 并提交
+4. 进入SampleApp配置界面，点击新增配置，输入`timeout`信息并提交
 
 ![创建配置](https://cdn.jsdelivr.net/gh/apolloconfig/apollo-quick-start@master/images/apollo-create-sample-config.jpg)
 
-3. 点击发布按钮，并填写发布信息
+5. 点击发布按钮，并填写发布信息
 
 ![配置界面](https://cdn.jsdelivr.net/gh/apolloconfig/apollo-quick-start@master/images/sample-app-config.jpg)
 
@@ -235,7 +234,7 @@ Apollo Config Demo. Please input key to get the value. Input quit to exit.
 输入`timeout`，会看到如下信息：
 ```sh
 > timeout
-Loading key : timeout with value: 100
+Loading key : timeout with value: 1000
 ```
 
 > 如果运行客户端遇到问题，可以通过修改`client/log4j2.xml`中的level为DEBUG来查看更详细日志信息
@@ -255,7 +254,7 @@ Loading key : timeout with value: 100
 如果客户端一直在运行的话，在配置发布后就会监听到配置变化，并输出修改的配置信息：
 ```sh
 Changes for namespace application
-Change - key: timeout, oldValue: 100, newValue: 2000, changeType: MODIFIED
+Change - key: timeout, oldValue: 1000, newValue: 2000, changeType: MODIFIED
 ```
 
 再次输入`timeout`查看对应的值，会看到如下信息：
