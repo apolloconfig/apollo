@@ -53,7 +53,9 @@ then
     export SPRING_DATASOURCE_USERNAME=$DS_USERNAME
     export SPRING_DATASOURCE_PASSWORD=$DS_PASSWORD
 fi
-export JAVA_OPTS="$JAVA_OPTS -Dserver.port=$SERVER_PORT -Dlogging.file.name=$APP_LOG -XX:HeapDumpPath=$LOG_DIR/HeapDumpOnOutOfMemoryError/"
+export JAVA_OPTS="$JAVA_OPTS -Dserver.port=$SERVER_PORT"
+# Keep generated log paths as separate arguments, even when they contain spaces.
+JVM_LOG_OPTS=("-Dlogging.file.name=$APP_LOG" "-XX:HeapDumpPath=$LOG_DIR/HeapDumpOnOutOfMemoryError/")
 export APP_NAME=$SERVICE_NAME
 
 PATH_TO_JAR=$SERVICE_NAME".jar"
@@ -148,14 +150,18 @@ if [[ "$javaexe" ]]; then
     version=$(echo "$version" | awk -F. '{printf("%03d%03d",$1,$2);}')
     # now version is of format 009003 (9.3.x)
     if [ $version -ge 011000 ]; then
-        JAVA_OPTS="$JAVA_OPTS -Xlog:gc*:$LOG_DIR/$SERVICE_NAME.gc.log:time,level,tags -Xlog:safepoint -Xlog:gc+heap=trace"
+        JVM_LOG_OPTS+=("-Xlog:gc*:$LOG_DIR/$SERVICE_NAME.gc.log:time,level,tags")
+        JAVA_OPTS="$JAVA_OPTS -Xlog:safepoint -Xlog:gc+heap=trace"
     elif [ $version -ge 010000 ]; then
-        JAVA_OPTS="$JAVA_OPTS -Xlog:gc*:$LOG_DIR/$SERVICE_NAME.gc.log:time,level,tags -Xlog:safepoint -Xlog:gc+heap=trace"
+        JVM_LOG_OPTS+=("-Xlog:gc*:$LOG_DIR/$SERVICE_NAME.gc.log:time,level,tags")
+        JAVA_OPTS="$JAVA_OPTS -Xlog:safepoint -Xlog:gc+heap=trace"
     elif [ $version -ge 009000 ]; then
-        JAVA_OPTS="$JAVA_OPTS -Xlog:gc*:$LOG_DIR/$SERVICE_NAME.gc.log:time,level,tags -Xlog:safepoint -Xlog:gc+heap=trace"
+        JVM_LOG_OPTS+=("-Xlog:gc*:$LOG_DIR/$SERVICE_NAME.gc.log:time,level,tags")
+        JAVA_OPTS="$JAVA_OPTS -Xlog:safepoint -Xlog:gc+heap=trace"
     else
         JAVA_OPTS="$JAVA_OPTS -XX:+UseParNewGC"
-        JAVA_OPTS="$JAVA_OPTS -Xloggc:$LOG_DIR/$SERVICE_NAME.gc.log -XX:+PrintGCDetails"
+        JVM_LOG_OPTS+=("-Xloggc:$LOG_DIR/$SERVICE_NAME.gc.log")
+        JAVA_OPTS="$JAVA_OPTS -XX:+PrintGCDetails"
         JAVA_OPTS="$JAVA_OPTS -XX:+UseConcMarkSweepGC -XX:+UseCMSCompactAtFullCollection -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=60 -XX:+CMSClassUnloadingEnabled -XX:+CMSParallelRemarkEnabled -XX:CMSFullGCsBeforeCompaction=9 -XX:+CMSClassUnloadingEnabled  -XX:+PrintGCDateStamps -XX:+PrintGCApplicationConcurrentTime -XX:+PrintHeapAtGC -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=5 -XX:GCLogFileSize=5M"
     fi
 fi
@@ -185,7 +191,7 @@ fi
 
 # For Docker environment, start in foreground mode
 if [[ -n "$APOLLO_RUN_MODE" ]] && [[ "$APOLLO_RUN_MODE" == "Docker" ]]; then
-    exec "$javaexe" -Dsun.misc.URLClassPath.disableJarChecking=true $JAVA_OPTS -jar "$PATH_TO_JAR"
+    exec "$javaexe" -Dsun.misc.URLClassPath.disableJarChecking=true $JAVA_OPTS "${JVM_LOG_OPTS[@]}" -jar "$PATH_TO_JAR"
 else
     # before running check there is another process use port or not
     if existProcessUsePort; then
@@ -210,7 +216,7 @@ else
 
     mkdir -p "$(dirname "$CONSOLE_LOG")" || exit 1
     touch "$CONSOLE_LOG" || exit 1
-    nohup "$javaexe" -Dsun.misc.URLClassPath.disableJarChecking=true $JAVA_OPTS -jar "$PATH_TO_JAR" >>"$CONSOLE_LOG" 2>&1 &
+    nohup "$javaexe" -Dsun.misc.URLClassPath.disableJarChecking=true $JAVA_OPTS "${JVM_LOG_OPTS[@]}" -jar "$PATH_TO_JAR" >>"$CONSOLE_LOG" 2>&1 &
     rc=$?
     pid=$!
     if [[ $rc == 0 ]]; then
