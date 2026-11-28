@@ -32,6 +32,9 @@ jobs:
         jdk: [17, 21]
     steps:
     - uses: actions/checkout@v4
+    - name: Check startup argument handling
+      if: matrix.jdk == '17'
+      run: bash scripts/tests/startup-arguments.sh
     - name: Set up JDK
       uses: actions/setup-java@v4
       with:
