@@ -12,6 +12,15 @@ Apollo local development requires the following components.
 2. MySQL: 5.6.5+ (If you plan to use H2 in-memory database/H2 file database, then there is no need to prepare MySQL)
 3. IDE: No special requirements
 
+Before the first `./mvnw` run on Linux or macOS, or when the Maven Wrapper distribution cache is empty, ensure `unzip` is installed and available on `PATH`. On Debian/Ubuntu, install it with `sudo apt-get install unzip`.
+
+The configured SHA-256 checksum validates the ZIP distribution. Without `unzip`, the TAR.GZ fallback fails checksum validation. Keep SHA-256 verification enabled.
+
+```bash
+command -v unzip
+./mvnw -v
+```
+
 MySQL is required to create Apollo database and import the base data.
 Please refer to the following sections in [distributed-deployment-guide](en/deployment/distributed-deployment-guide) for the specific steps.
 
