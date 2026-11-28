@@ -44,19 +44,8 @@ SHOW VARIABLES WHERE Variable_name = 'version';
 | version       | 5.7.11 |
 
 ## 1.3 下载Quick Start安装包
-我们准备好了一个Quick Start安装包，大家只需要下载到本地，就可以直接使用，免去了编译、打包过程。
 
-安装包共50M，如果访问github网速不给力的话，可以从百度网盘下载。
-
-1. 从GitHub下载
-    * checkout或下载[apollo-quick-start项目](https://github.com/apolloconfig/apollo-quick-start)
-    * **由于Quick Start项目比较大，所以放在了另外的repository，请注意项目地址**
-        * https://github.com/apolloconfig/apollo-quick-start
-2. 从百度网盘下载
-    * 通过[网盘链接](https://pan.baidu.com/s/1Ieelw6y3adECgktO0ea0Gg)下载，提取码: 9wwe
-    * 下载到本地后，在本地解压apollo-quick-start.zip
-3. 为啥安装包要58M这么大？
-    * 因为这是一个可以自启动的jar包，里面包含了所有依赖jar包以及一个内置的tomcat容器
+在 [Quick Start Releases](https://github.com/apolloconfig/apollo-quick-start/releases) 选择要运行的版本，下载附件 `apollo-quick-start-<版本>.zip` 并解压。进入解压目录，按下文配置数据库并启动服务。安装包包含服务端 JAR、示例客户端、SQL 和启动脚本。
 
 ### 1.3.1 手动打包Quick Start安装包
 
@@ -164,8 +153,13 @@ java -jar apollo-all-in-one.jar
 ## 2.4 使用 mysql 数据库，手动初始化
 
 ### 2.4.1 手动初始化  ApolloConfigDB 和 ApolloPortalDB
-ApolloConfigDB 通过各种MySQL客户端导入[apolloconfigdb.sql](https://github.com/apolloconfig/apollo/blob/master/scripts/sql/profiles/mysql-default/apolloconfigdb.sql)即可。
-ApolloPortalDB 通过各种MySQL客户端导入[apolloportaldb.sql](https://github.com/apolloconfig/apollo/blob/master/scripts/sql/profiles/mysql-default/apolloportaldb.sql)即可。
+
+在解压后的 Quick Start 目录中，使用 MySQL 客户端将随包提供的两个脚本导入本地 MySQL 实例。
+
+- `sql/apolloconfigdb.sql` 初始化 `ApolloConfigDB`，并写入已发布的样例配置。
+- `sql/apolloportaldb.sql` 初始化 `ApolloPortalDB`，并在 Portal 中创建 `SampleApp` 项目。
+
+启动服务后，登录 Portal 即可打开 `SampleApp`，其中已发布的 `timeout` 初始值为 `100`。可直接按 4.1.2 节运行示例客户端读取该值。
 
 ### 2.4.2 运行
 #### 注意事项
