@@ -9,6 +9,15 @@ Apollo本地开发需要以下组件：
 2. MySQL: 5.6.5+ (如果使用 H2 内存数据库/H2 文件数据库，则无需 MySQL)
 3. IDE: 没有特殊要求
 
+在 Linux 或 macOS 上首次运行 `./mvnw`，或 Maven Wrapper 分发包缓存为空时，需要先安装 `unzip` 并确保它位于 `PATH` 中。Debian/Ubuntu 可通过 `sudo apt-get install unzip` 安装。
+
+配置的 SHA-256 校验值对应 ZIP 分发包。缺少 `unzip` 时，TAR.GZ 回退下载会校验失败，请保留 SHA-256 校验。
+
+```bash
+command -v unzip
+./mvnw -v
+```
+
 其中MySQL需要创建Apollo数据库并导入基础数据。
 具体步骤请参考[分布式部署指南](zh/deployment/distributed-deployment-guide)中的以下部分：
 

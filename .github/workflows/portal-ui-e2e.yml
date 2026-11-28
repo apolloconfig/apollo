@@ -25,6 +25,11 @@ on:
       - 'e2e/portal-e2e/**'
       - 'e2e/scripts/**'
       - 'scripts/sql/**'
+      - 'mvnw'
+      - 'mvnw.cmd'
+      - '.mvn/wrapper/**'
+      - '.github/actions/setup-maven/**'
+      - '.github/actions/save-maven-cache/**'
       - '.github/workflows/portal-ui-e2e.yml'
   workflow_dispatch:
 
@@ -41,7 +46,12 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
-          cache: maven
+
+      - name: Set up CI Maven
+        id: maven
+        uses: ./.github/actions/setup-maven
+        with:
+          cache-wrapper: 'true'
 
       - name: Set up Node.js 20
         uses: actions/setup-node@v4
@@ -58,6 +68,14 @@ jobs:
 
       - name: Build Apollo assembly
         run: ./mvnw -B -pl apollo-assembly -am -DskipTests package
+
+      - name: Save Maven caches
+        uses: ./.github/actions/save-maven-cache
+        with:
+          dependencies-key: ${{ steps.maven.outputs.dependencies-key }}
+          dependencies-hit: ${{ steps.maven.outputs.dependencies-hit }}
+          distribution-key: ${{ steps.maven.outputs.distribution-key }}
+          distribution-hit: ${{ steps.maven.outputs.distribution-hit }}
 
       - name: Start Apollo assembly
         run: |
