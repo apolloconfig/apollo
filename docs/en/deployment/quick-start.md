@@ -44,19 +44,8 @@ SHOW VARIABLES WHERE Variable_name = 'version';
 | version       | 5.7.11 |
 
 ## 1.3 Downloading the Quick Start installation package
-We have prepared a Quick Start installation package, you just need to download it locally and you can use it directly, eliminating the need to compile and package the process.
 
-The installation package is 50M, if you can't access github, you can download it from Baidu.com.
-
-1. Download from GitHub
-    * Checkout or download the [apollo-quick-start project](https://github.com/apolloconfig/apollo-quick-start)
-    * **Since the Quick Start project is relatively large, it is placed in a different repository, so please note the project address**
-        * https://github.com/apolloconfig/apollo-quick-start
-2. Download from Baidu.com
-    * Downloaded via [weblink](https://pan.baidu.com/s/1Ieelw6y3adECgktO0ea0Gg), extraction code: 9wwe
-    * After downloading to local, unzip apollo-quick-start.zip locally
-3. why is the installation package so large as 58M?
-    * Because it is a self-starting jar package, which contains all the dependent jar packages and a built-in tomcat container
+Choose a version on [Quick Start Releases](https://github.com/apolloconfig/apollo-quick-start/releases), download the `apollo-quick-start-<version>.zip` asset and extract it. From the extracted directory, follow the database and startup instructions below. The ZIP includes the server JAR, demo client, SQL files and startup script.
 
 ### 1.3.1 Manually packaged Quick Start installation package
 
@@ -162,8 +151,13 @@ java -jar apollo-all-in-one.jar
 ## 2.4 Use mysql database, manual initialization
 
 ### 2.4.1 Manually initialize ApolloConfigDB and ApolloPortalDB
-You can import [apolloconfigdb.sql](https://github.com/apolloconfig/apollo/blob/master/scripts/sql/profiles/mysql-default/apolloconfigdb.sql) to ApolloConfigDB through various MySQL clients.
-You can import [apolloportaldb.sql](https://github.com/apolloconfig/apollo/blob/master/scripts/sql/profiles/mysql-default/apolloportaldb.sql) to ApolloPortalDB through various MySQL clients.
+
+From the extracted Quick Start directory, import the two bundled scripts into your local MySQL instance using a MySQL client:
+
+- `sql/apolloconfigdb.sql` initializes `ApolloConfigDB` and publishes the sample configuration.
+- `sql/apolloportaldb.sql` initializes `ApolloPortalDB` and creates the `SampleApp` project in the Portal.
+
+After startup, sign in to the Portal and open `SampleApp`. Its published `timeout` value is `100`. You can go directly to section 4.1.2 to read it with the demo client.
 
 ### 2.4.2 Run
 #### Precautions

@@ -43,9 +43,11 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.HttpMediaTypeException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import static org.slf4j.event.Level.ERROR;
 import static org.slf4j.event.Level.WARN;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -76,6 +78,13 @@ public class GlobalDefaultExceptionHandler {
   public ResponseEntity<Map<String, Object>> restTemplateException(HttpServletRequest request,
       HttpStatusCodeException ex) {
     return handleError(request, ex.getStatusCode(), ex);
+  }
+
+  @ExceptionHandler({MissingServletRequestParameterException.class,
+      MethodArgumentTypeMismatchException.class})
+  public ResponseEntity<Map<String, Object>> handleRequestParameterException(
+      HttpServletRequest request, Exception ex) {
+    return handleError(request, BAD_REQUEST, ex, WARN);
   }
 
   @ExceptionHandler(AccessDeniedException.class)

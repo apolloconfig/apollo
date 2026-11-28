@@ -158,9 +158,9 @@ public class PortalUserSessionFilter implements Filter {
   private void handleSessionExpired(HttpServletRequest request, HttpServletResponse response)
       throws IOException, ServletException {
     if (isOidcProfile()) {
-      // OIDC mode: return 401 to maintain original behavior
+      // sendError dispatches to /error, where OIDC security starts a login redirect.
       logger.debug("OIDC mode: returning 401 for expired session");
-      response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Session expired");
+      response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
     } else {
       // Auth/LDAP mode: reuse LoginUrlAuthenticationEntryPoint for consistent redirect handling
       logger.debug(

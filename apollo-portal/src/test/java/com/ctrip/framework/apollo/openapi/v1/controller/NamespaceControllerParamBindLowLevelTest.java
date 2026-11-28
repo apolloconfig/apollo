@@ -60,6 +60,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
@@ -473,6 +474,24 @@ public class NamespaceControllerParamBindLowLevelTest {
 
     verify(namespaceOpenApiService, never()).deleteNamespace(anyString(), anyString(), anyString(),
         anyString(), anyString());
+  }
+
+  @ParameterizedTest
+  @NullSource
+  @ValueSource(strings = {"false"})
+  public void deleteAppNamespaceShouldKeepNormalDeletionWhenRecoveryIsDisabled(String recovery)
+      throws Exception {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
+    var request =
+        delete("/openapi/v1/apps/{appId}/appnamespaces/{namespaceName}", APP_ID, NAMESPACE)
+            .param("operator", "spoofed-user");
+    if (recovery != null) {
+      request.param("recovery", recovery);
+    }
+
+    mockMvc.perform(request).andExpect(status().isOk());
+
+    verify(namespaceOpenApiService).deleteAppNamespace(APP_ID, NAMESPACE, "tester", false);
   }
 
   @Test
