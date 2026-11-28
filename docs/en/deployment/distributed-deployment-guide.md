@@ -1423,7 +1423,17 @@ A list of environments that display configuration information only to project me
 
 For environments that are set to display configuration information only to project members, only the administrator of the project or users with edit or publish privileges for that namespace can see the configuration information and publish history for that private namespace. Public namespaces are always visible to all users.
 
+User access tokens remain subject to both the owner's viewing permissions and the token scope.
+
 > Supported since version 1.1.0, see [PR 1531](https://github.com/apolloconfig/apollo/pull/1531)
+
+#### configView.memberOnly.consumer.envs
+
+Consumer configuration reads are opt-in through `configView.memberOnly.consumer.envs`, a separate comma-separated environment list in PortalDB.ServerConfig that defaults to empty. Configuring only `configView.memberOnly.envs` preserves existing Consumer reads after upgrading.
+
+Before enabling the Consumer setting for an environment, grant affected consumers administration permissions for the target application or modification/release permissions for the target Namespace, including grants on its parent Cluster for gray branch reads. Unauthorized private-Namespace single-resource reads and configuration diffs then return HTTP 403; Namespace lists omit unreadable entries, and public Namespace usage instances are paginated after filtering.
+
+Public Namespaces and environments outside the Consumer list receive no additional viewing restriction. Release and instance queries retain their existing consumer release-permission requirements.
 
 ### 3.1.10 role.create-application.enabled - whether to enable control over creating project permissions
 

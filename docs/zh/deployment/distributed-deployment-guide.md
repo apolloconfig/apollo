@@ -1370,7 +1370,17 @@ portal上“帮助”链接的地址，默认是Apollo github的wiki首页，可
 
 对设定了只对项目成员显示配置信息的环境，只有该项目的管理员或拥有该namespace的编辑或发布权限的用户才能看到该私有namespace的配置信息和发布历史。公共namespace始终对所有用户可见。
 
+用户访问 Token 同时受所属用户查看权限和 Token scope 限制。
+
 > 从1.1.0版本开始支持，详见[PR 1531](https://github.com/apolloconfig/apollo/pull/1531)
+
+#### configView.memberOnly.consumer.envs
+
+Consumer Token 的配置读取限制通过独立配置 `configView.memberOnly.consumer.envs` 显式开启。该配置位于 PortalDB.ServerConfig，是以英文逗号分隔的环境列表，默认为空。升级时仅配置旧的 `configView.memberOnly.envs` 不会改变 Consumer 的读取行为。
+
+为某个环境开启新配置前，请先为受影响的 Consumer 授予目标应用管理员权限或目标 Namespace 的修改/发布权限；灰度分支读取也接受父集群上的授权。开启后，无权限的私有 Namespace 单资源读取和配置 diff 返回 HTTP 403；Namespace 列表过滤不可读条目，公共 Namespace 使用实例列表先过滤再分页。
+
+公共 Namespace 和 Consumer 列表以外的环境不增加此项查看限制；Release 和实例查询仍要求原有的 Consumer 发布权限。
 
 ### 3.1.10 role.create-application.enabled - 是否开启创建项目权限控制
 
@@ -1626,7 +1636,6 @@ json
 默认为 50000，最小为10，用于控制实例配置的缓存最大数量，当缓存超过最大容量时，会触发缓存淘汰（Eviction） 机制。
 
 修改完需要重启生效。
-
 
 ### 3.2.17 instance.config.audit.time.threshold.minutes - 实例拉取审计记录的间隔时间
 

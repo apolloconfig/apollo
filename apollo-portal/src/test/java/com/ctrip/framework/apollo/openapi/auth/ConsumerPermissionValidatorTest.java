@@ -32,6 +32,8 @@ import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.openapi.service.ConsumerRolePermissionService;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
 import com.ctrip.framework.apollo.portal.constant.PermissionType;
+import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
+import com.ctrip.framework.apollo.portal.service.AppNamespaceService;
 import com.ctrip.framework.apollo.portal.entity.po.Permission;
 import com.ctrip.framework.apollo.portal.service.SystemRoleManagerService;
 import java.util.Arrays;
@@ -57,11 +59,16 @@ public class ConsumerPermissionValidatorTest {
   private ConsumerRolePermissionService permissionService;
   @Mock
   private ConsumerAuthUtil consumerAuthUtil;
+  @Mock
+  private PortalConfig portalConfig;
+  @Mock
+  private AppNamespaceService appNamespaceService;
   private ConsumerPermissionValidator validator;
 
   @BeforeEach
   public void setUp() {
-    validator = new ConsumerPermissionValidator(permissionService, consumerAuthUtil);
+    validator = new ConsumerPermissionValidator(permissionService, consumerAuthUtil, portalConfig,
+        appNamespaceService);
     // Default mock behavior
     lenient().when(consumerAuthUtil.retrieveConsumerIdFromCtx()).thenReturn(CONSUMER_ID);
   }
@@ -93,21 +100,10 @@ public class ConsumerPermissionValidatorTest {
     assertFalse(result);
   }
 
-  /**
-   * Test that shouldHideConfigToCurrentUser method throws UnsupportedOperationException
-   */
   @Test
-  public void testShouldHideConfigToCurrentUser_ThrowsUnsupportedOperationException() {
-    // Arrange
-    String appId = "testAppId";
-    String env = "DEV";
-    String clusterName = "default";
-    String namespaceName = "application";
-
-    // Act & Assert
-    assertThrows(UnsupportedOperationException.class, () -> {
-      validator.shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName);
-    });
+  public void shouldNotHideConfigWhenMemberOnlyIsDisabled() {
+    assertFalse(validator.shouldHideConfigToCurrentUser(APP_ID, "DEV", "default", "application"));
+    verify(permissionService, never()).hasAnyPermission(anyLong(), anyList());
   }
 
   /**

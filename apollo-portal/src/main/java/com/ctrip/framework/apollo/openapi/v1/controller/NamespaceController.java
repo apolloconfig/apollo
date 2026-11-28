@@ -40,6 +40,7 @@ import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.UserService;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -147,14 +148,44 @@ public class NamespaceController
       String publicNamespaceName, Integer page, Integer size) {
     int resolvedPage = page == null ? 0 : page;
     int resolvedSize = size == null ? 10 : size;
-    return ResponseEntity.ok(filterReadableNamespaces(null, env, null, namespaceOpenApiService
-        .getPublicAppNamespaceInstances(env, publicNamespaceName, resolvedPage, resolvedSize)));
+    RequestPrecondition.checkArguments(resolvedPage >= 0, "page must not be negative");
+    RequestPrecondition.checkArguments(resolvedSize > 0, "size must be positive");
+    String authType = UserIdentityContextHolder.getAuthType();
+    if (!UserIdentityConstants.USER_TOKEN.equals(authType)
+        && !UserIdentityConstants.CONSUMER.equals(authType)) {
+      return ResponseEntity.ok(filterReadableNamespaces(null, env, null, namespaceOpenApiService
+          .getPublicAppNamespaceInstances(env, publicNamespaceName, resolvedPage, resolvedSize)));
+    }
+
+    long skip = (long) resolvedPage * resolvedSize;
+    List<OpenNamespaceDTO> result = new ArrayList<>();
+    for (int sourcePage = 0;; sourcePage++) {
+      List<OpenNamespaceDTO> namespaces = namespaceOpenApiService
+          .getPublicAppNamespaceInstances(env, publicNamespaceName, sourcePage, resolvedSize);
+      if (CollectionUtils.isEmpty(namespaces)) {
+        break;
+      }
+      for (OpenNamespaceDTO namespace : filterReadableNamespaces(null, env, null, namespaces)) {
+        if (skip > 0) {
+          skip--;
+        } else {
+          result.add(namespace);
+          if (result.size() == resolvedSize) {
+            return ResponseEntity.ok(result);
+          }
+        }
+      }
+      if (namespaces.size() < resolvedSize) {
+        break;
+      }
+    }
+    return ResponseEntity.ok(result);
   }
 
   @Override
   public ResponseEntity<OpenNamespaceDTO> findNamespace(String appId, String env,
       String clusterName, String namespaceName, Boolean fillItemDetail, Boolean extendInfo) {
-    requireConfigReadForUserToken(appId, env, clusterName, namespaceName);
+    requireConfigReadForToken(appId, env, clusterName, namespaceName);
     return ResponseEntity.ok(namespaceOpenApiService.findNamespace(appId, env, clusterName,
         namespaceName, Boolean.TRUE.equals(fillItemDetail), Boolean.TRUE.equals(extendInfo)));
   }
@@ -173,7 +204,7 @@ public class NamespaceController
     if (shouldHideConfigToPortalUser(appId, env, clusterName, namespaceName)) {
       return ResponseEntity.ok().build();
     }
-    requireConfigReadForUserToken(appId, env, clusterName, namespaceName);
+    requireConfigReadForToken(appId, env, clusterName, namespaceName);
     return ResponseEntity.ok(namespaceOpenApiService.findPublicNamespaceForAssociatedNamespace(env,
         appId, clusterName, namespaceName, Boolean.TRUE.equals(extendInfo)));
   }
@@ -184,7 +215,7 @@ public class NamespaceController
     if (shouldHideConfigToPortalUser(appId, env, clusterName, namespaceName)) {
       return ResponseEntity.ok().build();
     }
-    requireConfigReadForUserToken(appId, env, clusterName, namespaceName);
+    requireConfigReadForToken(appId, env, clusterName, namespaceName);
     return ResponseEntity
         .ok(namespaceOpenApiService.getNamespaceLock(appId, env, clusterName, namespaceName));
   }
@@ -218,7 +249,7 @@ public class NamespaceController
     if (shouldHideConfigToPortalUser(appId, env, clusterName, namespaceName)) {
       return ResponseEntity.ok(Collections.emptyList());
     }
-    requireConfigReadForUserToken(appId, env, clusterName, namespaceName);
+    requireConfigReadForToken(appId, env, clusterName, namespaceName);
     return ResponseEntity
         .ok(namespaceOpenApiService.findNamespaceUsage(appId, env, clusterName, namespaceName));
   }
@@ -330,7 +361,7 @@ public class NamespaceController
     }
     // Portal users retain namespace metadata; the service hides their configuration items.
     return namespaces.stream()
-        .filter(namespace -> namespace != null && !shouldDenyConfigReadToUserToken(
+        .filter(namespace -> namespace != null && !shouldDenyConfigReadToToken(
             StringUtils.isBlank(namespace.getAppId()) ? appId : namespace.getAppId(), env,
             StringUtils.isBlank(namespace.getClusterName()) ? clusterName
                 : namespace.getClusterName(),
@@ -345,16 +376,18 @@ public class NamespaceController
             namespaceName);
   }
 
-  private boolean shouldDenyConfigReadToUserToken(String appId, String env, String clusterName,
+  private boolean shouldDenyConfigReadToToken(String appId, String env, String clusterName,
       String namespaceName) {
-    return UserIdentityConstants.USER_TOKEN.equals(UserIdentityContextHolder.getAuthType())
+    String authType = UserIdentityContextHolder.getAuthType();
+    return (UserIdentityConstants.USER_TOKEN.equals(authType)
+        || UserIdentityConstants.CONSUMER.equals(authType))
         && unifiedPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName,
             namespaceName);
   }
 
-  private void requireConfigReadForUserToken(String appId, String env, String clusterName,
+  private void requireConfigReadForToken(String appId, String env, String clusterName,
       String namespaceName) {
-    if (shouldDenyConfigReadToUserToken(appId, env, clusterName, namespaceName)) {
+    if (shouldDenyConfigReadToToken(appId, env, clusterName, namespaceName)) {
       throw new AccessDeniedException("Access is denied");
     }
   }

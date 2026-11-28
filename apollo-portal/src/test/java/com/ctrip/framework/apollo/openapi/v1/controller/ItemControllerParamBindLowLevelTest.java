@@ -20,6 +20,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -31,15 +33,23 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
+import com.ctrip.framework.apollo.openapi.auth.ConsumerPermissionValidator;
 import com.ctrip.framework.apollo.openapi.model.OpenItemDTO;
-import com.ctrip.framework.apollo.openapi.model.OpenItemPageDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceIdentifier;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceSyncDTO;
 import com.ctrip.framework.apollo.openapi.server.service.ItemOpenApiService;
+import com.ctrip.framework.apollo.openapi.service.ConsumerRolePermissionService;
+import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
 import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
 import com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder;
+import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
+import com.ctrip.framework.apollo.portal.environment.Env;
+import com.ctrip.framework.apollo.portal.service.AppNamespaceService;
+import com.ctrip.framework.apollo.portal.service.NamespaceBranchService;
+import com.ctrip.framework.apollo.portal.service.PortalDBPropertySource;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.UserService;
 import com.google.gson.Gson;
@@ -58,11 +68,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.mock.env.MockEnvironment;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
@@ -93,6 +105,9 @@ public class ItemControllerParamBindLowLevelTest {
 
   @MockitoBean
   private ItemOpenApiService itemOpenApiService;
+
+  @MockitoBean
+  private NamespaceBranchService namespaceBranchService;
 
   private final Gson gson = new Gson();
 
@@ -317,9 +332,10 @@ public class ItemControllerParamBindLowLevelTest {
         anyString(), any(Integer.class), any(Integer.class));
   }
 
-  @Test
-  public void findItemsShouldRejectHiddenUserTokenConfig() throws Exception {
-    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+  @ParameterizedTest
+  @ValueSource(strings = {UserIdentityConstants.USER_TOKEN, UserIdentityConstants.CONSUMER})
+  public void findItemsShouldRejectHiddenTokenConfig(String authType) throws Exception {
+    UserIdentityContextHolder.setAuthType(authType);
     when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE))
         .thenReturn(true);
 
@@ -347,9 +363,10 @@ public class ItemControllerParamBindLowLevelTest {
         anyString());
   }
 
-  @Test
-  public void getItemShouldRejectHiddenUserTokenConfig() throws Exception {
-    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+  @ParameterizedTest
+  @ValueSource(strings = {UserIdentityConstants.USER_TOKEN, UserIdentityConstants.CONSUMER})
+  public void getItemShouldRejectHiddenTokenConfig(String authType) throws Exception {
+    UserIdentityContextHolder.setAuthType(authType);
     when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE))
         .thenReturn(true);
 
@@ -361,17 +378,107 @@ public class ItemControllerParamBindLowLevelTest {
         anyString());
   }
 
-  @Test
-  public void findBranchItemsShouldRejectHiddenUserTokenConfig() throws Exception {
-    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+  @ParameterizedTest
+  @ValueSource(strings = {UserIdentityConstants.USER_TOKEN, UserIdentityConstants.CONSUMER})
+  public void findBranchItemsShouldRejectHiddenTokenConfig(String authType) throws Exception {
+    UserIdentityContextHolder.setAuthType(authType);
     String branchName = "gray";
-    when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, branchName,
-        NAMESPACE)).thenReturn(true);
+    when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE))
+        .thenReturn(true);
 
     mockMvc.perform(get(
         "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/items",
         ENV, APP_ID, CLUSTER, NAMESPACE, branchName)).andExpect(status().isForbidden());
 
+    verify(itemOpenApiService, never()).findBranchItems(anyString(), anyString(), anyString(),
+        anyString());
+  }
+
+  @Test
+  public void consumerReadsShouldRemainCompatibleUntilConsumerSettingIsEnabled() throws Exception {
+    PortalConfig config = new PortalConfig(mock(PortalDBPropertySource.class));
+    MockEnvironment environment =
+        new MockEnvironment().withProperty("configView.memberOnly.envs", "DEV,PRO");
+    ReflectionTestUtils.setField(config, "environment", environment);
+    ConsumerAuthUtil consumerAuthUtil = mock(ConsumerAuthUtil.class);
+    when(consumerAuthUtil.retrieveConsumerIdFromCtx()).thenReturn(123L);
+    ConsumerPermissionValidator consumerValidator =
+        new ConsumerPermissionValidator(mock(ConsumerRolePermissionService.class), consumerAuthUtil,
+            config, mock(AppNamespaceService.class));
+    when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(anyString(), anyString(),
+        anyString(), anyString())).thenAnswer(
+            invocation -> consumerValidator.shouldHideConfigToCurrentUser(invocation.getArgument(0),
+                invocation.getArgument(1), invocation.getArgument(2), invocation.getArgument(3)));
+    String path =
+        "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/{key}";
+
+    assertThat(config.isConfigViewMemberOnly(ENV)).isTrue();
+    mockMvc.perform(get(path, ENV, APP_ID, CLUSTER, NAMESPACE, "timeout"))
+        .andExpect(status().isOk());
+
+    environment.setProperty("configView.memberOnly.consumer.envs", "DEV");
+    mockMvc.perform(get(path, ENV, APP_ID, CLUSTER, NAMESPACE, "timeout"))
+        .andExpect(status().isForbidden());
+    mockMvc.perform(get(path, "PRO", APP_ID, CLUSTER, NAMESPACE, "timeout"))
+        .andExpect(status().isOk());
+
+    environment.setProperty("configView.memberOnly.consumer.envs", "");
+    mockMvc.perform(get(path, ENV, APP_ID, CLUSTER, NAMESPACE, "timeout"))
+        .andExpect(status().isOk());
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {UserIdentityConstants.USER_TOKEN, UserIdentityConstants.CONSUMER})
+  public void branchItemsShouldUseParentClusterGrant(String authType) throws Exception {
+    UserIdentityContextHolder.setAuthType(authType);
+    String branchName = "gray";
+    when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, branchName,
+        NAMESPACE)).thenReturn(true);
+    NamespaceDTO branch = new NamespaceDTO();
+    branch.setClusterName(branchName);
+    when(namespaceBranchService.findBranchBaseInfo(APP_ID, Env.DEV, CLUSTER, NAMESPACE))
+        .thenReturn(branch);
+    doCallRealMethod().when(namespaceBranchService).checkBranch(APP_ID, Env.DEV, CLUSTER, NAMESPACE,
+        branchName);
+    OpenItemDTO item = new OpenItemDTO();
+    item.setKey("timeout");
+    when(itemOpenApiService.findBranchItems(APP_ID, ENV, branchName, NAMESPACE))
+        .thenReturn(Collections.singletonList(item));
+
+    mockMvc.perform(get(
+        "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/items",
+        ENV, APP_ID, CLUSTER, NAMESPACE, branchName)).andExpect(status().isOk())
+        .andExpect(jsonPath("$[0].key").value("timeout"));
+    verify(unifiedPermissionValidator).shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER,
+        NAMESPACE);
+    verify(namespaceBranchService).checkBranch(APP_ID, Env.DEV, CLUSTER, NAMESPACE, branchName);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"other-cluster", "default"})
+  public void branchItemsShouldRejectClusterOutsideParent(String branchName) throws Exception {
+    NamespaceDTO branch = new NamespaceDTO();
+    branch.setClusterName("gray");
+    when(namespaceBranchService.findBranchBaseInfo(APP_ID, Env.DEV, CLUSTER, NAMESPACE))
+        .thenReturn(branch);
+    doCallRealMethod().when(namespaceBranchService).checkBranch(APP_ID, Env.DEV, CLUSTER, NAMESPACE,
+        branchName);
+
+    mockMvc.perform(get(
+        "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/items",
+        ENV, APP_ID, CLUSTER, NAMESPACE, branchName)).andExpect(status().isBadRequest());
+    verify(itemOpenApiService, never()).findBranchItems(anyString(), anyString(), anyString(),
+        anyString());
+  }
+
+  @Test
+  public void branchItemsShouldRejectMissingBranch() throws Exception {
+    String branchName = "missing";
+    doCallRealMethod().when(namespaceBranchService).checkBranch(APP_ID, Env.DEV, CLUSTER, NAMESPACE,
+        branchName);
+    mockMvc.perform(get(
+        "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/items",
+        ENV, APP_ID, CLUSTER, NAMESPACE, branchName)).andExpect(status().isBadRequest());
     verify(itemOpenApiService, never()).findBranchItems(anyString(), anyString(), anyString(),
         anyString());
   }
@@ -420,26 +527,6 @@ public class ItemControllerParamBindLowLevelTest {
         anyString());
   }
 
-  @Test
-  public void findItemsShouldDelegateForConsumerEvenWhenConfigWouldBeHiddenForUser()
-      throws Exception {
-    when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER,
-        NAMESPACE)).thenReturn(true);
-    OpenItemPageDTO page = new OpenItemPageDTO();
-    page.setPage(0);
-    page.setSize(50);
-    page.setTotal(0L);
-    page.setContent(Collections.emptyList());
-    when(itemOpenApiService.findItemsByNamespace(APP_ID, ENV, CLUSTER, NAMESPACE, 0, 50))
-        .thenReturn(page);
-
-    mockMvc.perform(get(
-            "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items",
-            ENV, APP_ID, CLUSTER, NAMESPACE).param("page", "0").param("size", "50"))
-        .andExpect(status().isOk());
-
-    verify(itemOpenApiService).findItemsByNamespace(APP_ID, ENV, CLUSTER, NAMESPACE, 0, 50);
-  }
 
   @Test
   public void compareItemsShouldAcceptEmptySyncItems() throws Exception {
@@ -466,9 +553,11 @@ public class ItemControllerParamBindLowLevelTest {
     assertThat(requestCaptor.getValue().getSyncItems()).isEmpty();
   }
 
-  @Test
-  public void compareItemsShouldRejectUserTokenWithoutSourceConfigRead() throws Exception {
-    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+  @ParameterizedTest
+  @ValueSource(strings = {UserIdentityConstants.USER_TOKEN, UserIdentityConstants.CONSUMER})
+  public void compareItemsShouldRejectTokenWithoutSourceConfigRead(String authType)
+      throws Exception {
+    UserIdentityContextHolder.setAuthType(authType);
     when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE))
         .thenReturn(true);
 
@@ -483,9 +572,11 @@ public class ItemControllerParamBindLowLevelTest {
         anyString(), any(OpenNamespaceSyncDTO.class));
   }
 
-  @Test
-  public void compareItemsShouldRejectUserTokenWithoutTargetConfigRead() throws Exception {
-    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+  @ParameterizedTest
+  @ValueSource(strings = {UserIdentityConstants.USER_TOKEN, UserIdentityConstants.CONSUMER})
+  public void compareItemsShouldRejectTokenWithoutTargetConfigRead(String authType)
+      throws Exception {
+    UserIdentityContextHolder.setAuthType(authType);
     when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE))
         .thenReturn(false);
     when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, "secret"))

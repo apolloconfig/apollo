@@ -35,6 +35,8 @@ import com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder;
 import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.entity.model.NamespaceTextModel;
+import com.ctrip.framework.apollo.portal.environment.Env;
+import com.ctrip.framework.apollo.portal.service.NamespaceBranchService;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.UserService;
 import com.ctrip.framework.apollo.portal.util.NamespaceTextSyntaxChecker;
@@ -63,13 +65,16 @@ public class ItemController implements ItemManagementApi {
   private final UserService userService;
   private final UserInfoHolder userInfoHolder;
   private final UnifiedPermissionValidator unifiedPermissionValidator;
+  private final NamespaceBranchService namespaceBranchService;
 
   public ItemController(ItemOpenApiService itemOpenApiService, UserService userService,
-      UserInfoHolder userInfoHolder, UnifiedPermissionValidator unifiedPermissionValidator) {
+      UserInfoHolder userInfoHolder, UnifiedPermissionValidator unifiedPermissionValidator,
+      NamespaceBranchService namespaceBranchService) {
     this.itemOpenApiService = itemOpenApiService;
     this.userService = userService;
     this.userInfoHolder = userInfoHolder;
     this.unifiedPermissionValidator = unifiedPermissionValidator;
+    this.namespaceBranchService = namespaceBranchService;
   }
 
   @Override
@@ -78,7 +83,7 @@ public class ItemController implements ItemManagementApi {
     if (shouldHideConfigToPortalUser(appId, env, clusterName, namespaceName)) {
       return ResponseEntity.ok().build();
     }
-    requireConfigReadForUserToken(appId, env, clusterName, namespaceName);
+    requireConfigReadForToken(appId, env, clusterName, namespaceName);
     return ResponseEntity
         .ok(this.itemOpenApiService.getItem(appId, env, clusterName, namespaceName, key));
   }
@@ -158,7 +163,7 @@ public class ItemController implements ItemManagementApi {
     if (shouldHideConfigToPortalUser(appId, env, clusterName, namespaceName)) {
       return ResponseEntity.ok(emptyPage(resolvedPage, resolvedSize));
     }
-    requireConfigReadForUserToken(appId, env, clusterName, namespaceName);
+    requireConfigReadForToken(appId, env, clusterName, namespaceName);
     return ResponseEntity.ok(this.itemOpenApiService.findItemsByNamespace(appId, env, clusterName,
         namespaceName, resolvedPage, resolvedSize));
   }
@@ -166,10 +171,12 @@ public class ItemController implements ItemManagementApi {
   @Override
   public ResponseEntity<List<OpenItemDTO>> findBranchItems(String appId, String env,
       String clusterName, String namespaceName, String branchName) {
-    if (shouldHideConfigToPortalUser(appId, env, branchName, namespaceName)) {
+    if (shouldHideConfigToPortalUser(appId, env, clusterName, namespaceName)) {
       return ResponseEntity.ok(Collections.emptyList());
     }
-    requireConfigReadForUserToken(appId, env, branchName, namespaceName);
+    requireConfigReadForToken(appId, env, clusterName, namespaceName);
+    namespaceBranchService.checkBranch(appId, Env.valueOf(env), clusterName, namespaceName,
+        branchName);
     return ResponseEntity
         .ok(this.itemOpenApiService.findBranchItems(appId, env, branchName, namespaceName));
   }
@@ -191,8 +198,8 @@ public class ItemController implements ItemManagementApi {
   public ResponseEntity<List<OpenItemDiffDTO>> compareItems(String appId, String env,
       String clusterName, String namespaceName, OpenNamespaceSyncDTO model) {
     checkModel(!isInvalid(model));
-    requireConfigReadForUserToken(appId, env, clusterName, namespaceName);
-    requireSyncNamespacesReadableForUserToken(model);
+    requireConfigReadForToken(appId, env, clusterName, namespaceName);
+    requireSyncNamespacesReadableForToken(model);
     List<OpenItemDiffDTO> itemDiffs =
         this.itemOpenApiService.compareItems(appId, env, clusterName, namespaceName, model);
     if (UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())) {
@@ -367,21 +374,25 @@ public class ItemController implements ItemManagementApi {
             namespaceName);
   }
 
-  private void requireConfigReadForUserToken(String appId, String env, String clusterName,
+  private void requireConfigReadForToken(String appId, String env, String clusterName,
       String namespaceName) {
-    if (UserIdentityConstants.USER_TOKEN.equals(UserIdentityContextHolder.getAuthType())
+    String authType = UserIdentityContextHolder.getAuthType();
+    if ((UserIdentityConstants.USER_TOKEN.equals(authType)
+        || UserIdentityConstants.CONSUMER.equals(authType))
         && unifiedPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName,
             namespaceName)) {
       throw new AccessDeniedException("Access is denied");
     }
   }
 
-  private void requireSyncNamespacesReadableForUserToken(OpenNamespaceSyncDTO model) {
-    if (!UserIdentityConstants.USER_TOKEN.equals(UserIdentityContextHolder.getAuthType())) {
+  private void requireSyncNamespacesReadableForToken(OpenNamespaceSyncDTO model) {
+    String authType = UserIdentityContextHolder.getAuthType();
+    if (!UserIdentityConstants.USER_TOKEN.equals(authType)
+        && !UserIdentityConstants.CONSUMER.equals(authType)) {
       return;
     }
     for (OpenNamespaceIdentifier namespaceIdentifier : model.getSyncToNamespaces()) {
-      requireConfigReadForUserToken(namespaceIdentifier.getAppId(), namespaceIdentifier.getEnv(),
+      requireConfigReadForToken(namespaceIdentifier.getAppId(), namespaceIdentifier.getEnv(),
           namespaceIdentifier.getClusterName(), namespaceIdentifier.getNamespaceName());
     }
   }
