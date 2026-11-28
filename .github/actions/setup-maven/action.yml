@@ -1,0 +1,78 @@
+#
+# Copyright 2026 Apollo Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+name: Set up CI Maven
+description: Configure the CI Central mirror and restore Maven caches.
+inputs:
+  mirror-url:
+    description: Maven Central mirror used by CI for artifacts and Maven distributions.
+    default: https://maven-central.storage-download.googleapis.com/maven2
+  cache-suffix:
+    description: Separate caches for builds with different dependency coverage.
+    default: ''
+  cache-wrapper:
+    description: Restore the Maven distribution when the job uses the Wrapper.
+    default: 'false'
+outputs:
+  dependencies-key:
+    description: Primary dependency cache key for the save action.
+    value: ${{ steps.dependencies.outputs.cache-primary-key }}
+  dependencies-hit:
+    description: Whether the exact dependency cache was restored.
+    value: ${{ steps.dependencies.outputs.cache-hit }}
+  distribution-key:
+    description: Primary distribution cache key for the save action.
+    value: ${{ steps.distribution.outputs.cache-primary-key }}
+  distribution-hit:
+    description: Whether the exact distribution cache was restored.
+    value: ${{ steps.distribution.outputs.cache-hit }}
+runs:
+  using: composite
+  steps:
+    - name: Configure CI Maven mirror
+      id: configuration
+      shell: bash
+      env:
+        CI_MAVEN_MIRROR_URL: ${{ inputs.mirror-url }}
+      run: |
+        ci_maven_settings="${RUNNER_TEMP}/apollo-maven-settings.xml"
+        cp "${GITHUB_ACTION_PATH}/settings.xml" "${ci_maven_settings}"
+        ci_mirror_key=$(printf '%s' "${CI_MAVEN_MIRROR_URL%/}" | shasum -a 256 | cut -d ' ' -f 1)
+        echo "mirror-key=${ci_mirror_key}" >> "${GITHUB_OUTPUT}"
+        # Maven 3.9+ also applies MAVEN_ARGS to invocations inside build scripts.
+        {
+          echo "MAVEN_ARGS=${MAVEN_ARGS:+${MAVEN_ARGS} }--settings ${ci_maven_settings}"
+          echo "CI_MAVEN_MIRROR_URL=${CI_MAVEN_MIRROR_URL%/}"
+          echo "MVNW_REPOURL=${CI_MAVEN_MIRROR_URL%/}"
+        } >> "${GITHUB_ENV}"
+
+    - name: Restore Maven dependencies
+      id: dependencies
+      uses: actions/cache/restore@v4
+      with:
+        path: ~/.m2/repository
+        # Each job saves its own coverage; common prefixes allow cross-job reuse.
+        key: ${{ runner.os }}-${{ runner.arch }}-maven-google-v1-${{ steps.configuration.outputs.mirror-key }}-${{ hashFiles('**/pom.xml') }}-${{ github.workflow }}-${{ github.job }}-${{ inputs.cache-suffix }}
+        restore-keys: |
+          ${{ runner.os }}-${{ runner.arch }}-maven-google-v1-${{ steps.configuration.outputs.mirror-key }}-${{ hashFiles('**/pom.xml') }}-
+          ${{ runner.os }}-${{ runner.arch }}-maven-google-v1-${{ steps.configuration.outputs.mirror-key }}-
+
+    - name: Restore Maven distribution
+      if: inputs.cache-wrapper == 'true'
+      id: distribution
+      uses: actions/cache/restore@v4
+      with:
+        path: ~/.m2/wrapper/dists
+        key: ${{ runner.os }}-${{ runner.arch }}-maven-wrapper-google-${{ steps.configuration.outputs.mirror-key }}-${{ hashFiles('.mvn/wrapper/maven-wrapper.properties') }}

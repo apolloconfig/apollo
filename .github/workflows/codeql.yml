@@ -31,6 +31,20 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
+    - name: Set up JDK 17
+      if: matrix.language == 'java'
+      uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: 17
+
+    - name: Set up CI Maven
+      if: matrix.language == 'java'
+      id: maven
+      uses: ./.github/actions/setup-maven
+      with:
+        cache-wrapper: 'true'
+
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v2
@@ -58,6 +72,15 @@ jobs:
     # - run: |
     #     echo "Run, Build Application using script"
     #     ./location_of_script_within_repo/buildscript.sh
+
+    - name: Save Maven caches
+      if: matrix.language == 'java'
+      uses: ./.github/actions/save-maven-cache
+      with:
+        dependencies-key: ${{ steps.maven.outputs.dependencies-key }}
+        dependencies-hit: ${{ steps.maven.outputs.dependencies-hit }}
+        distribution-key: ${{ steps.maven.outputs.distribution-key }}
+        distribution-hit: ${{ steps.maven.outputs.distribution-hit }}
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
