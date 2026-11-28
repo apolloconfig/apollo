@@ -7,9 +7,12 @@ If you are deploying Apollo in your company, please refer to the [distributed-de
 ## I. Preparation
 
 ### 1.1 Installing Docker
-You can refer to [Docker Installation Guide](https://yeasy.gitbooks.io/docker_practice/content/install/) for the specific steps, and test whether the installation is successful with the following command
-```
+
+Install Docker and the Compose plugin. On Linux, see the [Docker Compose plugin installation guide](https://docs.docker.com/compose/install/linux/). Verify both commands before continuing.
+
+```sh
 docker -v
+docker compose version
 ```
 
 To speed up Docker image download, it is recommended to [configure image gas pedal](https://yeasy.gitbooks.io/docker_practice/content/install/mirror.html).

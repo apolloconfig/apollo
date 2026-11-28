@@ -7,9 +7,12 @@
 ## 一、 准备工作
 
 ### 1.1 安装Docker
-具体步骤可以参考[Docker安装指南](https://yeasy.gitbooks.io/docker_practice/content/install/)，通过以下命令测试是否成功安装
-```
+
+安装 Docker 和 Compose 插件。Linux 用户可参考 [Docker Compose 插件安装指南](https://docs.docker.com/compose/install/linux/)。执行以下命令确认两者均可用。
+
+```sh
 docker -v
+docker compose version
 ```
 
 为了加速Docker镜像下载，建议[配置镜像加速器](https://yeasy.gitbooks.io/docker_practice/content/install/mirror.html)。

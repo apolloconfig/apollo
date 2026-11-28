@@ -51,7 +51,7 @@ Choose a version on [Quick Start Releases](https://github.com/apolloconfig/apoll
 
 Quick Start is only for local testing, so generally users do not need to download the source code to package it themselves, but just download the already typed package. However, there are some users who want to repackage the package after modifying the code, then you can refer to the following steps.
 
-1. In the matching Apollo source checkout, run `./mvnw -pl apollo-assembly -am -DskipTests package`.
+1. In the matching Apollo source checkout, run `./mvnw -pl apollo-assembly -am -DskipTests clean package`.
 2. Copy the resulting `apollo-assembly/target/apollo-assembly-<version>.jar` into the extracted directory as `apollo-all-in-one.jar`.
 
 # II. Initialization and Startup
@@ -150,8 +150,11 @@ java -jar apollo-all-in-one.jar
 ## 2.4 Use mysql database, manual initialization
 
 ### 2.4.1 Manually initialize ApolloConfigDB and ApolloPortalDB
-You can import [apolloconfigdb.sql](https://github.com/apolloconfig/apollo/blob/master/scripts/sql/profiles/mysql-default/apolloconfigdb.sql) to ApolloConfigDB through various MySQL clients.
-You can import [apolloportaldb.sql](https://github.com/apolloconfig/apollo/blob/master/scripts/sql/profiles/mysql-default/apolloportaldb.sql) to ApolloPortalDB through various MySQL clients.
+
+From the extracted Quick Start directory, import the two bundled scripts into your local MySQL instance using a MySQL client:
+
+- `sql/apolloconfigdb.sql` initializes `ApolloConfigDB` and publishes the sample configuration.
+- `sql/apolloportaldb.sql` initializes `ApolloPortalDB` and creates the `SampleApp` project in the Portal.
 
 ### 2.4.2 Run
 #### Precautions
@@ -195,15 +198,19 @@ It should be noted that Quick Start does not support adding environments, but on
 
 ![Home](https://cdn.jsdelivr.net/gh/apolloconfig/apollo-quick-start@master/images/apollo-sample-home-en.jpg)
 
-3. Click "Create project", enter the `SampleApp` information, and submit.
+If you imported the ZIP’s SQL files or started a fresh database with the bundled Compose files, open **SampleApp**. In the `DEV` environment, the `default` cluster’s `application` namespace already has a published `timeout` value of `100`. Continue with the client in section 4.1.2.
+
+If your database has no sample project, complete the following steps first.
+
+1. Click "Create project", enter the `SampleApp` information, and submit.
 
 ![Create project](https://cdn.jsdelivr.net/gh/apolloconfig/apollo-quick-start@master/images/apollo-create-sample-app-en.jpg)
 
-4. Go to the SampleApp configuration interface, click on "Add Configuration", enter the `timeout` information, and submit.
+2. Go to the SampleApp configuration interface, click on "Add Configuration", set the key to `timeout` and its value to `100`, and submit.
 
 ![Add configuration](https://cdn.jsdelivr.net/gh/apolloconfig/apollo-quick-start@master/images/apollo-create-sample-config-en.jpg)
 
-5. Click on the "Release" button, and fill in the release information.
+3. Click on the "Release" button, and fill in the release information.
 
 ![Configuration page](https://cdn.jsdelivr.net/gh/apolloconfig/apollo-quick-start@master/images/sample-app-config-en.jpg)
 
@@ -226,7 +233,7 @@ Apollo Config Demo. Please input key to get the value. Input quit to exit.
 Enter ``timeout`` and you will see the following message.
 ```sh
 > timeout
-Loading key : timeout with value: 1000
+Loading key : timeout with value: 100
 ```
 
 > If you encounter problems running the client, you can view more detailed logging information by changing the level in ``client/log4j2.xml`` to DEBUG
@@ -246,7 +253,7 @@ Return to the configuration interface, change the value of `timeout` to 2000, an
 If the client has been running, it will listen for configuration changes after the configuration is published and output the modified configuration information as follows.
 ```sh
 Changes for namespace application
-Change - key: timeout, oldValue: 1000, newValue: 2000, changeType: MODIFIED
+Change - key: timeout, oldValue: 100, newValue: 2000, changeType: MODIFIED
 ```
 
 Type ``timeout`` again to see the corresponding value and you will see the following message.
